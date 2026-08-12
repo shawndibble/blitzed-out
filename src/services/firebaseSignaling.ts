@@ -7,7 +7,10 @@ import {
   onChildAdded,
   off,
   onDisconnect,
+  serverTimestamp,
+  get,
 } from 'firebase/database';
+import { logger } from '@/utils/logger';
 
 export interface SignalData {
   type: 'offer' | 'answer' | 'ice-candidate';
@@ -28,23 +31,61 @@ class FirebaseSignalingService {
   private offersRef: any = null;
   private answersRef: any = null;
   private iceCandidatesRef: any = null;
+  private presenceRef: any = null;
+  private presenceOnDisconnect: any = null;
+  /** Server-resolved join time; null until the first write is read back. */
+  private joinedAt: number | null = null;
   private roomId: string | null = null;
   private userId: string | null = null;
   private processedCandidates: Set<string> = new Set();
 
-  initialize(roomId: string, userId: string, onSignal: (data: SignalData) => void) {
+  /**
+   * Claim a roster slot. Separate from `listen` because minting TURN credentials
+   * requires presence to exist first, and that call must not run while signals
+   * are already arriving — see `listen`.
+   */
+  claim(roomId: string, userId: string): Promise<void> {
     this.userId = userId;
     this.roomId = roomId;
     const database = getDatabase();
     this.roomRef = ref(database, `video-calls/${roomId}`);
 
-    const userPresenceRef = ref(database, `video-calls/${roomId}/users/${userId}`);
-    set(userPresenceRef, {
-      joinedAt: Date.now(),
-      status: 'online',
+    this.joinedAt = null;
+    this.presenceRef = ref(database, `video-calls/${roomId}/users/${userId}`);
+
+    this.presenceOnDisconnect = onDisconnect(this.presenceRef);
+    // Arming can fail independently of the presence write. It is not fatal —
+    // cleanup still removes the node — but it means a hard crash would leave a
+    // ghost behind, which is the failure this whole subsystem exists to avoid.
+    this.presenceOnDisconnect.remove().catch((error: unknown) => {
+      logger.warn('[signaling] Could not arm onDisconnect presence removal', error);
     });
 
-    onDisconnect(userPresenceRef).remove();
+    return this.setPresent(true).then(async () => {
+      // Read back what the server resolved the sentinel to, so the 30s heartbeat
+      // can rewrite the node without advancing the join time on every beat.
+      try {
+        const snapshot = await get(ref(database, `video-calls/${roomId}/users/${userId}/joinedAt`));
+        const value = snapshot.val();
+        if (typeof value === 'number') this.joinedAt = value;
+      } catch (error) {
+        logger.warn('[signaling] Could not read back joinedAt', error);
+      }
+    });
+  }
+
+  /**
+   * Start consuming signals. Attach only once the caller can act on them:
+   * `onChildAdded` replays every queued offer the instant it binds, and an offer
+   * dropped here is gone — the sender does not learn it was ignored and will not
+   * retry until its own 30s connect timeout expires.
+   */
+  listen(onSignal: (data: SignalData) => void) {
+    const { roomId, userId } = this;
+    if (!roomId || !userId) {
+      throw new Error('Call claim() before listen()');
+    }
+    const database = getDatabase();
 
     this.offersRef = ref(database, `video-calls/${roomId}/offers/${userId}`);
     onChildAdded(this.offersRef, (snapshot) => {
@@ -179,6 +220,47 @@ class FirebaseSignalingService {
     }, 30000);
   }
 
+  /**
+   * Claim or release a roster slot.
+   *
+   * Claiming rewrites the whole node rather than touching `lastSeen` alone. A
+   * socket blip fires the armed `onDisconnect` and deletes the node; the SDK
+   * re-arms it but never rewrites the data, and a lone `lastSeen` child would
+   * then fail the rule's `hasChildren(['joinedAt','status'])` — leaving the user
+   * invisible on every roster for the rest of the call.
+   */
+  async setPresent(present: boolean): Promise<void> {
+    if (!this.presenceRef) return;
+
+    if (!present) {
+      await set(this.presenceRef, null);
+      return;
+    }
+
+    // Server time, not the device's. Staleness is judged by other clients and by
+    // the cleanup job, so a device with a skewed clock would otherwise be read as
+    // a ghost by everyone — dropped from rosters, offers refused, and pruned
+    // server-side, with nothing to correct it.
+    await set(this.presenceRef, {
+      joinedAt: this.joinedAt ?? serverTimestamp(),
+      lastSeen: serverTimestamp(),
+      status: 'online',
+    });
+  }
+
+  /**
+   * Refresh the roster timestamp. `cleanupVideoCallSignaling` evicts entries that
+   * have gone stale, and `joinedAt` alone would evict anyone still in a long call.
+   * Unlike `claim`, a missed beat is survivable — the next one is 30s away.
+   */
+  async heartbeat(): Promise<void> {
+    try {
+      await this.setPresent(true);
+    } catch (error) {
+      logger.warn('[signaling] Presence heartbeat failed', error);
+    }
+  }
+
   cleanup() {
     if (this.offersRef) {
       off(this.offersRef);
@@ -198,6 +280,24 @@ class FirebaseSignalingService {
     if (this.roomRef) {
       off(this.roomRef);
       this.roomRef = null;
+    }
+
+    // onDisconnect only fires when the socket drops, and leaving a call does not
+    // drop it. Without this the user lingers on the roster, and everyone still in
+    // the room spends a MAX_PEERS slot dialling a phantom that will never answer.
+    if (this.presenceRef) {
+      // Both are fire-and-forget: cleanup is called from synchronous teardown
+      // paths (unmount, sidebar close) that cannot await. Rejections still have
+      // to be handled, or they surface as unhandled promise errors.
+      Promise.resolve(this.presenceOnDisconnect?.cancel?.()).catch((error: unknown) => {
+        logger.warn('[signaling] Could not cancel onDisconnect', error);
+      });
+      this.setPresent(false).catch((error: unknown) => {
+        logger.warn('[signaling] Could not remove presence node', error);
+      });
+      this.presenceRef = null;
+      this.presenceOnDisconnect = null;
+      this.joinedAt = null;
     }
 
     this.processedCandidates.clear();

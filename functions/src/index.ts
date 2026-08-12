@@ -5,12 +5,36 @@ import { getDatabase, ServerValue } from 'firebase-admin/database';
 import { getAuth, ListUsersResult, UserRecord } from 'firebase-admin/auth';
 
 export { onPackReported } from './reportNotification';
+export { getTurnCredentials } from './turnCredentials';
 
-// Initialize Firebase Admin with proper credentials
+/**
+ * The database URL is derived from the project, never hardcoded.
+ *
+ * It used to default to `blitzed-out-default-rtdb.firebaseio.com`, which is not
+ * this project's database — it is not any database; that host 404s. Since
+ * `DATABASE_URL` was never set anywhere, every admin read and write went
+ * nowhere: the scheduled cleanups hung until their 60s timeout, every five
+ * minutes, silently, which is how `/PUBLIC` accumulated nine dead roster entries
+ * with a prune job ostensibly running against it.
+ *
+ * `FIREBASE_CONFIG` does not carry `databaseURL` in this project, so it cannot
+ * simply be omitted either — the admin SDK then throws "Can't determine Firebase
+ * Database URL". Deriving from the project id is the one form that cannot drift
+ * from the project it is deployed to.
+ */
+const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT;
+const databaseURL =
+  process.env.DATABASE_URL ||
+  (projectId ? `https://${projectId}-default-rtdb.firebaseio.com` : undefined);
+
+if (!databaseURL) {
+  functions.logger.error('No database URL could be determined; RTDB access will fail');
+}
+
 if (!getApps().length) {
   initializeApp({
     credential: applicationDefault(),
-    databaseURL: process.env.DATABASE_URL || 'https://blitzed-out-default-rtdb.firebaseio.com/',
+    ...(databaseURL ? { databaseURL } : {}),
   });
 }
 
@@ -265,6 +289,10 @@ export const cleanupVideoCallSignaling = functions.pubsub
   .onRun(async () => {
     const db = getDatabase();
     const twoMinutesAgo = Date.now() - 2 * 60 * 1000; // 2 minutes in milliseconds
+    // 10 minutes: 20x the client heartbeat. Kept in step with ROSTER_STALE_MS in
+    // src/stores/videoCallStore.ts, which applies the same rule client-side —
+    // separate packages, so the two constants cannot be shared.
+    const staleRosterCutoff = Date.now() - 10 * 60 * 1000;
 
     try {
       functions.logger.info('Starting video call signaling cleanup process');
@@ -283,6 +311,32 @@ export const cleanupVideoCallSignaling = functions.pubsub
 
       for (const roomId of roomIds) {
         const roomData = videoCallRooms[roomId];
+
+        // A crashed tab leaves a ghost: onDisconnect only fires when the socket
+        // dies, and every ghost holds one of the four mesh slots real callers need.
+        // Cutoff sits well clear of the client's 30s heartbeat so a throttled
+        // background tab is never mistaken for a departure.
+        if (roomData.users) {
+          const ghosts: { [key: string]: null } = {};
+          Object.entries(roomData.users).forEach(([userId, presence]: [string, any]) => {
+            const lastSeen = presence?.lastSeen ?? presence?.joinedAt;
+            // No usable timestamp means an entry nothing can ever age out. Those
+            // are the ones that survive indefinitely and consume mesh slots, so
+            // treat a missing timestamp as expired rather than as "keep forever".
+            if (typeof lastSeen !== 'number' || lastSeen < staleRosterCutoff) {
+              ghosts[`video-calls/${roomId}/users/${userId}`] = null;
+              // Also drop locally: the `hasActiveUsers` check below reads this.
+              delete roomData.users[userId];
+            }
+          });
+
+          if (Object.keys(ghosts).length > 0) {
+            await db.ref().update(ghosts);
+            functions.logger.info(
+              `Removed ${Object.keys(ghosts).length} stale participants from room ${roomId}`
+            );
+          }
+        }
 
         // Check if room has any active users
         const hasActiveUsers = roomData.users && Object.keys(roomData.users).length > 0;

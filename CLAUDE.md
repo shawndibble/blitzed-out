@@ -57,7 +57,7 @@ React 19.x + TypeScript + Vite · MUI v9 · Zustand (`src/stores/`) + Dexie (Ind
 
 - Remove unused code entirely — no commenting out, no comments about removed/replaced code.
 - Comments explain WHY, not what. Let names document what.
-- Log through `logger` (`@/utils/logger`), never `console.*` — it is the app's only console writer and is silent in production. Direct console calls are a lint error outside tests and build scripts. `logger` deliberately does **not** forward to Sentry: these calls pass the payload that failed (tiles, chat messages, display names), which is user-authored intimate content; crash reporting happens at the boundary instead.
+- Log through `logger` (`@/utils/logger`), never `console.*` — it is the app's only console writer and is silent in production **unless the user opts in** with `?debug=1` or `localStorage.debug = 'true'` (for diagnosing a live session; the data stays on their machine). Direct console calls are a lint error outside tests and build scripts. `logger` deliberately does **not** forward to Sentry: these calls pass the payload that failed (tiles, chat messages, display names), which is user-authored intimate content; crash reporting happens at the boundary instead.
 
 ## Engineering Docs
 

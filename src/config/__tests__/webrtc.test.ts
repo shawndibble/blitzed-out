@@ -1,52 +1,77 @@
-import { describe, test, expect } from 'vitest';
-import { ICE_SERVERS } from '../webrtc';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
-describe('webrtc configuration', () => {
-  test('ICE_SERVERS is defined and is an array', () => {
-    expect(ICE_SERVERS).toBeDefined();
-    expect(Array.isArray(ICE_SERVERS)).toBe(true);
+async function loadConfig() {
+  vi.resetModules();
+  return import('../webrtc');
+}
+
+describe('ICE_SERVERS', () => {
+  beforeEach(() => {
+    vi.unstubAllEnvs();
   });
 
-  test('ICE_SERVERS contains at least one server', () => {
-    expect(ICE_SERVERS.length).toBeGreaterThan(0);
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
   });
 
-  test('All servers have required urls property', () => {
-    ICE_SERVERS.forEach((server) => {
-      expect(server).toHaveProperty('urls');
-      expect(typeof server.urls === 'string' || Array.isArray(server.urls)).toBe(true);
+  test('always offers STUN so peers can discover their reflexive address', async () => {
+    const { ICE_SERVERS } = await loadConfig();
+
+    const urls = ICE_SERVERS.flatMap((server) =>
+      Array.isArray(server.urls) ? server.urls : [server.urls]
+    );
+
+    expect(urls.some((url) => url.startsWith('stun:'))).toBe(true);
+  });
+
+  test('omits relay entries when TURN credentials are absent', async () => {
+    vi.stubEnv('VITE_METERED_USERNAME', '');
+    vi.stubEnv('VITE_METERED_CREDENTIAL', '');
+
+    const { ICE_SERVERS } = await loadConfig();
+
+    expect(ICE_SERVERS.every((server) => !String(server.urls).startsWith('turn'))).toBe(true);
+  });
+
+  describe('with TURN credentials configured', () => {
+    beforeEach(() => {
+      vi.stubEnv('VITE_METERED_USERNAME', 'relay-user');
+      vi.stubEnv('VITE_METERED_CREDENTIAL', 'relay-secret');
     });
-  });
 
-  test('Contains at least one STUN server', () => {
-    const hasStunServer = ICE_SERVERS.some((server) => {
-      const urls = Array.isArray(server.urls) ? server.urls : [server.urls];
-      return urls.some((url) => url.startsWith('stun:'));
+    test('relays over TCP as well as UDP, so UDP-blocked networks still connect', async () => {
+      const { ICE_SERVERS } = await loadConfig();
+
+      const relayUrls = ICE_SERVERS.map((server) => String(server.urls)).filter((url) =>
+        url.startsWith('turn')
+      );
+
+      expect(relayUrls.some((url) => url.includes('transport=tcp'))).toBe(true);
+      expect(relayUrls.some((url) => !url.includes('transport=tcp'))).toBe(true);
     });
-    expect(hasStunServer).toBe(true);
-  });
 
-  test('STUN and TURN servers use valid protocols', () => {
-    ICE_SERVERS.forEach((server) => {
-      const urls = Array.isArray(server.urls) ? server.urls : [server.urls];
-      urls.forEach((url) => {
-        expect(url.startsWith('stun:') || url.startsWith('turn:')).toBe(true);
+    test('relays over port 80 as well as 443, so 443-only egress filters have a fallback', async () => {
+      const { ICE_SERVERS } = await loadConfig();
+
+      const relayUrls = ICE_SERVERS.map((server) => String(server.urls)).filter((url) =>
+        url.startsWith('turn')
+      );
+
+      expect(relayUrls.some((url) => url.includes(':80'))).toBe(true);
+      expect(relayUrls.some((url) => url.includes(':443'))).toBe(true);
+    });
+
+    test('attaches credentials to every relay entry', async () => {
+      const { ICE_SERVERS } = await loadConfig();
+
+      const relayServers = ICE_SERVERS.filter((server) => String(server.urls).startsWith('turn'));
+
+      expect(relayServers.length).toBeGreaterThan(1);
+      relayServers.forEach((server) => {
+        expect(server.username).toBe('relay-user');
+        expect(server.credential).toBe('relay-secret');
       });
-    });
-  });
-
-  test('TURN servers have credentials when present', () => {
-    const turnServers = ICE_SERVERS.filter((server) => {
-      const urls = Array.isArray(server.urls) ? server.urls : [server.urls];
-      return urls.some((url) => url.startsWith('turn:'));
-    });
-
-    // If there are TURN servers, they should have credentials
-    turnServers.forEach((server) => {
-      expect(server).toHaveProperty('username');
-      expect(server).toHaveProperty('credential');
-      expect(typeof server.username).toBe('string');
-      expect(typeof server.credential).toBe('string');
     });
   });
 });

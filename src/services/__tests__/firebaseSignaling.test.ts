@@ -11,6 +11,8 @@ const mockOnChildAdded = vi.fn();
 const mockOff = vi.fn();
 const mockOnDisconnect = vi.fn();
 const mockGetDatabase = vi.fn();
+const mockGet = vi.fn();
+const SERVER_TIME = { '.sv': 'timestamp' };
 
 vi.mock('firebase/database', () => ({
   getDatabase: () => mockGetDatabase(),
@@ -21,18 +23,24 @@ vi.mock('firebase/database', () => ({
   onChildAdded: (...args: any[]) => mockOnChildAdded(...args),
   off: (...args: any[]) => mockOff(...args),
   onDisconnect: (...args: any[]) => mockOnDisconnect(...args),
+  serverTimestamp: () => SERVER_TIME,
+  get: (...args: any[]) => mockGet(...args),
 }));
 
 describe('firebaseSignaling', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
-    mockRef.mockReturnValue({ key: 'test-room' });
+    mockRef.mockImplementation((_db: unknown, path: string) => ({ key: 'test-room', path }));
     mockSet.mockResolvedValue(undefined);
+    mockGet.mockResolvedValue({ val: () => 1_700_000_000_000 });
     mockPush.mockResolvedValue({ key: 'test-key' });
     mockOnDisconnect.mockReturnValue({
       remove: vi.fn().mockResolvedValue(undefined),
+      cancel: vi.fn().mockResolvedValue(undefined),
     });
   });
+
+  const writesTo = (path: string) => mockSet.mock.calls.filter(([target]) => target?.path === path);
 
   afterEach(async () => {
     const { firebaseSignaling } = await import('../firebaseSignaling');
@@ -45,7 +53,8 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      firebaseSignaling.initialize(roomId, userId, vi.fn());
+      await firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(vi.fn());
 
       expect(mockRef).toHaveBeenCalled();
       expect(mockRef.mock.calls.some((call) => call[1]?.includes('video-calls'))).toBe(true);
@@ -56,7 +65,8 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      firebaseSignaling.initialize(roomId, userId, vi.fn());
+      await firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(vi.fn());
 
       expect(mockSet).toHaveBeenCalledWith(
         expect.anything(),
@@ -71,7 +81,8 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      firebaseSignaling.initialize(roomId, userId, vi.fn());
+      await firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(vi.fn());
 
       expect(mockOnDisconnect).toHaveBeenCalled();
     });
@@ -82,7 +93,8 @@ describe('firebaseSignaling', () => {
       const userId = 'user-123';
       const onSignal = vi.fn();
 
-      firebaseSignaling.initialize(roomId, userId, onSignal);
+      await firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(onSignal);
 
       expect(mockOnValue).toHaveBeenCalled();
     });
@@ -96,7 +108,8 @@ describe('firebaseSignaling', () => {
       const targetUserId = 'user-456';
       const offer = { type: 'offer' as const, sdp: 'test-sdp' };
 
-      firebaseSignaling.initialize(roomId, userId, vi.fn());
+      await firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(vi.fn());
       await firebaseSignaling.sendOffer(targetUserId, offer);
 
       expect(mockPush).toHaveBeenCalledWith(
@@ -128,7 +141,8 @@ describe('firebaseSignaling', () => {
       const targetUserId = 'user-456';
       const answer = { type: 'answer' as const, sdp: 'test-sdp' };
 
-      firebaseSignaling.initialize(roomId, userId, vi.fn());
+      await firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(vi.fn());
       await firebaseSignaling.sendAnswer(targetUserId, answer);
 
       expect(mockPush).toHaveBeenCalledWith(
@@ -160,7 +174,8 @@ describe('firebaseSignaling', () => {
       const targetUserId = 'user-456';
       const candidate = { candidate: 'test-candidate', sdpMLineIndex: 0 };
 
-      firebaseSignaling.initialize(roomId, userId, vi.fn());
+      await firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(vi.fn());
       await firebaseSignaling.sendIceCandidate(targetUserId, candidate);
 
       expect(mockPush).toHaveBeenCalledWith(
@@ -190,7 +205,8 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      firebaseSignaling.initialize(roomId, userId, vi.fn());
+      await firebaseSignaling.claim(roomId, userId);
+      firebaseSignaling.listen(vi.fn());
       firebaseSignaling.cleanup();
 
       expect(mockOff).toHaveBeenCalled();
@@ -202,6 +218,94 @@ describe('firebaseSignaling', () => {
       expect(() => {
         firebaseSignaling.cleanup();
       }).not.toThrow();
+    });
+
+    // onDisconnect only fires when the socket drops. Leaving the call keeps the
+    // socket alive, so without an explicit removal the departed user stays on the
+    // roster and every remaining peer burns a MAX_PEERS slot dialling a phantom.
+    test('removes the presence node so the user stops occupying a roster slot', async () => {
+      const { firebaseSignaling } = await import('../firebaseSignaling');
+
+      await firebaseSignaling.claim('test-room', 'user-123');
+      firebaseSignaling.listen(vi.fn());
+      firebaseSignaling.cleanup();
+
+      expect(writesTo('video-calls/test-room/users/user-123')).toContainEqual([
+        expect.anything(),
+        null,
+      ]);
+    });
+
+    test('cancels the onDisconnect removal so it cannot fire against a rejoined session', async () => {
+      const { firebaseSignaling } = await import('../firebaseSignaling');
+      const cancel = vi.fn().mockResolvedValue(undefined);
+      mockOnDisconnect.mockReturnValue({ remove: vi.fn().mockResolvedValue(undefined), cancel });
+
+      await firebaseSignaling.claim('test-room', 'user-123');
+      firebaseSignaling.listen(vi.fn());
+      firebaseSignaling.cleanup();
+
+      expect(cancel).toHaveBeenCalled();
+    });
+  });
+
+  describe('heartbeat', () => {
+    // The scheduled cleanup function prunes roster entries by staleness. Without a
+    // heartbeat the only timestamp is the join time, so anyone in a long call gets
+    // evicted from their own room.
+    // Staleness is judged by other clients and by the server sweep, so a device
+    // with a skewed clock would be read as a ghost by everyone with nothing to
+    // correct it. The server's clock is the only one all parties share.
+    test('stamps lastSeen with server time, not the device clock', async () => {
+      const { firebaseSignaling } = await import('../firebaseSignaling');
+
+      await firebaseSignaling.claim('test-room', 'user-123');
+      mockSet.mockClear();
+      await firebaseSignaling.heartbeat();
+
+      const [[, value]] = writesTo('video-calls/test-room/users/user-123');
+      expect(value.lastSeen).toEqual(SERVER_TIME);
+    });
+
+    // A socket blip fires the armed onDisconnect and deletes the node. Writing
+    // lastSeen alone would then fail the rule's hasChildren check, leaving the
+    // user invisible on every roster for the rest of the call.
+    test('rewrites the whole presence node so a deleted one is restored', async () => {
+      const { firebaseSignaling } = await import('../firebaseSignaling');
+
+      await firebaseSignaling.claim('test-room', 'user-123');
+      mockSet.mockClear();
+      await firebaseSignaling.heartbeat();
+
+      const [[, value]] = writesTo('video-calls/test-room/users/user-123');
+      expect(value).toEqual({
+        joinedAt: expect.anything(),
+        lastSeen: SERVER_TIME,
+        status: 'online',
+      });
+    });
+
+    // Rewriting the whole node every 30s would otherwise keep pushing the join
+    // time forward, so it is read back once and reused.
+    test('preserves the original joinedAt across heartbeats', async () => {
+      const { firebaseSignaling } = await import('../firebaseSignaling');
+
+      await firebaseSignaling.claim('test-room', 'user-123');
+      await firebaseSignaling.heartbeat();
+
+      const writes = writesTo('video-calls/test-room/users/user-123');
+      expect(writes[writes.length - 1][1].joinedAt).toBe(1_700_000_000_000);
+    });
+
+    // The service is a module singleton, so a prior test's claim would leave
+    // presenceRef set and make this pass for the wrong reason.
+    test('is a no-op before initialization', async () => {
+      const { firebaseSignaling } = await import('../firebaseSignaling');
+      firebaseSignaling.cleanup();
+      mockSet.mockClear();
+
+      await expect(firebaseSignaling.heartbeat()).resolves.toBeUndefined();
+      expect(mockSet).not.toHaveBeenCalled();
     });
   });
 });

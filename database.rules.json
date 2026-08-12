@@ -14,34 +14,41 @@
     },
     "video-calls": {
       "$roomId": {
-        ".read": "auth != null",
         "users": {
           ".read": "auth != null",
           "$userId": {
-            ".read": "auth != null",
             ".write": "auth != null && auth.uid == $userId",
-            ".validate": "newData.hasChildren(['joinedAt', 'status']) && newData.child('joinedAt').isNumber() && newData.child('status').isString()"
+            ".validate": "newData.hasChildren(['joinedAt', 'status']) && newData.child('joinedAt').isNumber() && newData.child('joinedAt').val() <= now + 60000 && newData.child('status').isString()",
+            "lastSeen": {
+              ".validate": "newData.isNumber() && newData.val() <= now + 60000"
+            }
           }
         },
         "offers": {
-          ".read": "auth != null",
           "$targetUserId": {
             ".read": "auth != null && auth.uid == $targetUserId",
-            ".write": "auth != null"
+            ".write": "auth != null",
+            "$signalId": {
+              ".validate": "newData.child('from').val() == auth.uid"
+            }
           }
         },
         "answers": {
-          ".read": "auth != null",
           "$targetUserId": {
             ".read": "auth != null && auth.uid == $targetUserId",
-            ".write": "auth != null"
+            ".write": "auth != null",
+            "$signalId": {
+              ".validate": "newData.child('from').val() == auth.uid"
+            }
           }
         },
         "ice-candidates": {
-          ".read": "auth != null",
           "$targetUserId": {
             ".read": "auth != null && auth.uid == $targetUserId",
-            ".write": "auth != null"
+            ".write": "auth != null",
+            "$signalId": {
+              ".validate": "newData.child('from').val() == auth.uid"
+            }
           }
         }
       }

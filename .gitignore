@@ -32,6 +32,8 @@
 .env.development.local
 .env.test.local
 .env.production.local
+# Firebase emulator reads function secrets from here — real credentials.
+.secret.local
 .vscode
 .idea
 

@@ -61,17 +61,19 @@ The holder can then delete reported packs (`content-packs` delete rule) and invo
 
 Top-level defaults deny (`".read": false, ".write": false`) — good baseline. Then:
 
-| Path                                                | Read                                              | Write                              | Notes                                                       |
-| --------------------------------------------------- | ------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------- |
-| `users` / `users/{uid}`                             | **public (`true`)**                               | owner only (`auth.uid == $userId`) | ⚠ All presence records globally readable. Writes validated. |
-| `video-calls/{roomId}`                              | `auth != null`                                    | —                                  |                                                             |
-| `…/users/{uid}`                                     | `auth != null`                                    | owner only                         | Validated.                                                  |
-| `…/offers \| answers \| ice-candidates/{targetUid}` | **only the target** (`auth.uid == $targetUserId`) | **any auth (`auth != null`)**      | Read is correctly scoped; write is open.                    |
+| Path                                                | Read                                              | Write                              | Notes                                                                     |
+| --------------------------------------------------- | ------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------- |
+| `users` / `users/{uid}`                             | **public (`true`)**                               | owner only (`auth.uid == $userId`) | ⚠ All presence records globally readable. Writes validated.               |
+| `video-calls/{roomId}`                              | denied                                            | —                                  | No ancestor grant — RTDB read grants cascade and cannot be revoked below. |
+| `…/users` / `…/users/{uid}`                         | `auth != null`                                    | owner only                         | Roster must be readable by everyone in the room. Validated.               |
+| `…/offers \| answers \| ice-candidates/{targetUid}` | **only the target** (`auth.uid == $targetUserId`) | **any auth (`auth != null`)**      | Read is correctly scoped; write is open.                                  |
 
 **Key weaknesses:**
 
 1. **Presence is world-readable** (`users/.read: true`): anyone can enumerate display names, which room each user is in, and `lastSeen`. Privacy gap for an adult app. Hardening: scope reads to authenticated users / own record.
 2. **Signaling writes aren't scoped to the target** (`offers/answers/ice-candidates` write = `auth != null`). A malicious authed user can spam bogus offers/answers/candidates into another user's signaling path. Impact is limited (reads _are_ target-scoped, so they can't intercept responses), but it enables signaling-channel griefing. Hardening: require `auth.uid == $targetUserId` or validate the `from` field.
+
+**Fixed 2026-08:** `video-calls/$roomId` previously carried `".read": "auth != null"`. RTDB read grants cascade downward and **cannot be revoked by a stricter rule on a child**, so the per-target reads on `offers`/`answers`/`ice-candidates` were dead code and any authenticated user could read every room's signaling traffic. The ancestor grant is gone; reads are now granted only on `users` (the roster, which every participant needs) and per-target under the three signaling nodes. There is no RTDB rules test harness — `npm run test:rules` covers Firestore only — so **changes here must be checked by grepping every `video-calls/` read path in `src/`**.
 
 ---
 
@@ -83,7 +85,9 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 
 ## Cloud Functions (`functions/src/index.ts`)
 
-7 exported functions: scheduled cleanups (stale users ~5 min, inactive anonymous accounts daily, video-call signaling ~5 min), RTDB presence triggers (`onUserDisconnect`, presence validation), and two **callable** admin helpers.
+9 exported functions: scheduled cleanups (stale users ~5 min, inactive anonymous accounts daily, video-call signaling + stale roster entries ~5 min), RTDB presence triggers (`onUserDisconnect`, presence validation), a pack-report notification, two **callable** admin helpers, and `getTurnCredentials`.
+
+**`getTurnCredentials`** — mints Cloudflare TURN credentials (2h TTL, 10s upstream budget, 30s function timeout so a hung call returns a real error rather than a platform timeout with no CORS headers) from the `CLOUDFLARE_TURN_TOKEN` secret. Not admin-gated: any signed-in caller may use it, but only for a room where they already hold a `video-calls/{roomId}/users/{uid}` presence node. That check is the spend control — relay bandwidth bills to us and anonymous guest accounts are free to create, so `context.auth` alone would gate nothing. **No App Check and no rate limit**: a caller who joins a room can still mint repeatedly. Hardening: App Check, plus a per-uid rate limit.
 
 **Admin callables** — `manualCleanupStaleUsers` and `manualCleanupAnonymousAccounts`:
 
@@ -101,7 +105,7 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 ## Secrets & configuration
 
 - Client Firebase config (`VITE_FIREBASE_*`) and the Sentry DSN are **public by design** — they're meant to ship in the bundle, and Firebase access is constrained by the rules above. This is expected, not a leak.
-- **TURN relay credentials** (`VITE_METERED_*`) ship in the client bundle too. These are effectively shared secrets and can be harvested from the bundle to use the TURN server. Treat as low-privilege; **rotate periodically** and prefer short-lived/dynamic credentials if the provider supports it.
+- **TURN relay credentials.** The primary path is now short-lived: `getTurnCredentials` (a callable requiring `context.auth`) mints Cloudflare credentials server-side from the `CLOUDFLARE_TURN_TOKEN` Secret Manager secret, which never reaches the client. The bundled credentials (`VITE_METERED_*`) still ship in the client and remain harvestable — treat as low-privilege and **rotate periodically**. They are not merely a fallback: every call _starts_ on them, because minting happens in the background rather than blocking startup, so peers dialled before it completes keep using them for the life of the connection. They are also what the client falls back to whenever minting fails.
 - **`.env` is git-ignored today** (verified: not tracked). **However, git history shows `.env` was committed in early 2024** (added in commit `22b444db`, removed in `98364f35`). Any credential present during that window should be considered **exposed in history** and rotated; scrubbing history is the stronger remedy.
 - Sentry build token lives in `.env.sentry-build-plugin` (git-ignored). Keep it CI-only.
 
