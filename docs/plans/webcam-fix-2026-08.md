@@ -100,21 +100,24 @@ Reachable path: mobile only, `VideoControls` hang-up → call. Narrow, but real 
 
 **Manual checks (5 min, browser):**
 
+- ~~Metered dashboard → GB remaining.~~ Done: 23 MB of 0.5 GB. See cause 1.
 - <https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/> — paste the TURN URL
-  and creds from the bundle. `relay` candidates appear → creds/quota fine. Error → cause 1 confirmed.
-- Metered dashboard → GB remaining.
+  and creds from the bundle. Still worth running for the **TCP** entries specifically, since the
+  deployed build only ever offered UDP and no user has exercised the others.
 - `firebase functions:list` → confirm `cleanupVideoCallSignaling` is actually deployed (v1 API).
+  If it never ran, stale offers accumulate and `onChildAdded` replays every historical offer to
+  each joiner — which burns MAX_PEERS slots on ghosts and fits the near-zero relay usage too.
 
 ## Provider options (TURN relay)
 
 TURN is part of ICE. It is not replaceable — some connections physically cannot go P2P. The only
 question is who supplies relay bandwidth.
 
-| Provider                     | Free tier                      | Transports                     | Creds                   | Notes                                                                                                                                                                                                 |
-| ---------------------------- | ------------------------------ | ------------------------------ | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Metered** (current)        | **20 GB/mo**                   | UDP + TCP on 80/443, no TLS    | static, baked in bundle | Quota is the suspected failure. Their credential API returns exactly five entries for `global.relay.metered.ca` and none is `turns:`; the TLS host is the separate `staticauth.openrelay.metered.ca`. |
-| **Cloudflare Realtime TURN** | **1,000 GB/mo**, then $0.05/GB | UDP, TCP, TLS (`turns:…:5349`) | API-generated, ≤48h TTL | 50× the free bandwidth. Shared with their SFU tier. `stun.cloudflare.com` free/unlimited.                                                                                                             |
-| Self-host coturn             | server cost only               | all                            | any                     | Full control, ops burden, needs a static IP + TLS cert.                                                                                                                                               |
+| Provider                     | Free tier                      | Transports                     | Creds                   | Notes                                                                                                                                                                                                                                  |
+| ---------------------------- | ------------------------------ | ------------------------------ | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Metered** (current)        | **0.5 GB/mo on this account**  | UDP + TCP on 80/443, no TLS    | static, baked in bundle | Usage 23 MB — nowhere near the cap, so quota is not the failure. Their credential API returns exactly five entries for `global.relay.metered.ca` and none is `turns:`; the TLS host is the separate `staticauth.openrelay.metered.ca`. |
+| **Cloudflare Realtime TURN** | **1,000 GB/mo**, then $0.05/GB | UDP, TCP, TLS (`turns:…:5349`) | API-generated, ≤48h TTL | 50× the free bandwidth. Shared with their SFU tier. `stun.cloudflare.com` free/unlimited.                                                                                                                                              |
+| Self-host coturn             | server cost only               | all                            | any                     | Full control, ops burden, needs a static IP + TLS cert.                                                                                                                                                                                |
 
 **Recommendation: Cloudflare Realtime TURN — but for security and transport coverage, not
 capacity.** With usage at 23 MB, headroom was never the constraint. What still earns the switch is
