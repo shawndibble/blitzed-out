@@ -93,7 +93,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
-      'simple-peer': 'simple-peer/simplepeer.min.js',
     },
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   },

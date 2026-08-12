@@ -20,6 +20,7 @@
     "test:ci": "NODE_OPTIONS='--max-old-space-size=2048' vitest run --no-watch --reporter=dot --bail=3 --config=vitest.ci.config.ts",
     "test:timing": "NODE_OPTIONS='--max-old-space-size=2048' vitest run --no-watch --reporter=verbose --config=vitest.ci.config.ts",
     "test:rules": "PATH=\"$(brew --prefix openjdk 2>/dev/null)/bin:$PATH\" firebase emulators:exec --only firestore --project demo-blitzed 'vitest run --config=vitest.rules.config.ts'",
+    "test:rules:db": "PATH=\"$(brew --prefix openjdk 2>/dev/null)/bin:$PATH\" firebase emulators:exec --only database --project demo-blitzed 'vitest run --config=vitest.database.rules.config.ts'",
     "type-check": "tsc --noEmit",
     "cleanup:debug": "eslint src/ --ignore-pattern '**/*.test.ts' --ignore-pattern '**/*.test.tsx' --ignore-pattern '**/__tests__/**' --ignore-pattern 'src/setupTests.ts' --rule 'no-console: error'",
     "cleanup:comments": "eslint --rule 'no-warning-comments: [error, { terms: [todo, fixme, hack, bug], location: anywhere }]' src/",
@@ -41,7 +42,6 @@
     "@sentry/tracing": "^7.120.4",
     "@sentry/vite-plugin": "^5.4.0",
     "@tanstack/react-virtual": "^3.14.5",
-    "@types/simple-peer": "^9.11.9",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.21",
     "dexie": "^4.4.4",
@@ -65,7 +65,6 @@
     "react-string-replace": "^2.0.1",
     "remark-gemoji": "^8.0.0",
     "remark-gfm": "^4.0.1",
-    "simple-peer": "^9.11.1",
     "use-sound": "^5.0.0",
     "zustand": "^5.0.14"
   },

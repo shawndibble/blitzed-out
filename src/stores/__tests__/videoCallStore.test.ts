@@ -32,40 +32,43 @@ vi.mock('@/services/firebaseSignaling', () => ({
   },
 }));
 
-vi.mock('simple-peer', () => {
-  class MockPeer {
-    destroyed = false;
-    signal = vi.fn();
-    replaceTrack = vi.fn();
-    addTrack = vi.fn();
-    addStream = vi.fn();
-    _pc = { iceConnectionState: 'new' };
+vi.mock('@/services/peerTransport', () => {
+  /** Event names as the transport used to expose them, mapped to port callbacks. */
+  const CALLBACKS: Record<string, string> = {
+    signal: 'onSignal',
+    stream: 'onStream',
+    connect: 'onConnected',
+    close: 'onClosed',
+    error: 'onError',
+    iceStateChange: 'onIceStateChange',
+  };
+
+  class FakeTransport {
+    closed = false;
+    accept = vi.fn();
+    replaceLocalTracks = vi.fn();
+    candidateTypes = vi.fn(async () => null);
     options: any;
-    private handlers = new Map<string, Array<(...args: any[]) => void>>();
 
     constructor(options: any) {
       this.options = options;
       harness.peers.push(this);
     }
 
-    on(event: string, handler: (...args: any[]) => void) {
-      const existing = this.handlers.get(event) ?? [];
-      this.handlers.set(event, [...existing, handler]);
-      return this;
-    }
-
     emit(event: string, ...args: any[]) {
-      this.handlers.get(event)?.forEach((handler) => handler(...args));
+      this.options.events[CALLBACKS[event]]?.(...args);
     }
 
-    destroy() {
-      if (this.destroyed) return;
-      this.destroyed = true;
+    // Must fire onClosed synchronously and exactly once: `dropPeer` re-enters
+    // through it, and a second pass would book a second retry for one failure.
+    close = vi.fn(() => {
+      if (this.closed) return;
+      this.closed = true;
       this.emit('close');
-    }
+    });
   }
 
-  return { default: MockPeer };
+  return { createPeerTransport: (options: any) => new FakeTransport(options) };
 });
 
 vi.mock('firebase/database', () => ({
@@ -599,7 +602,7 @@ describe('VideoCallStore', () => {
         publishRoster(['self', 'zed']);
       });
 
-      expect(harness.peers[0].options.config.iceServers).toEqual(MINTED_ICE_SERVERS);
+      expect(harness.peers[0].options.iceServers).toEqual(MINTED_ICE_SERVERS);
     });
 
     test('opens a peer for every other participant on the roster', async () => {
@@ -909,6 +912,104 @@ describe('VideoCallStore', () => {
     });
   });
 
+  describe('Incoming signals', () => {
+    async function joinAndListen(userId = 'self', roster = [userId]) {
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      const { result } = renderHook(() => useVideoCallStore());
+      await act(async () => {
+        await result.current.initialize('test-room', userId);
+      });
+      act(() => {
+        publishRoster(roster);
+      });
+      return { result, onSignal: vi.mocked(firebaseSignaling.listen).mock.calls[0][0] };
+    }
+
+    // Perfect negotiation needs exactly one polite peer per pair, and the pair has
+    // to agree on which without exchanging a message.
+    test('makes the higher user id the polite side of every pair', async () => {
+      await joinAndListen('self', ['self', 'aaa', 'zed']);
+
+      const polite = new Map(
+        harness.peers.map((peer) => [peer.options.label, peer.options.polite])
+      );
+
+      expect(polite.get('aaa')).toBe(true);
+      expect(polite.get('zed')).toBe(false);
+    });
+
+    // Their offer can arrive while we are backing off from a failed attempt, when
+    // the roster still lists them but we hold no connection.
+    test('opens a connection for an offer from a participant we are not dialling', async () => {
+      const { result, onSignal } = await joinAndListen('self', ['self', 'zed']);
+      act(() => {
+        harness.peers[0].emit('error', new Error('ICE failed'));
+      });
+      expect(result.current.peers.has('zed')).toBe(false);
+
+      act(() => {
+        onSignal({ type: 'offer', from: 'zed', sdp: 'v=0 their offer', timestamp: 1 });
+      });
+
+      expect(result.current.peers.has('zed')).toBe(true);
+      expect(harness.peers).toHaveLength(2);
+      expect(harness.peers[1].accept).toHaveBeenCalledWith({
+        type: 'offer',
+        sdp: 'v=0 their offer',
+      });
+    });
+
+    test.each([
+      [
+        'an answer',
+        { type: 'answer' as const, sdp: 'v=0 their answer' },
+        { type: 'answer', sdp: 'v=0 their answer' },
+      ],
+      [
+        'a candidate',
+        { type: 'ice-candidate' as const, candidate: { candidate: 'candidate:1 1 udp' } },
+        { type: 'candidate', candidate: { candidate: 'candidate:1 1 udp' } },
+      ],
+    ])('hands %s for a live peer straight to it', async (_label, incoming, expected) => {
+      const { result, onSignal } = await joinAndListen('self', ['self', 'zed']);
+
+      act(() => {
+        onSignal({ from: 'zed', timestamp: 1, ...incoming });
+      });
+
+      expect(harness.peers[0].accept).toHaveBeenCalledWith(expected);
+      expect(harness.peers).toHaveLength(1);
+      expect(result.current.peers.size).toBe(1);
+    });
+
+    // Only an offer opens a connection. An answer names a negotiation we never
+    // started, so there is nothing for it to complete.
+    test('does not open a connection for an answer', async () => {
+      const { result, onSignal } = await joinAndListen('self', ['self', 'zed']);
+      act(() => {
+        harness.peers[0].emit('error', new Error('ICE failed'));
+      });
+
+      act(() => {
+        onSignal({ type: 'answer', from: 'zed', sdp: 'v=0 stray answer', timestamp: 1 });
+      });
+
+      expect(result.current.peers.size).toBe(0);
+      expect(harness.peers).toHaveLength(1);
+    });
+
+    test('ignores a signal it cannot make sense of', async () => {
+      const { result, onSignal } = await joinAndListen('self', ['self', 'zed']);
+
+      act(() => {
+        onSignal({ type: 'offer', from: 'zed', timestamp: 1 });
+      });
+
+      expect(harness.peers[0].accept).not.toHaveBeenCalled();
+      expect(result.current.peers.size).toBe(1);
+    });
+  });
+
   describe('Disconnect Call', () => {
     test('should stop all tracks and set isCallActive to false', async () => {
       const { result } = renderHook(() => useVideoCallStore());
@@ -1044,8 +1145,7 @@ describe('VideoCallStore', () => {
         await result.current.reconnectCall();
       });
 
-      expect(peer.replaceTrack).toHaveBeenCalledWith(mockVideoTrack, freshVideo, mockMediaStream);
-      expect(peer.replaceTrack).toHaveBeenCalledWith(mockAudioTrack, freshAudio, mockMediaStream);
+      expect(peer.replaceLocalTracks).toHaveBeenCalledWith(freshStream);
     });
 
     test('does not touch peers that were already destroyed', async () => {
@@ -1058,7 +1158,7 @@ describe('VideoCallStore', () => {
         publishRoster(['self', 'zed']);
       });
       const [peer] = harness.peers;
-      peer.destroyed = true;
+      peer.closed = true;
 
       act(() => {
         result.current.disconnectCall();
@@ -1068,7 +1168,7 @@ describe('VideoCallStore', () => {
         await result.current.reconnectCall();
       });
 
-      expect(peer.replaceTrack).not.toHaveBeenCalled();
+      expect(peer.replaceLocalTracks).not.toHaveBeenCalled();
     });
 
     test('should not reconnect if not initialized', async () => {
