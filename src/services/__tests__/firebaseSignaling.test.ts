@@ -11,6 +11,8 @@ const mockOnChildAdded = vi.fn();
 const mockOff = vi.fn();
 const mockOnDisconnect = vi.fn();
 const mockGetDatabase = vi.fn();
+const mockGet = vi.fn();
+const SERVER_TIME = { '.sv': 'timestamp' };
 
 vi.mock('firebase/database', () => ({
   getDatabase: () => mockGetDatabase(),
@@ -21,6 +23,8 @@ vi.mock('firebase/database', () => ({
   onChildAdded: (...args: any[]) => mockOnChildAdded(...args),
   off: (...args: any[]) => mockOff(...args),
   onDisconnect: (...args: any[]) => mockOnDisconnect(...args),
+  serverTimestamp: () => SERVER_TIME,
+  get: (...args: any[]) => mockGet(...args),
 }));
 
 describe('firebaseSignaling', () => {
@@ -28,6 +32,7 @@ describe('firebaseSignaling', () => {
     vi.clearAllMocks();
     mockRef.mockImplementation((_db: unknown, path: string) => ({ key: 'test-room', path }));
     mockSet.mockResolvedValue(undefined);
+    mockGet.mockResolvedValue({ val: () => 1_700_000_000_000 });
     mockPush.mockResolvedValue({ key: 'test-key' });
     mockOnDisconnect.mockReturnValue({
       remove: vi.fn().mockResolvedValue(undefined),
@@ -248,16 +253,18 @@ describe('firebaseSignaling', () => {
     // The scheduled cleanup function prunes roster entries by staleness. Without a
     // heartbeat the only timestamp is the join time, so anyone in a long call gets
     // evicted from their own room.
-    test('refreshes lastSeen on the presence node', async () => {
+    // Staleness is judged by other clients and by the server sweep, so a device
+    // with a skewed clock would be read as a ghost by everyone with nothing to
+    // correct it. The server's clock is the only one all parties share.
+    test('stamps lastSeen with server time, not the device clock', async () => {
       const { firebaseSignaling } = await import('../firebaseSignaling');
 
-      firebaseSignaling.claim('test-room', 'user-123');
-      firebaseSignaling.listen(vi.fn());
+      await firebaseSignaling.claim('test-room', 'user-123');
       mockSet.mockClear();
       await firebaseSignaling.heartbeat();
 
       const [[, value]] = writesTo('video-calls/test-room/users/user-123');
-      expect(typeof value.lastSeen).toBe('number');
+      expect(value.lastSeen).toEqual(SERVER_TIME);
     });
 
     // A socket blip fires the armed onDisconnect and deletes the node. Writing
@@ -266,29 +273,28 @@ describe('firebaseSignaling', () => {
     test('rewrites the whole presence node so a deleted one is restored', async () => {
       const { firebaseSignaling } = await import('../firebaseSignaling');
 
-      firebaseSignaling.claim('test-room', 'user-123');
-      firebaseSignaling.listen(vi.fn());
+      await firebaseSignaling.claim('test-room', 'user-123');
       mockSet.mockClear();
       await firebaseSignaling.heartbeat();
 
       const [[, value]] = writesTo('video-calls/test-room/users/user-123');
       expect(value).toEqual({
-        joinedAt: expect.any(Number),
-        lastSeen: expect.any(Number),
+        joinedAt: expect.anything(),
+        lastSeen: SERVER_TIME,
         status: 'online',
       });
     });
 
+    // Rewriting the whole node every 30s would otherwise keep pushing the join
+    // time forward, so it is read back once and reused.
     test('preserves the original joinedAt across heartbeats', async () => {
       const { firebaseSignaling } = await import('../firebaseSignaling');
 
-      firebaseSignaling.claim('test-room', 'user-123');
-      firebaseSignaling.listen(vi.fn());
-      const [[, joined]] = writesTo('video-calls/test-room/users/user-123');
+      await firebaseSignaling.claim('test-room', 'user-123');
       await firebaseSignaling.heartbeat();
 
       const writes = writesTo('video-calls/test-room/users/user-123');
-      expect(writes[writes.length - 1][1].joinedAt).toBe(joined.joinedAt);
+      expect(writes[writes.length - 1][1].joinedAt).toBe(1_700_000_000_000);
     });
 
     test('is a no-op before initialization', async () => {

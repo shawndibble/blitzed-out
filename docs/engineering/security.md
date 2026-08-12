@@ -87,7 +87,7 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 
 9 exported functions: scheduled cleanups (stale users ~5 min, inactive anonymous accounts daily, video-call signaling + stale roster entries ~5 min), RTDB presence triggers (`onUserDisconnect`, presence validation), a pack-report notification, two **callable** admin helpers, and `getTurnCredentials`.
 
-**`getTurnCredentials`** — mints Cloudflare TURN credentials (2h TTL) from the `CLOUDFLARE_TURN_TOKEN` secret. Not admin-gated: any signed-in caller may use it, but only for a room where they already hold a `video-calls/{roomId}/users/{uid}` presence node. That check is the spend control — relay bandwidth bills to us and anonymous guest accounts are free to create, so `context.auth` alone would gate nothing. **No App Check and no rate limit**: a caller who joins a room can still mint repeatedly. Hardening: App Check, plus a per-uid rate limit.
+**`getTurnCredentials`** — mints Cloudflare TURN credentials (2h TTL, 10s upstream budget, 30s function timeout so a hung call returns a real error rather than a platform timeout with no CORS headers) from the `CLOUDFLARE_TURN_TOKEN` secret. Not admin-gated: any signed-in caller may use it, but only for a room where they already hold a `video-calls/{roomId}/users/{uid}` presence node. That check is the spend control — relay bandwidth bills to us and anonymous guest accounts are free to create, so `context.auth` alone would gate nothing. **No App Check and no rate limit**: a caller who joins a room can still mint repeatedly. Hardening: App Check, plus a per-uid rate limit.
 
 **Admin callables** — `manualCleanupStaleUsers` and `manualCleanupAnonymousAccounts`:
 

@@ -7,11 +7,24 @@ import { getAuth, ListUsersResult, UserRecord } from 'firebase-admin/auth';
 export { onPackReported } from './reportNotification';
 export { getTurnCredentials } from './turnCredentials';
 
-// Initialize Firebase Admin with proper credentials
+/**
+ * The database URL must come from the runtime, not a literal.
+ *
+ * This used to default to `blitzed-out-default-rtdb`, which is not this project
+ * — the project is `blitzout-49b39`, so its database is
+ * `blitzout-49b39-default-rtdb`. `DATABASE_URL` was never set anywhere, so every
+ * admin read and write went to a namespace no client has ever used: the
+ * scheduled cleanups found nothing to clean and reported success, which is how
+ * `/PUBLIC` accumulated nine dead roster entries with a prune job running.
+ *
+ * In Cloud Functions `FIREBASE_CONFIG` already carries the correct URL, so the
+ * fix is to stop overriding it. The explicit env var stays as an escape hatch
+ * for the emulator.
+ */
 if (!getApps().length) {
   initializeApp({
     credential: applicationDefault(),
-    databaseURL: process.env.DATABASE_URL || 'https://blitzed-out-default-rtdb.firebaseio.com/',
+    ...(process.env.DATABASE_URL ? { databaseURL: process.env.DATABASE_URL } : {}),
   });
 }
 
@@ -266,7 +279,10 @@ export const cleanupVideoCallSignaling = functions.pubsub
   .onRun(async () => {
     const db = getDatabase();
     const twoMinutesAgo = Date.now() - 2 * 60 * 1000; // 2 minutes in milliseconds
-    const staleRosterCutoff = Date.now() - 10 * 60 * 1000; // 10 minutes: 20x the client heartbeat
+    // 10 minutes: 20x the client heartbeat. Kept in step with ROSTER_STALE_MS in
+    // src/stores/videoCallStore.ts, which applies the same rule client-side —
+    // separate packages, so the two constants cannot be shared.
+    const staleRosterCutoff = Date.now() - 10 * 60 * 1000;
 
     try {
       functions.logger.info('Starting video call signaling cleanup process');

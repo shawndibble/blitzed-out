@@ -787,35 +787,39 @@ describe('VideoCallStore', () => {
       expect(result.current.peers.has('zed')).toBe(true);
     });
 
-    // RTDB delivers the roster asynchronously, and onChildAdded replays queued
-    // offers the instant it binds. Rejecting during that window discards a
-    // legitimate offer the sender will not resend until its 30s timeout — which
-    // reads to the user as a call that takes half a minute to start, or never does.
-    test('accepts an offer that arrives before the roster has loaded', async () => {
-      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
-      const result = await joinRoom();
-      const onSignal = vi.mocked(firebaseSignaling.listen).mock.calls[0][0];
-
-      act(() => {
-        onSignal({ type: 'offer', from: 'zed', sdp: 'v=0', timestamp: 1 });
-      });
-
-      expect(result.current.peers.has('zed')).toBe(true);
-    });
-
-    test('starts listening only once it can act on a signal', async () => {
+    // `onChildAdded` replays every queued offer the instant it binds. An offer
+    // accepted before the roster is known is accepted from anyone, and answering
+    // one attaches the local camera and mic — so a stranger who left an offer in
+    // the queue would receive them. Binding must wait for the roster.
+    test('does not start listening until the roster is known', async () => {
       const { firebaseSignaling } = await import('@/services/firebaseSignaling');
       const { result } = renderHook(() => useVideoCallStore());
-
-      vi.mocked(firebaseSignaling.listen).mockImplementationOnce(() => {
-        expect(useVideoCallStore.getState().localStream).not.toBeNull();
-      });
 
       await act(async () => {
         await result.current.initialize('test-room', 'self');
       });
+      expect(firebaseSignaling.listen).not.toHaveBeenCalled();
 
-      expect(firebaseSignaling.listen).toHaveBeenCalled();
+      act(() => {
+        publishRoster(['self']);
+      });
+
+      expect(firebaseSignaling.listen).toHaveBeenCalledTimes(1);
+      expect(result.current.localStream).not.toBeNull();
+    });
+
+    test('binds signalling once, not on every roster update', async () => {
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      await joinRoom();
+
+      act(() => {
+        publishRoster(['self']);
+      });
+      act(() => {
+        publishRoster(['self', 'zed']);
+      });
+
+      expect(firebaseSignaling.listen).toHaveBeenCalledTimes(1);
     });
 
     // Signalling rules let any authenticated user push an offer into anyone's
@@ -823,11 +827,12 @@ describe('VideoCallStore', () => {
     test('ignores an offer from someone who is not on the roster', async () => {
       const { firebaseSignaling } = await import('@/services/firebaseSignaling');
       const result = await joinRoom();
-      const onSignal = vi.mocked(firebaseSignaling.listen).mock.calls[0][0];
 
       act(() => {
         publishRoster(['self']);
       });
+      const onSignal = vi.mocked(firebaseSignaling.listen).mock.calls[0][0];
+
       act(() => {
         onSignal({ type: 'offer', from: 'intruder', sdp: 'v=0', timestamp: 1 });
       });

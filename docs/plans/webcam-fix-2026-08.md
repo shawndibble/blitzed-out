@@ -127,11 +127,16 @@ Reachable path: mobile only, `VideoControls` hang-up → call. Narrow, but real 
 - <https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/> — paste the TURN URL
   and creds from the bundle. Still worth running for the **TCP** entries specifically, since the
   deployed build only ever offered UDP and no user has exercised the others.
-- ~~`firebase functions:list` → confirm `cleanupVideoCallSignaling` is deployed.~~ Done: it is,
-  along with 7 others. Stale offers are being pruned, so that theory is out too — which is what
-  leaves ghost presence (cause 4) standing.
-- **Firebase console → Realtime Database → `video-calls`.** Count `users` entries per room against
-  who is actually in it. This is the one remaining decisive check.
+- ~~`firebase functions:list` → confirm `cleanupVideoCallSignaling` is deployed.~~ Done: it is.
+- ~~Count `users` entries per room.~~ **Confirmed from a live session: `/PUBLIC` held nine dead
+  entries.** Four is enough to consume every mesh slot, so live participants were refused with
+  "Peer limit reached" and never dialled. Ghost presence (cause 4) is the answer.
+- **Why the deployed prune never removed them:** `functions/src/index.ts` initialised the admin SDK
+  with `databaseURL: process.env.DATABASE_URL || 'https://blitzed-out-default-rtdb.firebaseio.com/'`.
+  The project is `blitzout-49b39`, so its database is `blitzout-49b39-default-rtdb`, and
+  `DATABASE_URL` was never set anywhere. **Every admin read and write went to a namespace no client
+  has ever used** — the scheduled cleanups found nothing, reported success, and had never worked.
+  Fixed by letting `FIREBASE_CONFIG` supply the URL instead of overriding it with a literal.
 
 ## Provider options (TURN relay)
 

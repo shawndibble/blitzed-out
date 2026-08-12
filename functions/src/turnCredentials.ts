@@ -18,6 +18,9 @@ const CLOUDFLARE_TURN_API = 'https://rtc.live.cloudflare.com/v1/turn/keys';
  */
 const CREDENTIAL_TTL_SECONDS = 2 * 60 * 60;
 
+/** Upstream budget. The client is waiting; a slow mint is worse than no mint. */
+const UPSTREAM_TIMEOUT_MS = 10_000;
+
 interface CloudflareIceServer {
   urls: string | string[];
   username?: string;
@@ -35,7 +38,9 @@ function toIceServerArray(payload: unknown): CloudflareIceServer[] {
 }
 
 export const getTurnCredentials = functions
-  .runWith({ secrets: ['CLOUDFLARE_TURN_TOKEN'] })
+  // Bounded well under the 60s default: every path here is either a fast RTDB
+  // read or a time-boxed upstream call, and the client is blocked meanwhile.
+  .runWith({ secrets: ['CLOUDFLARE_TURN_TOKEN'], timeoutSeconds: 30 })
   .https.onCall(async (data, context) => {
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -85,6 +90,12 @@ export const getTurnCredentials = functions
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ ttl: CREDENTIAL_TTL_SECONDS }),
+        // Without this a hung request runs to the platform timeout, and that
+        // response comes from the infrastructure rather than the function — so it
+        // carries no CORS headers and the browser reports a CORS failure instead
+        // of the timeout it actually was. Failing fast keeps the error legible
+        // and lets the client fall back to its bundled relay promptly.
+        signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
       });
     } catch (error) {
       functions.logger.error('Cloudflare TURN request failed', error);

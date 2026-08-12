@@ -1,8 +1,8 @@
 /**
  * The app's only writer to the console.
  *
- * Production is silent by design (CLAUDE.md: "For production, disable logging").
- * That used to be true only by accident — terser's `drop_console` erased the 175
+ * Production is silent unless a user opts in (see `debugEnabled`). That silence
+ * used to be true only by accident — terser's `drop_console` erased the 175
  * direct `console.*` calls at build time — which meant the rule lived in the
  * bundler config while the source read as though it logged in production.
  *
@@ -27,10 +27,17 @@ const isDevelopment = ['development', 'test'].includes(import.meta.env.MODE);
  * their network. This keeps the data on their machine — unlike routing logs to a
  * third party, which is a separate decision this deliberately does not make.
  */
+const OFF_VALUES = ['0', 'false', 'off', 'no'];
+
 function debugEnabled(): boolean {
   try {
     if (typeof window === 'undefined') return false;
-    if (new URLSearchParams(window.location.search).has('debug')) return true;
+
+    // `?debug=0` reads as "explicitly off"; treating the key's mere presence as
+    // enabled would turn the obvious way to disable it into a way to enable it.
+    const flag = new URLSearchParams(window.location.search).get('debug');
+    if (flag !== null) return !OFF_VALUES.includes(flag.toLowerCase());
+
     return window.localStorage.getItem('debug') === 'true';
   } catch {
     return false;

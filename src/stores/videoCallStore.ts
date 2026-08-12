@@ -117,6 +117,8 @@ export interface VideoCallState {
   iceServers: IceServer[];
   /** User ids the signalling roster currently reports as present in the room. */
   roster: string[];
+  /** Whether the first roster snapshot has arrived. Empty is a real state. */
+  rosterLoaded: boolean;
   peerRetries: Map<string, RetryState>;
   isMuted: boolean;
   isVideoOff: boolean;
@@ -158,6 +160,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
   peers: new Map(),
   iceServers: ICE_SERVERS,
   roster: [],
+  rosterLoaded: false,
   peerRetries: new Map(),
   isMuted: false,
   isVideoOff: false,
@@ -202,8 +205,20 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
     }
 
     // Claiming the roster slot is a single RTDB write, and minting TURN
-    // credentials requires it to exist first.
-    await firebaseSignaling.claim(roomId, userId);
+    // credentials requires it to exist first. A failure here is fatal to the
+    // call — without a roster slot nobody can see this user — so it must not be
+    // swallowed, and it must release the generation lock and the camera rather
+    // than leaving both held with `isInitialized` false.
+    try {
+      await firebaseSignaling.claim(roomId, userId);
+    } catch (error) {
+      logger.error('[videocall] Could not claim a roster slot', error);
+      stopTracks(stream);
+      firebaseSignaling.cleanup();
+      if (!superseded()) activeGeneration = null;
+      set({ error: { type: 'Unknown', message: 'videoCall.errors.unknown' } });
+      return;
+    }
 
     if (superseded()) {
       stopTracks(stream);
@@ -220,6 +235,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
       isInitialized: true,
       isCallActive: true,
       roster: [],
+      rosterLoaded: false,
       peerRetries: new Map(),
       roomId,
       userId,
@@ -229,13 +245,19 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
     const usersRef = ref(database, `video-calls/${roomId}/users`);
 
     onValue(usersRef, (snapshot) => {
-      set({ roster: liveRoster(snapshot.val()) });
+      const alreadyLoaded = get().rosterLoaded;
+      set({ roster: liveRoster(snapshot.val()), rosterLoaded: true });
       get().reconcilePeers();
-    });
 
-    // Last: onChildAdded replays every queued offer the moment it binds, and
-    // handleSignal can only act on one once the state above exists.
-    firebaseSignaling.listen(handleSignal);
+      // Bind signalling only once the roster is known. `onChildAdded` replays
+      // every queued offer the instant it binds, and an offer accepted before
+      // the roster loads is accepted from anyone — a stranger can leave one in
+      // the queue and have it answered with the local camera and mic attached.
+      // `claim()` already ran, so the first snapshot always contains this user.
+      if (!alreadyLoaded && !superseded()) {
+        firebaseSignaling.listen(handleSignal);
+      }
+    });
 
     set({
       heartbeatInterval: startHeartbeat(),
@@ -341,6 +363,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
       localStream: null,
       peers: new Map(),
       roster: [],
+      rosterLoaded: false,
       peerRetries: new Map(),
       isInitialized: false,
       isCallActive: false,
@@ -719,11 +742,13 @@ function handleSignal(data: SignalData): void {
     if (!peerConnection) {
       // Signalling rules let any authenticated user push an offer into anyone's
       // queue, and `from` is client-supplied, so cap peer construction. The
-      // roster check only applies once the roster has actually loaded: RTDB
-      // delivers it asynchronously, and rejecting during that window discards a
-      // legitimate offer the sender will not resend until its 30s timeout.
-      const { roster } = useVideoCallStore.getState();
-      if (peers.size >= MAX_PEERS || (roster.length > 0 && !roster.includes(data.from))) {
+      // roster check waits for the first snapshot rather than for a non-empty
+      // one: RTDB delivers asynchronously and rejecting during that window
+      // discards a legitimate offer the sender will not resend until its 30s
+      // timeout, but "empty" is a real state a throttled tab can reach, and
+      // keying on it would quietly reopen the gate.
+      const { roster, rosterLoaded } = useVideoCallStore.getState();
+      if (peers.size >= MAX_PEERS || (rosterLoaded && !roster.includes(data.from))) {
         logger.warn('[videocall] Ignoring unexpected offer', data.from);
         return;
       }

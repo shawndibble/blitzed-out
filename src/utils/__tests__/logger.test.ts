@@ -1,0 +1,84 @@
+/**
+ * @vitest-environment jsdom
+ */
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
+/**
+ * `logger` reads MODE at import time, so each case re-imports under a stubbed
+ * environment. Production is the interesting mode — dev logs unconditionally.
+ */
+async function loadProductionLogger() {
+  vi.resetModules();
+  vi.stubEnv('MODE', 'production');
+  return (await import('../logger')).logger;
+}
+
+function setSearch(search: string) {
+  window.history.replaceState({}, '', `/room${search}`);
+}
+
+describe('logger in production', () => {
+  let warn: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    setSearch('');
+    window.localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+    vi.resetModules();
+    window.localStorage.clear();
+  });
+
+  test('stays silent by default', async () => {
+    const logger = await loadProductionLogger();
+
+    logger.warn('something happened');
+
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  test('logs when the debug query flag is set', async () => {
+    setSearch('?debug=1');
+    const logger = await loadProductionLogger();
+
+    logger.warn('something happened');
+
+    expect(warn).toHaveBeenCalledWith('something happened');
+  });
+
+  // `?debug=0` reads as "explicitly off". Treating any presence of the key as
+  // enabled turns the obvious way to disable it into a way to enable it.
+  test('stays silent when the debug flag is explicitly disabled', async () => {
+    setSearch('?debug=0');
+    const logger = await loadProductionLogger();
+
+    logger.warn('something happened');
+
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  test('logs when the flag is persisted in localStorage', async () => {
+    window.localStorage.setItem('debug', 'true');
+    const logger = await loadProductionLogger();
+
+    logger.warn('something happened');
+
+    expect(warn).toHaveBeenCalled();
+  });
+
+  test('survives a localStorage that throws', async () => {
+    const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('access denied');
+    });
+    const logger = await loadProductionLogger();
+
+    expect(() => logger.warn('something happened')).not.toThrow();
+    expect(warn).not.toHaveBeenCalled();
+
+    getItem.mockRestore();
+  });
+});

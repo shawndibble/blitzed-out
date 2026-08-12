@@ -7,6 +7,8 @@ import {
   onChildAdded,
   off,
   onDisconnect,
+  serverTimestamp,
+  get,
 } from 'firebase/database';
 import { logger } from '@/utils/logger';
 
@@ -31,6 +33,7 @@ class FirebaseSignalingService {
   private iceCandidatesRef: any = null;
   private presenceRef: any = null;
   private presenceOnDisconnect: any = null;
+  /** Server-resolved join time; null until the first write is read back. */
   private joinedAt: number | null = null;
   private roomId: string | null = null;
   private userId: string | null = null;
@@ -47,13 +50,23 @@ class FirebaseSignalingService {
     const database = getDatabase();
     this.roomRef = ref(database, `video-calls/${roomId}`);
 
-    this.joinedAt = Date.now();
+    this.joinedAt = null;
     this.presenceRef = ref(database, `video-calls/${roomId}/users/${userId}`);
 
     this.presenceOnDisconnect = onDisconnect(this.presenceRef);
     this.presenceOnDisconnect.remove();
 
-    return this.setPresent(true);
+    return this.setPresent(true).then(async () => {
+      // Read back what the server resolved the sentinel to, so the 30s heartbeat
+      // can rewrite the node without advancing the join time on every beat.
+      try {
+        const snapshot = await get(ref(database, `video-calls/${roomId}/users/${userId}/joinedAt`));
+        const value = snapshot.val();
+        if (typeof value === 'number') this.joinedAt = value;
+      } catch (error) {
+        logger.warn('[signaling] Could not read back joinedAt', error);
+      }
+    });
   }
 
   /**
@@ -65,7 +78,7 @@ class FirebaseSignalingService {
   listen(onSignal: (data: SignalData) => void) {
     const { roomId, userId } = this;
     if (!roomId || !userId) {
-      throw new Error('Signaling not initialized');
+      throw new Error('Call claim() before listen()');
     }
     const database = getDatabase();
 
@@ -214,28 +227,33 @@ class FirebaseSignalingService {
   async setPresent(present: boolean): Promise<void> {
     if (!this.presenceRef) return;
 
-    try {
-      if (present) {
-        this.joinedAt ??= Date.now();
-        await set(this.presenceRef, {
-          joinedAt: this.joinedAt,
-          lastSeen: Date.now(),
-          status: 'online',
-        });
-      } else {
-        await set(this.presenceRef, null);
-      }
-    } catch (error) {
-      logger.warn('[signaling] Presence write failed', present, error);
+    if (!present) {
+      await set(this.presenceRef, null);
+      return;
     }
+
+    // Server time, not the device's. Staleness is judged by other clients and by
+    // the cleanup job, so a device with a skewed clock would otherwise be read as
+    // a ghost by everyone — dropped from rosters, offers refused, and pruned
+    // server-side, with nothing to correct it.
+    await set(this.presenceRef, {
+      joinedAt: this.joinedAt ?? serverTimestamp(),
+      lastSeen: serverTimestamp(),
+      status: 'online',
+    });
   }
 
   /**
    * Refresh the roster timestamp. `cleanupVideoCallSignaling` evicts entries that
    * have gone stale, and `joinedAt` alone would evict anyone still in a long call.
+   * Unlike `claim`, a missed beat is survivable — the next one is 30s away.
    */
   async heartbeat(): Promise<void> {
-    await this.setPresent(true);
+    try {
+      await this.setPresent(true);
+    } catch (error) {
+      logger.warn('[signaling] Presence heartbeat failed', error);
+    }
   }
 
   cleanup() {

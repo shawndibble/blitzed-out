@@ -107,7 +107,7 @@ Two persistence tiers:
 | `localPlayerStore.ts`   | Active Shared-Device session (players, current turn index).                                                                                               |
 | `messagesStore.ts`      | Chat + action + settings messages (mirrors Firestore; dedupes; 24h TTL).                                                                                  |
 | `userListStore.ts`      | Online users / presence in the current room.                                                                                                              |
-| `videoCallStore.ts`     | WebRTC peers + roster reconciliation and retry budgets, resolved ICE servers, local/remote streams, mute/camera toggles.                                  |
+| `videoCallStore.ts`     | WebRTC peers, roster reconciliation (ghost filtering + retry budgets), ICE servers, local/remote streams, mute/camera toggles.                            |
 | `diceAnimationStore.ts` | Debounce flag so dice-roll sound doesn't double-play.                                                                                                     |
 | `scheduleStore.ts`      | Scheduled game sessions (batched updates, cached).                                                                                                        |
 | `store.ts`              | Dexie database definition + sync middleware wiring (not a Zustand store).                                                                                 |
