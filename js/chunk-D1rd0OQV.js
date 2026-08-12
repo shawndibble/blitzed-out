@@ -1,2 +1,0 @@
-var o=["development","test"].includes("production");function r(r,e){var n;o&&(null!==(n=console[r])&&void 0!==n?n:console.log)(...e)}var e={debug:(...o)=>r("debug",o),info:(...o)=>r("info",o),warn:(...o)=>r("warn",o),error:(...o)=>r("error",o)};export{e as t};
-//# sourceMappingURL=chunk-D1rd0OQV.js.map
