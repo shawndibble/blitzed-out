@@ -424,7 +424,9 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
     if (heartbeatInterval) {
       clearInterval(heartbeatInterval);
     }
-    firebaseSignaling.setPresent(false);
+    firebaseSignaling.setPresent(false).catch((error) => {
+      logger.warn('[videocall] Could not release the roster slot', error);
+    });
 
     set({
       localStream: null,
@@ -476,7 +478,9 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => ({
       nextPeers.set(peerId, { ...peerData, senderTracks: attached });
     });
 
-    firebaseSignaling.setPresent(true);
+    firebaseSignaling.setPresent(true).catch((error) => {
+      logger.warn('[videocall] Could not reclaim the roster slot', error);
+    });
 
     const { heartbeatInterval: existingHeartbeat } = get();
     if (existingHeartbeat) {

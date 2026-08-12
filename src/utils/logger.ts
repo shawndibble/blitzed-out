@@ -27,16 +27,15 @@ const isDevelopment = ['development', 'test'].includes(import.meta.env.MODE);
  * their network. This keeps the data on their machine — unlike routing logs to a
  * third party, which is a separate decision this deliberately does not make.
  */
-const OFF_VALUES = ['0', 'false', 'off', 'no'];
-
 function debugEnabled(): boolean {
   try {
     if (typeof window === 'undefined') return false;
 
-    // `?debug=0` reads as "explicitly off"; treating the key's mere presence as
-    // enabled would turn the obvious way to disable it into a way to enable it.
-    const flag = new URLSearchParams(window.location.search).get('debug');
-    if (flag !== null) return !OFF_VALUES.includes(flag.toLowerCase());
+    // Only the documented opt-in enables this. An allowlist rather than a
+    // denylist of "off" values, so `?debug=0` and anything unrecognised stay
+    // silent instead of turning the obvious way to disable it into a way to
+    // enable it.
+    if (new URLSearchParams(window.location.search).get('debug') === '1') return true;
 
     return window.localStorage.getItem('debug') === 'true';
   } catch {

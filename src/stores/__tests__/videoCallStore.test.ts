@@ -99,11 +99,18 @@ describe('VideoCallStore', () => {
   let mockVideoTrack: MediaStreamTrack;
   let mockAudioTrack: MediaStreamTrack;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     vi.useFakeTimers();
     harness.rosterListeners.length = 0;
     harness.peers.length = 0;
+
+    // Re-arm after clearAllMocks: the store awaits these, so a bare vi.fn()
+    // returning undefined fails on `.catch` rather than on the assertion.
+    const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+    vi.mocked(firebaseSignaling.claim).mockResolvedValue(undefined);
+    vi.mocked(firebaseSignaling.setPresent).mockResolvedValue(undefined);
+    vi.mocked(firebaseSignaling.heartbeat).mockResolvedValue(undefined);
 
     // jsdom ships no MediaStream; peers hold one per remote participant.
     class StubMediaStream {
@@ -410,6 +417,32 @@ describe('VideoCallStore', () => {
       });
 
       expect(firebaseSignaling.claim).toHaveBeenCalledTimes(1);
+    });
+
+    // A failed claim means no roster slot, so the user is invisible and
+    // credential minting rejects them. It must not leave the generation lock
+    // held with isInitialized false, which would block every later attempt.
+    test('a failed roster claim releases the lock and the camera', async () => {
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      const { result } = renderHook(() => useVideoCallStore());
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      vi.mocked(firebaseSignaling.claim).mockRejectedValueOnce(new Error('permission denied'));
+
+      await act(async () => {
+        await result.current.initialize('test-room', 'self');
+      });
+
+      expect(result.current.isInitialized).toBe(false);
+      expect(result.current.error).not.toBeNull();
+      expect(mockVideoTrack.stop).toHaveBeenCalled();
+      expect(errorSpy).toHaveBeenCalled();
+
+      await act(async () => {
+        await result.current.initialize('test-room', 'self');
+      });
+
+      expect(result.current.isInitialized).toBe(true);
+      errorSpy.mockRestore();
     });
 
     // cleanup() landing mid-await would otherwise leave a roster listener and
@@ -840,6 +873,24 @@ describe('VideoCallStore', () => {
       expect(result.current.peers.size).toBe(0);
     });
 
+    // A roster listener surviving cleanup would keep reconciling into a torn-down
+    // store, and the sidebar can be closed and reopened repeatedly.
+    test('detaches the roster listener on cleanup', async () => {
+      const { off } = await import('firebase/database');
+      const result = await joinRoom();
+
+      act(() => {
+        publishRoster(['self', 'zed']);
+      });
+      vi.mocked(off).mockClear();
+
+      act(() => {
+        result.current.cleanup();
+      });
+
+      expect(off).toHaveBeenCalled();
+    });
+
     test('stops reconciling after cleanup', async () => {
       const result = await joinRoom();
 
@@ -976,8 +1027,16 @@ describe('VideoCallStore', () => {
         result.current.disconnectCall();
       });
 
-      const freshVideo = { stop: vi.fn(), kind: 'video', enabled: true } as unknown as MediaStream;
-      const freshAudio = { stop: vi.fn(), kind: 'audio', enabled: true } as unknown as MediaStream;
+      const freshVideo = {
+        stop: vi.fn(),
+        kind: 'video',
+        enabled: true,
+      } as unknown as MediaStreamTrack;
+      const freshAudio = {
+        stop: vi.fn(),
+        kind: 'audio',
+        enabled: true,
+      } as unknown as MediaStreamTrack;
       const freshStream = new MediaStream([freshVideo, freshAudio] as any);
       (navigator.mediaDevices.getUserMedia as any).mockResolvedValueOnce(freshStream);
 

@@ -114,12 +114,15 @@ Reachable path: mobile only, `VideoControls` hang-up → call. Narrow, but real 
    measurement that settles root cause #1. Connection metadata, not user content — safe under
    the CLAUDE.md `logger` constraint.
 
-   **Open decision — this is dev-only today.** `logger` returns early unless `MODE` is
-   `development`/`test`, so these lines reach a developer's console and nobody else. Answering
-   the TURN question _for real users_ needs the candidate types reported at the Sentry boundary
-   (`src/services/sentry.ts`), which is a deliberate privacy call, not a `logger` change: it
-   sends new data to a third party. Connection metadata carries no user-authored content, so
-   it is defensible — but it needs an explicit yes, and it is not wired up.
+   **Shipped, opt-in.** `logger` is silent in production unless the user turns it on with
+   `?debug=1` or `localStorage.debug = 'true'` (`src/utils/logger.ts`), which is what makes a
+   live broken call produce evidence at all. The output stays on their machine.
+
+   **Still an open decision:** reporting the candidate types _automatically_, for users who have
+   not opted in, means sending connection metadata to Sentry (`src/services/sentry.ts`). That is
+   a deliberate privacy call, not a `logger` change — it sends new data to a third party.
+   Connection metadata carries no user-authored content, so it is defensible, but it needs an
+   explicit yes and is not wired up.
 
 **Manual checks (5 min, browser):**
 
@@ -136,7 +139,11 @@ Reachable path: mobile only, `VideoControls` hang-up → call. Narrow, but real 
   The project is `blitzout-49b39`, so its database is `blitzout-49b39-default-rtdb`, and
   `DATABASE_URL` was never set anywhere. **Every admin read and write went to a namespace no client
   has ever used** — the scheduled cleanups found nothing, reported success, and had never worked.
-  Fixed by letting `FIREBASE_CONFIG` supply the URL instead of overriding it with a literal.
+  Fixed by resolving `DATABASE_URL` first and otherwise deriving
+  `https://$GCLOUD_PROJECT-default-rtdb.firebaseio.com` (falling back to `GCP_PROJECT`).
+  `FIREBASE_CONFIG` does **not** carry `databaseURL` in this project — omitting it entirely made
+  the admin SDK throw "Can't determine Firebase Database URL" instead, so deriving from the
+  project id is the only form that both works and cannot drift from the project it is deployed to.
 
 ## Provider options (TURN relay)
 
@@ -193,8 +200,10 @@ and falls back to the bundled relay on any failure.
    signed-in session:
 
    ```js
+   // Run this only after joining the call — the callable requires the caller to
+   // already hold a presence node in the room it is given.
    const { getFunctions, httpsCallable } = await import('firebase/functions');
-   await httpsCallable(getFunctions(), 'getTurnCredentials')();
+   await httpsCallable(getFunctions(), 'getTurnCredentials')({ roomId: 'PUBLIC' });
    ```
 
    Then paste one of the returned `turn:`/`turns:` URLs with its username/credential into the

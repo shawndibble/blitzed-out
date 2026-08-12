@@ -53,7 +53,7 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId);
       firebaseSignaling.listen(vi.fn());
 
       expect(mockRef).toHaveBeenCalled();
@@ -65,7 +65,7 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId);
       firebaseSignaling.listen(vi.fn());
 
       expect(mockSet).toHaveBeenCalledWith(
@@ -81,7 +81,7 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId);
       firebaseSignaling.listen(vi.fn());
 
       expect(mockOnDisconnect).toHaveBeenCalled();
@@ -93,7 +93,7 @@ describe('firebaseSignaling', () => {
       const userId = 'user-123';
       const onSignal = vi.fn();
 
-      firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId);
       firebaseSignaling.listen(onSignal);
 
       expect(mockOnValue).toHaveBeenCalled();
@@ -108,7 +108,7 @@ describe('firebaseSignaling', () => {
       const targetUserId = 'user-456';
       const offer = { type: 'offer' as const, sdp: 'test-sdp' };
 
-      firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId);
       firebaseSignaling.listen(vi.fn());
       await firebaseSignaling.sendOffer(targetUserId, offer);
 
@@ -141,7 +141,7 @@ describe('firebaseSignaling', () => {
       const targetUserId = 'user-456';
       const answer = { type: 'answer' as const, sdp: 'test-sdp' };
 
-      firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId);
       firebaseSignaling.listen(vi.fn());
       await firebaseSignaling.sendAnswer(targetUserId, answer);
 
@@ -174,7 +174,7 @@ describe('firebaseSignaling', () => {
       const targetUserId = 'user-456';
       const candidate = { candidate: 'test-candidate', sdpMLineIndex: 0 };
 
-      firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId);
       firebaseSignaling.listen(vi.fn());
       await firebaseSignaling.sendIceCandidate(targetUserId, candidate);
 
@@ -205,7 +205,7 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId);
       firebaseSignaling.listen(vi.fn());
       firebaseSignaling.cleanup();
 
@@ -226,7 +226,7 @@ describe('firebaseSignaling', () => {
     test('removes the presence node so the user stops occupying a roster slot', async () => {
       const { firebaseSignaling } = await import('../firebaseSignaling');
 
-      firebaseSignaling.claim('test-room', 'user-123');
+      await firebaseSignaling.claim('test-room', 'user-123');
       firebaseSignaling.listen(vi.fn());
       firebaseSignaling.cleanup();
 
@@ -241,7 +241,7 @@ describe('firebaseSignaling', () => {
       const cancel = vi.fn().mockResolvedValue(undefined);
       mockOnDisconnect.mockReturnValue({ remove: vi.fn().mockResolvedValue(undefined), cancel });
 
-      firebaseSignaling.claim('test-room', 'user-123');
+      await firebaseSignaling.claim('test-room', 'user-123');
       firebaseSignaling.listen(vi.fn());
       firebaseSignaling.cleanup();
 
@@ -297,8 +297,12 @@ describe('firebaseSignaling', () => {
       expect(writes[writes.length - 1][1].joinedAt).toBe(1_700_000_000_000);
     });
 
+    // The service is a module singleton, so a prior test's claim would leave
+    // presenceRef set and make this pass for the wrong reason.
     test('is a no-op before initialization', async () => {
       const { firebaseSignaling } = await import('../firebaseSignaling');
+      firebaseSignaling.cleanup();
+      mockSet.mockClear();
 
       await expect(firebaseSignaling.heartbeat()).resolves.toBeUndefined();
       expect(mockSet).not.toHaveBeenCalled();

@@ -50,16 +50,20 @@ describe('logger in production', () => {
     expect(warn).toHaveBeenCalledWith('something happened');
   });
 
-  // `?debug=0` reads as "explicitly off". Treating any presence of the key as
-  // enabled turns the obvious way to disable it into a way to enable it.
-  test('stays silent when the debug flag is explicitly disabled', async () => {
-    setSearch('?debug=0');
-    const logger = await loadProductionLogger();
+  // Only the documented value opts in. A denylist of "off" values would make
+  // `?debug=0` — the obvious way to disable it — enable it instead, and would
+  // let any typo turn logging on.
+  test.each(['?debug=0', '?debug=true', '?debug=yes', '?debug='])(
+    'stays silent for %s',
+    async (search) => {
+      setSearch(search);
+      const logger = await loadProductionLogger();
 
-    logger.warn('something happened');
+      logger.warn('something happened');
 
-    expect(warn).not.toHaveBeenCalled();
-  });
+      expect(warn).not.toHaveBeenCalled();
+    }
+  );
 
   test('logs when the flag is persisted in localStorage', async () => {
     window.localStorage.setItem('debug', 'true');

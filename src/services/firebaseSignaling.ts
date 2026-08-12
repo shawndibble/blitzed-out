@@ -54,7 +54,12 @@ class FirebaseSignalingService {
     this.presenceRef = ref(database, `video-calls/${roomId}/users/${userId}`);
 
     this.presenceOnDisconnect = onDisconnect(this.presenceRef);
-    this.presenceOnDisconnect.remove();
+    // Arming can fail independently of the presence write. It is not fatal —
+    // cleanup still removes the node — but it means a hard crash would leave a
+    // ghost behind, which is the failure this whole subsystem exists to avoid.
+    this.presenceOnDisconnect.remove().catch((error: unknown) => {
+      logger.warn('[signaling] Could not arm onDisconnect presence removal', error);
+    });
 
     return this.setPresent(true).then(async () => {
       // Read back what the server resolved the sentinel to, so the 30s heartbeat
@@ -281,8 +286,15 @@ class FirebaseSignalingService {
     // drop it. Without this the user lingers on the roster, and everyone still in
     // the room spends a MAX_PEERS slot dialling a phantom that will never answer.
     if (this.presenceRef) {
-      this.presenceOnDisconnect?.cancel?.();
-      this.setPresent(false);
+      // Both are fire-and-forget: cleanup is called from synchronous teardown
+      // paths (unmount, sidebar close) that cannot await. Rejections still have
+      // to be handled, or they surface as unhandled promise errors.
+      Promise.resolve(this.presenceOnDisconnect?.cancel?.()).catch((error: unknown) => {
+        logger.warn('[signaling] Could not cancel onDisconnect', error);
+      });
+      this.setPresent(false).catch((error: unknown) => {
+        logger.warn('[signaling] Could not remove presence node', error);
+      });
       this.presenceRef = null;
       this.presenceOnDisconnect = null;
       this.joinedAt = null;
