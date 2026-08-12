@@ -16,7 +16,7 @@ interface UserListStore {
   room: string | null;
   _performanceMetrics: PerformanceMetrics;
   _pendingUpdates: Record<string, OnlineUser | null>; // null means removal
-  _batchTimeout: NodeJS.Timeout | null;
+  _batchTimeout: ReturnType<typeof setTimeout> | null;
 
   // Actions
   setUsers: (users: Record<string, OnlineUser>) => void;

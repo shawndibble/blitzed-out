@@ -100,7 +100,7 @@ async function detectDatabaseCorruption(): Promise<boolean> {
     const corruptionScore = Object.values(corruptionIndicators).filter(Boolean).length;
 
     // Analysis for debugging in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       logger.debug('[Sync Recovery] Corruption analysis:', {
         defaultGroups: defaultGroups.length,
         totalTiles: totalTileCount,

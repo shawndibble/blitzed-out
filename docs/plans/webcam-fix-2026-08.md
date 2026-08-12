@@ -2,6 +2,14 @@
 
 Reports: users open the cam panel, see their own preview, never see anyone else.
 
+> **Status.** The bug itself was fixed and deployed (PR #1150). The deferred options recorded below
+> were then worked through: the transport swap shipped (§ Transport options), `getTurnCredentials`
+> gained a per-uid rate limit with App Check staged inert (`docs/engineering/security.md` § Cloud
+> Functions), the RTDB rules gained an emulator-backed test harness (`npm run test:rules:db`), and the
+> candidate-pair telemetry question is answered in `docs/plans/telemetry-decision-2026-08.md` — still
+> an open decision for the owner, with "do nothing new yet" recommended. Sections below describe the
+> state **at diagnosis time**; `simple-peer` and the glare apparatus they refer to are gone.
+
 ## Verified state
 
 - Transport: `simple-peer` mesh, `MAX_PEERS = 4`, RTDB signaling (`src/services/firebaseSignaling.ts`).
@@ -229,6 +237,12 @@ deploying, and check the candidate-pair lines the client now logs.
 Perfect negotiation is the honest answer to "is there something newer": it is the W3C-standard
 replacement for exactly the glare problem this code hand-rolls, and it costs one dependency
 _removal_ rather than a migration.
+
+**Resolved: native + perfect negotiation shipped.** Done in two gated stages — first a
+`PeerTransport` port (`src/services/ports/PeerTransportPort.ts`) with `simple-peer` behind it, so the store's
+existing tests kept asserting store behaviour; then the adapter was swapped for
+`adapters/NativePeerTransportAdapter.ts`. `simple-peer` is removed from `package.json`. The SFU row stands as
+recorded: not indicated, not done. See `docs/engineering/features.md` § In-room video calling.
 
 ## Sources
 

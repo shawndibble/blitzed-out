@@ -225,9 +225,12 @@ class FirebaseSignalingService {
    *
    * Claiming rewrites the whole node rather than touching `lastSeen` alone. A
    * socket blip fires the armed `onDisconnect` and deletes the node; the SDK
-   * re-arms it but never rewrites the data, and a lone `lastSeen` child would
-   * then fail the rule's `hasChildren(['joinedAt','status'])` — leaving the user
-   * invisible on every roster for the rest of the call.
+   * re-arms it but never rewrites the data, so only a full write brings the node
+   * back complete. A heartbeat alone would resurrect it as a lone `lastSeen`
+   * child, with no `joinedAt` or `status` for anything downstream to read —
+   * permitted by the rules (`.validate` cascades down, never up, so the parent's
+   * `hasChildren(['joinedAt','status'])` never runs for a write aimed at a child)
+   * and tolerated by `liveRoster`, but not a presence node anyone should publish.
    */
   async setPresent(present: boolean): Promise<void> {
     if (!this.presenceRef) return;

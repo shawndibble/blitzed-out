@@ -6,19 +6,19 @@ Companion to [README.md](README.md). This is the "how the system is built" view.
 
 ## Stack
 
-| Layer              | Technology                                                                                                   |
-| ------------------ | ------------------------------------------------------------------------------------------------------------ |
-| UI                 | React 19, TypeScript, MUI v9 (dark mode), Emotion, framer-motion                                             |
-| Build/dev          | Vite 8, `@vitejs/plugin-react-swc`, Terser, `vite-plugin-pwa`, `vite-plugin-compression2`                    |
-| Client state       | Zustand 5 (`src/stores/`)                                                                                    |
-| Local persistence  | Dexie 4 over IndexedDB (`src/stores/store.ts`) + `dexie-react-hooks`                                         |
-| Cloud              | Firebase 12: Auth, Firestore, Realtime Database, Storage, Cloud Functions                                    |
-| Realtime media     | `simple-peer` (WebRTC) signalled over Firebase RTDB                                                          |
-| i18n               | i18next + `react-i18next`, lazy resources, 6 locales; `services/locale.ts` is the seam                       |
-| Routing            | `react-router-dom` 7                                                                                         |
-| Errors/telemetry   | Sentry (`@sentry/react`), custom analytics wrapper                                                           |
-| Native shell hooks | Capacitor (`@capacitor/camera`, `@capacitor/core`), `@ionic/pwa-elements`                                    |
-| Misc               | `qrcode.react` (room QR), `@3d-dice/dice-box-threejs` (3D dice), `use-sound`, `dayjs`, `nanoid`, `js-sha256` |
+| Layer              | Technology                                                                                                         |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| UI                 | React 19, TypeScript, MUI v9 (dark mode), Emotion, framer-motion                                                   |
+| Build/dev          | Vite 8, `@vitejs/plugin-react-swc`, Terser, `vite-plugin-pwa`, `vite-plugin-compression2`                          |
+| Client state       | Zustand 5 (`src/stores/`)                                                                                          |
+| Local persistence  | Dexie 4 over IndexedDB (`src/stores/store.ts`) + `dexie-react-hooks`                                               |
+| Cloud              | Firebase 12: Auth, Firestore, Realtime Database, Storage, Cloud Functions                                          |
+| Realtime media     | native `RTCPeerConnection` (perfect negotiation) behind `services/ports/PeerTransportPort.ts`, signalled over RTDB |
+| i18n               | i18next + `react-i18next`, lazy resources, 6 locales; `services/locale.ts` is the seam                             |
+| Routing            | `react-router-dom` 7                                                                                               |
+| Errors/telemetry   | Sentry (`@sentry/react`), custom analytics wrapper                                                                 |
+| Native shell hooks | Capacitor (`@capacitor/camera`, `@capacitor/core`), `@ionic/pwa-elements`                                          |
+| Misc               | `qrcode.react` (room QR), `@3d-dice/dice-box-threejs` (3D dice), `use-sound`, `dayjs`, `nanoid`, `js-sha256`       |
 
 Deployed as a static SPA to GitHub Pages at `blitzedout.com`.
 
@@ -128,6 +128,7 @@ Concrete examples:
 
 - **`buildGame.ts`** separates the Dexie fetch from a pure board transform — the board-building algorithm is a pure function over fetched tiles, so it's unit-testable without a database.
 - **`gameSettingsOrchestrator.ts`** exposes a pure `planSubmit` that decides what to do on settings submit, with the side-effecting parts pushed to the edges.
+- **`ports/PeerTransportPort.ts`** declares one leg of the WebRTC mesh — signal in, signal/stream/state out — with `adapters/NativePeerTransportAdapter.ts` implementing it over `RTCPeerConnection`. The split is what keeps `videoCallStore`'s policy (dial, retry, `MAX_PEERS`, timeouts) testable without a WebRTC stack: `setPeerTransportFactory` is the module seam, and the store tests pass a literal fake through it.
 
 When adding logic, prefer: **fetch at the edge → pure transform in the middle → write at the edge.** It keeps the testable surface large.
 
@@ -178,4 +179,4 @@ Node Firebase Functions, 9 exported. Mix of scheduled (Pub/Sub) cleanup jobs, RT
 - Scheduled: stale-user cleanup (~5 min), inactive-anonymous-account cleanup (daily), video-call signaling cleanup (~5 min, also prunes roster entries idle 10 min).
 - Triggers: on user disconnect, presence validation (stamps `lastSeen`), pack-report notification.
 - Two **callable** admin helpers (`manualCleanupStaleUsers`, `manualCleanupAnonymousAccounts`) gated on an `admin` custom claim.
-- `getTurnCredentials` — mints short-lived Cloudflare TURN credentials for a caller who already holds a roster slot in the room they name. Details and the security caveats in [security.md](security.md#cloud-functions).
+- `getTurnCredentials` — mints short-lived Cloudflare TURN credentials for a caller who already holds a roster slot in the room they name, rate-limited per uid (App Check staged but inert). Details, quota numbers and the security caveats in [security.md](security.md#cloud-functions).

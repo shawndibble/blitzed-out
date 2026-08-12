@@ -19,7 +19,7 @@ export default function usePresence(roomId: string, roomRealtime?: boolean): voi
     }
 
     let stopHeartbeat: (() => void) | null = null;
-    let timeoutId: NodeJS.Timeout | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
     const needsPresenceUpdate =
       currentRoomRef.current !== roomId || displayName !== currentDisplayNameRef.current;
 

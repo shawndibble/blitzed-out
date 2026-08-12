@@ -1,5 +1,7 @@
 import * as functions from 'firebase-functions/v1';
 import { getDatabase } from 'firebase-admin/database';
+import { APP_CHECK_ENFORCED, observeAppCheck } from './appCheck';
+import { enforceRateLimit, RateLimitPolicy } from './rateLimit';
 
 /**
  * Mints short-lived Cloudflare TURN credentials.
@@ -21,6 +23,20 @@ const CREDENTIAL_TTL_SECONDS = 2 * 60 * 60;
 /** Upstream budget. The client is waiting; a slow mint is worse than no mint. */
 const UPSTREAM_TIMEOUT_MS = 10_000;
 
+/**
+ * Per-uid mint budget. Sized far above real use (~1 mint per tab per 110 min) so a
+ * false block cannot break a call; derivation in `docs/engineering/security.md`
+ * § Cloud Functions.
+ *
+ * Bounds how *broadly* one account can redistribute credentials, not bandwidth: a
+ * single credential relays unlimited bytes for its whole TTL. Caps there are
+ * Cloudflare's side of the deal.
+ */
+const MINT_RATE_LIMIT: RateLimitPolicy = {
+  quota: 60,
+  windowMs: 10 * 60 * 1000,
+};
+
 interface CloudflareIceServer {
   urls: string | string[];
   username?: string;
@@ -40,8 +56,14 @@ function toIceServerArray(payload: unknown): CloudflareIceServer[] {
 export const getTurnCredentials = functions
   // Bounded well under the 60s default: every path here is either a fast RTDB
   // read or a time-boxed upstream call, and the client is blocked meanwhile.
-  .runWith({ secrets: ['CLOUDFLARE_TURN_TOKEN'], timeoutSeconds: 30 })
+  .runWith({
+    enforceAppCheck: APP_CHECK_ENFORCED,
+    secrets: ['CLOUDFLARE_TURN_TOKEN'],
+    timeoutSeconds: 30,
+  })
   .https.onCall(async (data, context) => {
+    observeAppCheck(context, 'getTurnCredentials');
+
     if (!context.auth) {
       throw new functions.https.HttpsError(
         'unauthenticated',
@@ -67,6 +89,11 @@ export const getTurnCredentials = functions
         'Join the call before requesting TURN credentials'
       );
     }
+
+    // After the presence check, so a client hammering with a roomId it does not
+    // hold cannot burn the quota that its real calls need — and before the
+    // Cloudflare call, because the point is to not make that call.
+    await enforceRateLimit(context.auth.uid, 'turnCredentials', MINT_RATE_LIMIT);
 
     const apiToken = process.env.CLOUDFLARE_TURN_TOKEN;
     const keyId = process.env.CLOUDFLARE_TURN_KEY_ID;

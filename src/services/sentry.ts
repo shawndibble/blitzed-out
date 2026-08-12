@@ -121,6 +121,14 @@ export function initializeSentry(): void {
     return;
   }
 
+  // No `thirdPartyErrorFilterIntegration` here, deliberately. It needs the module
+  // metadata that `sentryVitePlugin` injects, and that plugin only registers when
+  // `SENTRY_UPLOAD_SOURCEMAPS=true` — which nothing sets. Frames without metadata
+  // all look third-party, so the filter dropped **every** stack-traced error in
+  // production while reporting looked healthy. Extension and browser noise is
+  // handled by `ignoreErrors` and `beforeSend` instead, neither of which depends on
+  // a build flag. Re-registering the filter is only safe alongside making that
+  // plugin unconditional.
   Sentry.init({
     dsn: import.meta.env.VITE_SENTRY_DSN,
     environment: import.meta.env.MODE,
@@ -141,14 +149,6 @@ export function initializeSentry(): void {
         useNavigationType,
         createRoutesFromChildren,
         matchRoutes,
-      }),
-      // Filter out third-party errors (browser extensions, injected scripts).
-      // filterKeys must match applicationKey in sentryVitePlugin (vite.config.ts).
-      // 'exclusively' so app errors surfacing through third-party frames
-      // (gtag callbacks, extension wrappers) still get reported.
-      Sentry.thirdPartyErrorFilterIntegration({
-        filterKeys: ['blitzed-out'],
-        behaviour: 'drop-error-if-exclusively-contains-third-party-frames',
       }),
     ],
 

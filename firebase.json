@@ -11,6 +11,11 @@
   "storage": {
     "rules": "storage.rules"
   },
+  "emulators": {
+    "database": {
+      "port": 9002
+    }
+  },
   "functions": [
     {
       "source": "functions",

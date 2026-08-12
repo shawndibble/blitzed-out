@@ -40,9 +40,9 @@ export default defineConfig({
           sentryVitePlugin({
             org: 'blitzedout',
             project: 'javascript-react',
-            // Injects module metadata so thirdPartyErrorFilterIntegration can
-            // tell app frames from third-party frames. Without it, every frame
-            // looks third-party and all stack-traced errors get dropped.
+            // Only needed if thirdPartyErrorFilterIntegration is reinstated in
+            // services/sentry.ts — see the note there. This plugin is opt-in, so
+            // that filter must not depend on it.
             applicationKey: 'blitzed-out',
           }),
         ]
@@ -93,7 +93,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
-      'simple-peer': 'simple-peer/simplepeer.min.js',
     },
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   },

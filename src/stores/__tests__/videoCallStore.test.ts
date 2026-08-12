@@ -10,9 +10,11 @@ import {
   RETRY_MAX_MS,
   ROSTER_STALE_MS,
   liveRoster,
+  setPeerTransportFactory,
   useVideoCallStore,
 } from '../videoCallStore';
 import { MAX_PEERS } from '@/config/webrtc';
+import type { PeerTransportEvents } from '@/services/ports/PeerTransportPort';
 
 const harness = vi.hoisted(() => ({
   rosterListeners: [] as Array<(snapshot: { val: () => unknown }) => void>,
@@ -32,41 +34,32 @@ vi.mock('@/services/firebaseSignaling', () => ({
   },
 }));
 
-vi.mock('simple-peer', () => {
-  class MockPeer {
-    destroyed = false;
-    signal = vi.fn();
-    replaceTrack = vi.fn();
-    addTrack = vi.fn();
-    addStream = vi.fn();
-    _pc = { iceConnectionState: 'new' };
-    options: any;
-    private handlers = new Map<string, Array<(...args: any[]) => void>>();
+/** A literal stand-in for the transport, driven through the port's callbacks. */
+class FakeTransport {
+  closed = false;
+  accept = vi.fn();
+  replaceLocalTracks = vi.fn();
+  candidateTypes = vi.fn(async () => null);
+  options: any;
 
-    constructor(options: any) {
-      this.options = options;
-      harness.peers.push(this);
-    }
-
-    on(event: string, handler: (...args: any[]) => void) {
-      const existing = this.handlers.get(event) ?? [];
-      this.handlers.set(event, [...existing, handler]);
-      return this;
-    }
-
-    emit(event: string, ...args: any[]) {
-      this.handlers.get(event)?.forEach((handler) => handler(...args));
-    }
-
-    destroy() {
-      if (this.destroyed) return;
-      this.destroyed = true;
-      this.emit('close');
-    }
+  constructor(options: any) {
+    this.options = options;
+    harness.peers.push(this);
   }
 
-  return { default: MockPeer };
-});
+  /** Drive one of the port's callbacks, by its own name. */
+  emit(callback: keyof PeerTransportEvents, ...args: any[]) {
+    (this.options.events[callback] as (...a: any[]) => void)?.(...args);
+  }
+
+  // Must fire onClosed synchronously and exactly once: `dropPeer` re-enters
+  // through it, and a second pass would book a second retry for one failure.
+  close = vi.fn(() => {
+    if (this.closed) return;
+    this.closed = true;
+    this.emit('onClosed');
+  });
+}
 
 vi.mock('firebase/database', () => ({
   getDatabase: vi.fn(() => ({})),
@@ -95,6 +88,7 @@ function publishRoster(userIds: string[]) {
 }
 
 describe('VideoCallStore', () => {
+  let restoreTransport: () => void;
   let mockMediaStream: MediaStream;
   let mockVideoTrack: MediaStreamTrack;
   let mockAudioTrack: MediaStreamTrack;
@@ -104,6 +98,7 @@ describe('VideoCallStore', () => {
     vi.useFakeTimers();
     harness.rosterListeners.length = 0;
     harness.peers.length = 0;
+    restoreTransport = setPeerTransportFactory((options) => new FakeTransport(options) as never);
 
     // Re-arm after clearAllMocks: the store awaits these, so a bare vi.fn()
     // returning undefined fails on `.catch` rather than on the assertion.
@@ -164,6 +159,7 @@ describe('VideoCallStore', () => {
       });
     }
     vi.useRealTimers();
+    restoreTransport();
   });
 
   describe('Initial State', () => {
@@ -599,7 +595,7 @@ describe('VideoCallStore', () => {
         publishRoster(['self', 'zed']);
       });
 
-      expect(harness.peers[0].options.config.iceServers).toEqual(MINTED_ICE_SERVERS);
+      expect(harness.peers[0].options.iceServers).toEqual(MINTED_ICE_SERVERS);
     });
 
     test('opens a peer for every other participant on the roster', async () => {
@@ -645,7 +641,7 @@ describe('VideoCallStore', () => {
       const [firstAttempt] = harness.peers;
 
       act(() => {
-        firstAttempt.emit('error', new Error('ICE failed'));
+        firstAttempt.emit('onError', new Error('ICE failed'));
       });
       expect(result.current.peers.has('zed')).toBe(false);
 
@@ -665,7 +661,7 @@ describe('VideoCallStore', () => {
       });
 
       act(() => {
-        harness.peers[0].emit('iceStateChange', 'failed');
+        harness.peers[0].emit('onIceStateChange', 'failed');
       });
       expect(result.current.peers.has('zed')).toBe(false);
 
@@ -683,7 +679,7 @@ describe('VideoCallStore', () => {
         publishRoster(['self', 'zed']);
       });
       act(() => {
-        harness.peers[0].emit('error', new Error('ICE failed'));
+        harness.peers[0].emit('onError', new Error('ICE failed'));
       });
 
       await act(async () => {
@@ -703,7 +699,32 @@ describe('VideoCallStore', () => {
       for (let attempt = 0; attempt < MAX_RETRY_ATTEMPTS + 2; attempt += 1) {
         const peer = harness.peers[harness.peers.length - 1];
         act(() => {
-          peer.emit('error', new Error('ICE failed'));
+          peer.emit('onError', new Error('ICE failed'));
+        });
+        await act(async () => {
+          vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
+        });
+      }
+
+      expect(harness.peers.length).toBe(MAX_RETRY_ATTEMPTS);
+      expect(result.current.peers.has('zed')).toBe(false);
+    });
+
+    // ICE reaches `connected` before the DTLS handshake finishes. Treating that as
+    // connected cleared the retry budget, so a peer whose handshake then failed
+    // re-booked attempt 1 forever and re-dialled for the life of the call.
+    test('ICE connecting does not clear the retry budget before media can flow', async () => {
+      const result = await joinRoom();
+
+      act(() => {
+        publishRoster(['self', 'zed']);
+      });
+
+      for (let attempt = 0; attempt < MAX_RETRY_ATTEMPTS + 2; attempt += 1) {
+        const peer = harness.peers[harness.peers.length - 1];
+        act(() => {
+          peer.emit('onIceStateChange', 'connected');
+          peer.emit('onError', new Error('DTLS failed'));
         });
         await act(async () => {
           vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
@@ -723,7 +744,7 @@ describe('VideoCallStore', () => {
 
       for (let attempt = 0; attempt < MAX_RETRY_ATTEMPTS - 1; attempt += 1) {
         act(() => {
-          harness.peers[harness.peers.length - 1].emit('error', new Error('ICE failed'));
+          harness.peers[harness.peers.length - 1].emit('onError', new Error('ICE failed'));
         });
         await act(async () => {
           vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
@@ -731,12 +752,12 @@ describe('VideoCallStore', () => {
       }
 
       act(() => {
-        harness.peers[harness.peers.length - 1].emit('connect');
+        harness.peers[harness.peers.length - 1].emit('onConnected');
       });
       expect(result.current.peerRetries.has('zed')).toBe(false);
 
       act(() => {
-        harness.peers[harness.peers.length - 1].emit('error', new Error('ICE failed'));
+        harness.peers[harness.peers.length - 1].emit('onError', new Error('ICE failed'));
       });
       await act(async () => {
         vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
@@ -775,7 +796,7 @@ describe('VideoCallStore', () => {
 
       for (let attempt = 0; attempt < MAX_RETRY_ATTEMPTS; attempt += 1) {
         act(() => {
-          harness.peers[harness.peers.length - 1].emit('error', new Error('ICE failed'));
+          harness.peers[harness.peers.length - 1].emit('onError', new Error('ICE failed'));
         });
         await act(async () => {
           vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
@@ -802,7 +823,7 @@ describe('VideoCallStore', () => {
 
       for (let attempt = 0; attempt < MAX_RETRY_ATTEMPTS; attempt += 1) {
         act(() => {
-          harness.peers[harness.peers.length - 1].emit('error', new Error('ICE failed'));
+          harness.peers[harness.peers.length - 1].emit('onError', new Error('ICE failed'));
         });
         await act(async () => {
           vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
@@ -906,6 +927,104 @@ describe('VideoCallStore', () => {
       });
 
       expect(harness.peers.length).toBe(1);
+    });
+  });
+
+  describe('Incoming signals', () => {
+    async function joinAndListen(userId = 'self', roster = [userId]) {
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      const { result } = renderHook(() => useVideoCallStore());
+      await act(async () => {
+        await result.current.initialize('test-room', userId);
+      });
+      act(() => {
+        publishRoster(roster);
+      });
+      return { result, onSignal: vi.mocked(firebaseSignaling.listen).mock.calls[0][0] };
+    }
+
+    // Perfect negotiation needs exactly one polite peer per pair, and the pair has
+    // to agree on which without exchanging a message.
+    test('makes the higher user id the polite side of every pair', async () => {
+      await joinAndListen('self', ['self', 'aaa', 'zed']);
+
+      const polite = new Map(
+        harness.peers.map((peer) => [peer.options.label, peer.options.polite])
+      );
+
+      expect(polite.get('aaa')).toBe(true);
+      expect(polite.get('zed')).toBe(false);
+    });
+
+    // Their offer can arrive while we are backing off from a failed attempt, when
+    // the roster still lists them but we hold no connection.
+    test('opens a connection for an offer from a participant we are not dialling', async () => {
+      const { result, onSignal } = await joinAndListen('self', ['self', 'zed']);
+      act(() => {
+        harness.peers[0].emit('onError', new Error('ICE failed'));
+      });
+      expect(result.current.peers.has('zed')).toBe(false);
+
+      act(() => {
+        onSignal({ type: 'offer', from: 'zed', sdp: 'v=0 their offer', timestamp: 1 });
+      });
+
+      expect(result.current.peers.has('zed')).toBe(true);
+      expect(harness.peers).toHaveLength(2);
+      expect(harness.peers[1].accept).toHaveBeenCalledWith({
+        type: 'offer',
+        sdp: 'v=0 their offer',
+      });
+    });
+
+    test.each([
+      [
+        'an answer',
+        { type: 'answer' as const, sdp: 'v=0 their answer' },
+        { type: 'answer', sdp: 'v=0 their answer' },
+      ],
+      [
+        'a candidate',
+        { type: 'ice-candidate' as const, candidate: { candidate: 'candidate:1 1 udp' } },
+        { type: 'candidate', candidate: { candidate: 'candidate:1 1 udp' } },
+      ],
+    ])('hands %s for a live peer straight to it', async (_label, incoming, expected) => {
+      const { result, onSignal } = await joinAndListen('self', ['self', 'zed']);
+
+      act(() => {
+        onSignal({ from: 'zed', timestamp: 1, ...incoming });
+      });
+
+      expect(harness.peers[0].accept).toHaveBeenCalledWith(expected);
+      expect(harness.peers).toHaveLength(1);
+      expect(result.current.peers.size).toBe(1);
+    });
+
+    // Only an offer opens a connection. An answer names a negotiation we never
+    // started, so there is nothing for it to complete.
+    test('does not open a connection for an answer', async () => {
+      const { result, onSignal } = await joinAndListen('self', ['self', 'zed']);
+      act(() => {
+        harness.peers[0].emit('onError', new Error('ICE failed'));
+      });
+
+      act(() => {
+        onSignal({ type: 'answer', from: 'zed', sdp: 'v=0 stray answer', timestamp: 1 });
+      });
+
+      expect(result.current.peers.size).toBe(0);
+      expect(harness.peers).toHaveLength(1);
+    });
+
+    test('ignores a signal it cannot make sense of', async () => {
+      const { result, onSignal } = await joinAndListen('self', ['self', 'zed']);
+
+      act(() => {
+        onSignal({ type: 'offer', from: 'zed', timestamp: 1 });
+      });
+
+      expect(harness.peers[0].accept).not.toHaveBeenCalled();
+      expect(result.current.peers.size).toBe(1);
     });
   });
 
@@ -1044,8 +1163,7 @@ describe('VideoCallStore', () => {
         await result.current.reconnectCall();
       });
 
-      expect(peer.replaceTrack).toHaveBeenCalledWith(mockVideoTrack, freshVideo, mockMediaStream);
-      expect(peer.replaceTrack).toHaveBeenCalledWith(mockAudioTrack, freshAudio, mockMediaStream);
+      expect(peer.replaceLocalTracks).toHaveBeenCalledWith(freshStream);
     });
 
     test('does not touch peers that were already destroyed', async () => {
@@ -1058,7 +1176,7 @@ describe('VideoCallStore', () => {
         publishRoster(['self', 'zed']);
       });
       const [peer] = harness.peers;
-      peer.destroyed = true;
+      peer.closed = true;
 
       act(() => {
         result.current.disconnectCall();
@@ -1068,7 +1186,7 @@ describe('VideoCallStore', () => {
         await result.current.reconnectCall();
       });
 
-      expect(peer.replaceTrack).not.toHaveBeenCalled();
+      expect(peer.replaceLocalTracks).not.toHaveBeenCalled();
     });
 
     test('should not reconnect if not initialized', async () => {
