@@ -293,11 +293,20 @@ export const cleanupVideoCallSignaling = functions
   .pubsub.schedule('every 5 minutes')
   .onRun(async () => {
     const db = getDatabase();
-    const twoMinutesAgo = Date.now() - 2 * 60 * 1000; // 2 minutes in milliseconds
+    /** Signalling older than this is abandoned. Recomputed per room: see timeoutSeconds. */
+    const signalStaleBefore = () => Date.now() - 2 * 60 * 1000;
     // 10 minutes: 20x the client heartbeat. Kept in step with ROSTER_STALE_MS in
     // src/stores/videoCallStore.ts, which applies the same rule client-side —
     // separate packages, so the two constants cannot be shared.
     const ROSTER_STALE_MS = 10 * 60 * 1000;
+
+    // A missing timestamp is treated as expired, not as "keep forever" — those are
+    // exactly the entries that survive indefinitely and hold mesh slots. Read fresh
+    // each call: the sweep can now run for minutes.
+    const isPresent = (presence: any): boolean => {
+      const seen = presence?.lastSeen ?? presence?.joinedAt;
+      return typeof seen === 'number' && seen >= Date.now() - ROSTER_STALE_MS;
+    };
 
     try {
       functions.logger.info('Starting video call signaling cleanup process');
@@ -325,37 +334,23 @@ export const cleanupVideoCallSignaling = functions
           let removed = 0;
 
           for (const [userId, presence] of Object.entries<any>(roomData.users)) {
-            const lastSeen = presence?.lastSeen ?? presence?.joinedAt;
-            // No usable timestamp means an entry nothing can ever age out. Those
-            // are the ones that survive indefinitely and consume mesh slots, so
-            // treat a missing timestamp as expired rather than as "keep forever".
-            if (typeof lastSeen === 'number' && lastSeen >= Date.now() - ROSTER_STALE_MS) {
-              continue;
-            }
+            if (isPresent(presence)) continue;
 
-            // `presence` came from the single up-front read of `video-calls` and
-            // this loop awaits its way through every room, so by now it can be
-            // minutes stale — the user may have rejoined and be mid-call. Re-read
-            // and re-test the cutoff inside a transaction so the delete is decided
-            // against the presence that exists at the moment of deletion, never
-            // against the snapshot the sweep started from.
+            // This loop awaits its way through every room, so `presence` — from the
+            // one up-front read — can be minutes old by now and the user may have
+            // rejoined mid-call. Decide the delete against the presence that exists
+            // at deletion time, never against the snapshot.
             const { committed } = await db
               .ref(`video-calls/${roomId}/users/${userId}`)
               .transaction((current: any) => {
-                if (current === null) return undefined; // already gone; skip the write
-                const seen = current?.lastSeen ?? current?.joinedAt;
-                if (typeof seen === 'number' && seen >= Date.now() - ROSTER_STALE_MS) {
-                  return undefined; // rejoined since the sweep read the room
-                }
-                return null;
+                if (current === null) return undefined;
+                return isPresent(current) ? undefined : null;
               });
 
-            // Only a committed delete drops the local copy, which the
-            // `hasActiveUsers` check below reads. Every uncertain case therefore
-            // keeps the room alive: mistakenly forgetting a spared entry could
-            // empty the room and delete it out from under a live caller, whereas
-            // keeping an already-gone entry just defers the room's removal to the
-            // next sweep, which re-reads `video-calls` fresh.
+            // Only a committed delete drops the local copy the room check below
+            // reads, so every uncertain case keeps the room alive: forgetting a
+            // spared entry could delete a room out from under a live caller, while
+            // keeping an already-gone one just defers removal to the next sweep.
             if (committed) {
               delete roomData.users[userId];
               removed++;
@@ -367,18 +362,14 @@ export const cleanupVideoCallSignaling = functions
           }
         }
 
-        // The local copy says the room is empty, but it descends from the one
-        // up-front read of `video-calls` and this loop has been awaiting its way
-        // through the rooms since — a user who joined a ghost-only room in the
-        // meantime is not in it. Deciding the delete from that copy would wipe
-        // their presence and their queued offers, which surfaces to them as the
-        // original bug: their own preview and nobody else. Re-read inside a
-        // transaction so an occupied room is spared, whatever the snapshot said.
+        // Same staleness argument as above, with worse consequences: a user who
+        // joined this ghost-only room mid-sweep is absent from the local copy, and
+        // deleting the room would take their presence and queued offers with it.
         if (!roomData.users || Object.keys(roomData.users).length === 0) {
           const { committed } = await db
             .ref(`video-calls/${roomId}`)
             .transaction((current: any) => {
-              if (current === null) return undefined; // already gone
+              if (current === null) return undefined;
               if (current.users && Object.keys(current.users).length > 0) return undefined;
               return null;
             });
@@ -396,7 +387,7 @@ export const cleanupVideoCallSignaling = functions
           Object.entries(roomData.offers).forEach(([userId, userOffers]: [string, any]) => {
             if (userOffers) {
               Object.entries(userOffers).forEach(([offerId, offer]: [string, any]) => {
-                if (offer?.timestamp && offer.timestamp < twoMinutesAgo) {
+                if (offer?.timestamp && offer.timestamp < signalStaleBefore()) {
                   updates[`video-calls/${roomId}/offers/${userId}/${offerId}`] = null;
                 }
               });
@@ -417,7 +408,7 @@ export const cleanupVideoCallSignaling = functions
           Object.entries(roomData.answers).forEach(([userId, userAnswers]: [string, any]) => {
             if (userAnswers) {
               Object.entries(userAnswers).forEach(([answerId, answer]: [string, any]) => {
-                if (answer?.timestamp && answer.timestamp < twoMinutesAgo) {
+                if (answer?.timestamp && answer.timestamp < signalStaleBefore()) {
                   updates[`video-calls/${roomId}/answers/${userId}/${answerId}`] = null;
                 }
               });
@@ -440,7 +431,7 @@ export const cleanupVideoCallSignaling = functions
               if (userCandidates) {
                 Object.entries(userCandidates).forEach(
                   ([candidateId, candidate]: [string, any]) => {
-                    if (candidate?.timestamp && candidate.timestamp < twoMinutesAgo) {
+                    if (candidate?.timestamp && candidate.timestamp < signalStaleBefore()) {
                       updates[`video-calls/${roomId}/ice-candidates/${userId}/${candidateId}`] =
                         null;
                     }

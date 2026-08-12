@@ -6,8 +6,10 @@ import type {
 } from '@/services/ports/PeerTransportPort';
 import { logger } from '@/utils/logger';
 
+/** How long a `disconnected` link is given to heal before ICE is restarted. */
+const ICE_RESTART_GRACE_MS = 2500;
+
 interface OfferDecision {
-  /** True when this side is mid-offer or otherwise not ready to take one. */
   polite: boolean;
   makingOffer: boolean;
   signalingState: RTCSignalingState;
@@ -16,18 +18,17 @@ interface OfferDecision {
 }
 
 /**
- * The whole of glare avoidance, as a decision.
+ * The whole of glare avoidance, as a decision. Canonical explanation lives here;
+ * elsewhere just points at it.
  *
- * Two peers that offer at the same moment cannot both proceed: applying a remote
- * offer while holding a local one is illegal, and if both sides back off nobody
- * connects. W3C perfect negotiation resolves it by role — the impolite peer
- * ignores the colliding offer and expects its own to be answered; the polite peer
- * accepts the collision, which implicitly rolls its own offer back.
- *
- * `signalingState === 'stable'` is the readiness test rather than a lock or a
- * timer, because it is the connection's own answer to "can I take an offer right
- * now?". An answer already being applied counts as ready: the state is momentarily
- * `have-local-offer` but is about to settle.
+ * Both sides offer freely, so simultaneous offers are the normal case — and
+ * applying a remote offer while holding a local one is illegal, while both sides
+ * backing off connects nobody. W3C perfect negotiation settles it by role: the
+ * impolite peer ignores the collision and expects its own offer answered, the
+ * polite peer accepts it, which implicitly rolls its own back. Readiness is
+ * `signalingState`, the connection's own answer to "can I take an offer now?",
+ * not a lock or a timer. An answer mid-apply counts as ready — momentarily
+ * `have-local-offer`, about to settle.
  */
 export function shouldIgnoreOffer({
   polite,
@@ -40,14 +41,7 @@ export function shouldIgnoreOffer({
   return type === 'offer' && !readyForOffer && !polite;
 }
 
-/**
- * A mesh leg on native `RTCPeerConnection`, negotiated by the W3C perfect
- * negotiation pattern.
- *
- * Both sides add their tracks and offer freely; collisions are settled by the
- * polite/impolite roles rather than by a lock, so there is no window in which one
- * side has given up and the other is still waiting.
- */
+/** A mesh leg on native `RTCPeerConnection`. Glare: see `shouldIgnoreOffer`. */
 export function createNativePeerTransport({
   polite,
   label,
@@ -66,8 +60,8 @@ export function createNativePeerTransport({
 
   let closed = false;
   let makingOffer = false;
-  let ignoreOffer = false;
   let settingRemoteAnswer = false;
+  let iceRestartTimer: ReturnType<typeof setTimeout> | null = null;
   /**
    * Candidates that arrived before the description they belong to.
    * `addIceCandidate` rejects until a remote description exists, and the
@@ -129,20 +123,29 @@ export function createNativePeerTransport({
     const state = pc.iceConnectionState;
     events.onIceStateChange(state);
 
-    // `disconnected` is often transient, but a network that changed underneath
-    // the connection needs fresh candidates to recover. Nothing used to try:
-    // the connection sat there until it aged into `failed` and was torn down.
+    // A network that changed underneath the connection needs fresh candidates to
+    // recover, but most `disconnected` transitions heal on their own — so wait one
+    // grace period and re-check rather than restarting on every blip. Restarting
+    // eagerly costs a full re-gather and a fresh TURN allocation each time, is
+    // unbounded on a flapping link, and when both ends do it at once the glare
+    // discards one side's whole gather.
     if (state === 'disconnected') {
-      try {
-        pc.restartIce();
-      } catch (error) {
-        logger.warn(`${tag} Could not restart ICE`, error);
-      }
+      if (iceRestartTimer) return;
+      iceRestartTimer = setTimeout(() => {
+        iceRestartTimer = null;
+        if (closed || pc.iceConnectionState !== 'disconnected') return;
+
+        try {
+          pc.restartIce();
+        } catch (error) {
+          logger.warn(`${tag} Could not restart ICE`, error);
+        }
+      }, ICE_RESTART_GRACE_MS);
     }
   });
 
-  // Connection state, not ICE state, is what says media can flow — and it is the
-  // single source for "connected" so the store is never told twice.
+  // Connection state, not ICE state: it implies a finished DTLS handshake, so it
+  // is the only signal that means media can actually flow.
   pc.addEventListener('connectionstatechange', () => {
     if (closed) return;
 
@@ -150,8 +153,7 @@ export function createNativePeerTransport({
       events.onConnected();
     } else if (pc.connectionState === 'failed') {
       // Not the same as ICE failing: a DTLS handshake can fail with ICE happily
-      // connected, which looks exactly like "I only see myself" and used to be
-      // reported by nothing at all.
+      // connected, which looks exactly like "I only see myself".
       events.onError(new Error(`${tag} connection failed`));
     }
   });
@@ -160,9 +162,9 @@ export function createNativePeerTransport({
     try {
       await pc.addIceCandidate(candidate);
     } catch (error) {
-      // Candidates belonging to an offer we deliberately ignored are expected to
-      // be unusable; anything else is worth knowing about.
-      if (!ignoreOffer) logger.warn(`${tag} Could not add a remote candidate`, error);
+      // Routine: candidates belonging to an offer we ignored are expected to be
+      // unusable, and there is no reliable way to tell those apart afterwards.
+      logger.debug(`${tag} Could not add a remote candidate`, error);
     }
   }
 
@@ -178,7 +180,7 @@ export function createNativePeerTransport({
       return;
     }
 
-    ignoreOffer = shouldIgnoreOffer({
+    const ignoreOffer = shouldIgnoreOffer({
       polite,
       makingOffer,
       signalingState: pc.signalingState,
@@ -192,8 +194,8 @@ export function createNativePeerTransport({
 
     settingRemoteAnswer = signal.type === 'answer';
     try {
-      // On a collision the polite peer's own pending offer is rolled back here,
-      // implicitly — no explicit rollback description is needed.
+      // A collision rolls the polite peer's pending offer back implicitly; no
+      // explicit rollback description is needed.
       await pc.setRemoteDescription({ type: signal.type, sdp: signal.sdp });
     } finally {
       settingRemoteAnswer = false;
@@ -261,6 +263,7 @@ export function createNativePeerTransport({
     close() {
       if (closed) return;
       closed = true;
+      if (iceRestartTimer) clearTimeout(iceRestartTimer);
       pc.close();
       events.onClosed();
     },

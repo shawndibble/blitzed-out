@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   createNativePeerTransport,
   shouldIgnoreOffer,
@@ -342,18 +342,70 @@ describe('native peer transport', () => {
       expect(vi.mocked(events.onIceStateChange).mock.calls).toEqual([['checking'], ['failed']]);
     });
 
-    // A failed connection is torn down and redialled by the caller. A merely
-    // disconnected one is worth trying to save, and nothing used to try.
-    test('restarts ICE when the connection drops but not when it fails', () => {
-      const { pc } = open();
+    // A failed connection is torn down and redialled by the caller; a merely
+    // disconnected one is worth trying to save.
+    describe('ICE restart', () => {
+      beforeEach(() => vi.useFakeTimers());
+      afterEach(() => vi.useRealTimers());
 
-      pc.iceConnectionState = 'disconnected';
-      pc.dispatch('iceconnectionstatechange');
-      expect(pc.restartIce).toHaveBeenCalledTimes(1);
+      test('restarts a link that is still disconnected after the grace period', () => {
+        const { pc } = open();
 
-      pc.iceConnectionState = 'failed';
-      pc.dispatch('iceconnectionstatechange');
-      expect(pc.restartIce).toHaveBeenCalledTimes(1);
+        pc.iceConnectionState = 'disconnected';
+        pc.dispatch('iceconnectionstatechange');
+        expect(pc.restartIce).not.toHaveBeenCalled();
+
+        vi.advanceTimersByTime(5000);
+        expect(pc.restartIce).toHaveBeenCalledTimes(1);
+      });
+
+      // Most disconnects heal on their own; restarting each one costs a full
+      // re-gather and a fresh TURN allocation.
+      test('does not restart a link that healed inside the grace period', () => {
+        const { pc } = open();
+
+        pc.iceConnectionState = 'disconnected';
+        pc.dispatch('iceconnectionstatechange');
+        pc.iceConnectionState = 'connected';
+        pc.dispatch('iceconnectionstatechange');
+        vi.advanceTimersByTime(5000);
+
+        expect(pc.restartIce).not.toHaveBeenCalled();
+      });
+
+      // A flapping link must not queue one restart per transition.
+      test('coalesces repeated disconnects into one restart', () => {
+        const { pc } = open();
+
+        for (let i = 0; i < 5; i += 1) {
+          pc.iceConnectionState = 'disconnected';
+          pc.dispatch('iceconnectionstatechange');
+        }
+        vi.advanceTimersByTime(5000);
+
+        expect(pc.restartIce).toHaveBeenCalledTimes(1);
+      });
+
+      test('does not restart after close', () => {
+        const { transport, pc } = open();
+
+        pc.iceConnectionState = 'disconnected';
+        pc.dispatch('iceconnectionstatechange');
+        transport.close();
+        vi.advanceTimersByTime(5000);
+
+        expect(pc.restartIce).not.toHaveBeenCalled();
+      });
+
+      test('never restarts on failure', () => {
+        const { pc } = open();
+
+        pc.iceConnectionState = 'failed';
+        pc.dispatch('iceconnectionstatechange');
+        vi.advanceTimersByTime(5000);
+
+        expect(pc.restartIce).not.toHaveBeenCalled();
+      });
     });
 
     test('reports remote media under the stream the far side sent', () => {

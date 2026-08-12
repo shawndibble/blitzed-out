@@ -239,9 +239,9 @@ replacement for exactly the glare problem this code hand-rolls, and it costs one
 _removal_ rather than a migration.
 
 **Resolved: native + perfect negotiation shipped.** Done in two gated stages — first a
-`PeerTransport` port (`src/services/peerTransport.ts`) with `simple-peer` behind it, so the store's
+`PeerTransport` port (`src/services/ports/PeerTransportPort.ts`) with `simple-peer` behind it, so the store's
 existing tests kept asserting store behaviour; then the adapter was swapped for
-`nativePeerTransport.ts`. `simple-peer` is removed from `package.json`. The SFU row stands as
+`adapters/NativePeerTransportAdapter.ts`. `simple-peer` is removed from `package.json`. The SFU row stands as
 recorded: not indicated, not done. See `docs/engineering/features.md` § In-room video calling.
 
 ## Sources

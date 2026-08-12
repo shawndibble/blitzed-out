@@ -6,19 +6,19 @@ Companion to [README.md](README.md). This is the "how the system is built" view.
 
 ## Stack
 
-| Layer              | Technology                                                                                                   |
-| ------------------ | ------------------------------------------------------------------------------------------------------------ |
-| UI                 | React 19, TypeScript, MUI v9 (dark mode), Emotion, framer-motion                                             |
-| Build/dev          | Vite 8, `@vitejs/plugin-react-swc`, Terser, `vite-plugin-pwa`, `vite-plugin-compression2`                    |
-| Client state       | Zustand 5 (`src/stores/`)                                                                                    |
-| Local persistence  | Dexie 4 over IndexedDB (`src/stores/store.ts`) + `dexie-react-hooks`                                         |
-| Cloud              | Firebase 12: Auth, Firestore, Realtime Database, Storage, Cloud Functions                                    |
-| Realtime media     | native `RTCPeerConnection` (perfect negotiation) behind `services/peerTransport.ts`, signalled over RTDB     |
-| i18n               | i18next + `react-i18next`, lazy resources, 6 locales; `services/locale.ts` is the seam                       |
-| Routing            | `react-router-dom` 7                                                                                         |
-| Errors/telemetry   | Sentry (`@sentry/react`), custom analytics wrapper                                                           |
-| Native shell hooks | Capacitor (`@capacitor/camera`, `@capacitor/core`), `@ionic/pwa-elements`                                    |
-| Misc               | `qrcode.react` (room QR), `@3d-dice/dice-box-threejs` (3D dice), `use-sound`, `dayjs`, `nanoid`, `js-sha256` |
+| Layer              | Technology                                                                                                         |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| UI                 | React 19, TypeScript, MUI v9 (dark mode), Emotion, framer-motion                                                   |
+| Build/dev          | Vite 8, `@vitejs/plugin-react-swc`, Terser, `vite-plugin-pwa`, `vite-plugin-compression2`                          |
+| Client state       | Zustand 5 (`src/stores/`)                                                                                          |
+| Local persistence  | Dexie 4 over IndexedDB (`src/stores/store.ts`) + `dexie-react-hooks`                                               |
+| Cloud              | Firebase 12: Auth, Firestore, Realtime Database, Storage, Cloud Functions                                          |
+| Realtime media     | native `RTCPeerConnection` (perfect negotiation) behind `services/ports/PeerTransportPort.ts`, signalled over RTDB |
+| i18n               | i18next + `react-i18next`, lazy resources, 6 locales; `services/locale.ts` is the seam                             |
+| Routing            | `react-router-dom` 7                                                                                               |
+| Errors/telemetry   | Sentry (`@sentry/react`), custom analytics wrapper                                                                 |
+| Native shell hooks | Capacitor (`@capacitor/camera`, `@capacitor/core`), `@ionic/pwa-elements`                                          |
+| Misc               | `qrcode.react` (room QR), `@3d-dice/dice-box-threejs` (3D dice), `use-sound`, `dayjs`, `nanoid`, `js-sha256`       |
 
 Deployed as a static SPA to GitHub Pages at `blitzedout.com`.
 

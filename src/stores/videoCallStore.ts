@@ -14,15 +14,16 @@ import { logger } from '@/utils/logger';
 let peerTransportFactory: PeerTransportFactory = createNativePeerTransport;
 
 /**
- * Swap the transport a dialled peer is built from. Tests pass a literal fake and
- * drive the port's callbacks directly; nothing in the app calls this.
+ * Swap the transport a dialled peer is built from, returning the restore function
+ * — same shape as `setRandomSource`, so a caller cannot forget the teardown. Tests
+ * pass a literal fake and drive the port's callbacks; nothing in the app calls it.
  */
-export function setPeerTransportFactory(factory: PeerTransportFactory): void {
+export function setPeerTransportFactory(factory: PeerTransportFactory): () => void {
+  const previous = peerTransportFactory;
   peerTransportFactory = factory;
-}
-
-export function resetPeerTransportFactory(): void {
-  peerTransportFactory = createNativePeerTransport;
+  return () => {
+    peerTransportFactory = previous;
+  };
 }
 
 /** How often the peer map is reconciled against the room roster. */
@@ -202,11 +203,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
     set({ peerRetries: nextRetries });
   }
 
-  /**
-   * Report which candidate types actually carried the connection. `relay` on either
-   * end means TURN did the work — the one measurement that says whether relay
-   * capacity is the reason a user cannot see anyone.
-   */
+  /** Log which candidate types carried the connection, once. See `candidatePair`. */
   async function logSelectedCandidatePair(peer: PeerTransport, targetUserId: string) {
     const types = await peer.candidateTypes();
     if (!types) return;
@@ -286,9 +283,12 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
         onIceStateChange: (iceConnectionState) => {
           logger.debug('[videocall] ICE state', targetUserId, iceConnectionState);
 
-          if (iceConnectionState === 'connected' || iceConnectionState === 'completed') {
-            onConnected();
-          } else if (iceConnectionState === 'failed') {
+          // Deliberately not treated as connected: ICE reaches `connected` before
+          // the DTLS handshake finishes, and clearing the retry budget there means
+          // a peer whose handshake then fails re-books attempt 1 every time and
+          // never exhausts MAX_RETRY_ATTEMPTS. The transport reports `connected`
+          // off `connectionState`, which implies DTLS.
+          if (iceConnectionState === 'failed') {
             onLost('ICE failed');
           }
         },

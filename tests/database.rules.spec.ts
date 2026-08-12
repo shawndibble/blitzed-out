@@ -1,4 +1,6 @@
-// @vitest-environment node
+/**
+ * @vitest-environment node
+ */
 import { readFileSync } from 'node:fs';
 import { afterAll, beforeAll, beforeEach, describe, it, expect } from 'vitest';
 import {
@@ -33,7 +35,7 @@ const validPresence = () => ({
   status: 'online',
 });
 
-/** Top-level presence record written by roomPresence.setUserPresence(). */
+/** Top-level presence record written by roomPresence.setMyPresence(). */
 const validUserPresence = () => ({
   displayName: 'Someone',
   isAnonymous: true,
@@ -41,6 +43,13 @@ const validUserPresence = () => ({
   joinedAt: Date.now(),
   lastSeen: Date.now(),
 });
+
+/** Put a valid roster slot in place without going through the rules. */
+function seedPresence(uid: string = UID, room: string = ROOM) {
+  return testEnv.withSecurityRulesDisabled((ctx) =>
+    set(ref(ctx.database(), `video-calls/${room}/users/${uid}`), validPresence())
+  );
+}
 
 /** Signal payload shape written by firebaseSignaling.sendOffer/sendAnswer. */
 const validOffer = (from: string) => ({
@@ -197,9 +206,7 @@ describe('video-calls roster (users)', () => {
   it('lets an authenticated non-participant read any room roster', async () => {
     // Seeded, so this proves enumeration of real participants rather than a
     // successful read of an empty path.
-    await testEnv.withSecurityRulesDisabled((context) =>
-      set(ref(context.database(), `video-calls/OTHER-ROOM/users/${OTHER_UID}`), validPresence())
-    );
+    await seedPresence(OTHER_UID, 'OTHER-ROOM');
 
     const snapshot = await assertSucceeds(
       get(ref(dbAs('stranger'), 'video-calls/OTHER-ROOM/users'))
@@ -254,9 +261,7 @@ describe('video-calls roster (users)', () => {
   });
 
   it('lets a user release their own roster slot', async () => {
-    await testEnv.withSecurityRulesDisabled(async (ctx) => {
-      await set(ref(ctx.database(), `video-calls/${ROOM}/users/${UID}`), validPresence());
-    });
+    await seedPresence();
     await assertSucceeds(set(ref(dbAs(UID), `video-calls/${ROOM}/users/${UID}`), null));
   });
 
@@ -265,18 +270,14 @@ describe('video-calls roster (users)', () => {
   // a child, so a lone `lastSeen` is accepted by the rules. (Whether the roster
   // then keeps such a node is `liveRoster()`'s business, not the ruleset's.)
   it('allows a lastSeen-only heartbeat — ancestor .validate does not apply', async () => {
-    await testEnv.withSecurityRulesDisabled(async (ctx) => {
-      await set(ref(ctx.database(), `video-calls/${ROOM}/users/${UID}`), validPresence());
-    });
+    await seedPresence();
     await assertSucceeds(
       set(ref(dbAs(UID), `video-calls/${ROOM}/users/${UID}/lastSeen`), Date.now())
     );
   });
 
   it('denies a lastSeen more than a minute in the future', async () => {
-    await testEnv.withSecurityRulesDisabled(async (ctx) => {
-      await set(ref(ctx.database(), `video-calls/${ROOM}/users/${UID}`), validPresence());
-    });
+    await seedPresence();
     await assertFails(
       set(ref(dbAs(UID), `video-calls/${ROOM}/users/${UID}/lastSeen`), Date.now() + 5 * 60 * 1000)
     );
@@ -345,7 +346,7 @@ describe.each(['offers', 'answers', 'ice-candidates'] as const)('video-calls %s'
 
   // ⚠ ASSERTS AS WRITTEN, NOT AS DESIRED: `.write` is `auth != null` and a
   // delete has no newData for `.validate` to reject, so any signed-in user can
-  // wipe any room's signalling queues. See the report.
+  // wipe any room's signalling queues. See security.md § RTDB weakness #3.
   it("lets an unrelated authenticated user delete someone else's whole inbox", async () => {
     await assertSucceeds(set(ref(dbAs('stranger'), inbox(UID)), null));
   });
@@ -356,14 +357,14 @@ describe.each(['offers', 'answers', 'ice-candidates'] as const)('video-calls %s'
 });
 
 describe('rules file shape', () => {
+  const rules = JSON.parse(readFileSync('database.rules.json', 'utf8')).rules;
+
   it('keeps the top-level default deny', () => {
-    const rules = JSON.parse(readFileSync('database.rules.json', 'utf8'));
-    expect(rules.rules['.read']).toBe(false);
-    expect(rules.rules['.write']).toBe(false);
+    expect(rules['.read']).toBe(false);
+    expect(rules['.write']).toBe(false);
   });
 
   it('grants no read on the room node itself', () => {
-    const rules = JSON.parse(readFileSync('database.rules.json', 'utf8'));
-    expect(rules.rules['video-calls'].$roomId['.read']).toBeUndefined();
+    expect(rules['video-calls'].$roomId['.read']).toBeUndefined();
   });
 });

@@ -4,12 +4,9 @@ import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore';
 /**
  * Per-uid rate limiting for callables, backed by `rate-limits/{userId}`.
  *
- * That collection is declared in `firestore.rules` as `allow read, write: if false`
- * — no client can see or forge a counter; only the admin SDK, which bypasses
- * rules, touches it. Nothing else in the repo read or wrote it, so the document
- * shape below is the first one: a map of `{ [action]: { count, windowStartedAt } }`
- * so one document holds every limited action for a user rather than one
- * collection per callable.
+ * `firestore.rules` denies the collection outright, so no client can see or forge a
+ * counter; only the admin SDK touches it. One document per uid holds a bucket per
+ * action, rather than one collection per callable.
  */
 
 /** A single fixed-window counter. Millis, epoch-based. */
@@ -33,11 +30,9 @@ export interface RateLimitDecision {
 }
 
 /**
- * Buckets are dropped this long after their last write. Firestore only acts on
- * this once a TTL policy is configured on the `rate-limits` collection for the
- * `ttl` field (Firestore console → TTL); until then the field is inert metadata
- * and the documents — one small doc per uid — simply persist. Matches the `ttl`
- * convention already used by `game-boards` and chat messages.
+ * Buckets expire this long after their last write — but only once a TTL policy is
+ * configured on the collection in the Firestore console. Until then the field is
+ * inert and the documents (one small doc per uid) persist.
  */
 const BUCKET_RETENTION_MS = 24 * 60 * 60 * 1000;
 
@@ -77,13 +72,11 @@ export function evaluateRateLimit(
 /**
  * Claim one unit of `action`'s quota for `uid`.
  *
- * Read-decide-write has to be one atomic step or two concurrent calls both read
- * a bucket with one slot left and both pass, so this runs in a transaction rather
- * than a bare `FieldValue.increment` — the increment would be atomic but the
- * *decision* would not, and the decision is what has to hold.
+ * Read-decide-write must be one atomic step, or two concurrent calls both read a
+ * bucket with one slot left and both pass. `FieldValue.increment` would make the
+ * write atomic but not the decision, and the decision is what has to hold.
  *
- * Nothing is written when the call is blocked: an abuser at their ceiling then
- * costs one read instead of a read plus a write.
+ * A blocked call writes nothing, so an abuser at their ceiling costs one read.
  */
 export async function consumeRateLimit(
   uid: string,
@@ -134,13 +127,11 @@ function isContention(error: unknown): boolean {
  * over quota, returns normally otherwise.
  *
  * **Fails open on infrastructure, closed on contention.** A Firestore outage must
- * not turn every TURN mint into an error and take webcam down globally — that is
- * the failure this whole branch exists to stop repeating — so an unavailable
- * backend allows the call. Contention is the opposite case: it is *caused* by the
- * burst being limited, and failing open there would make the bypass rate climb
- * with attack parallelism, which is exactly backwards. Blocking is cheap for a
- * real user because `resolveIceServers` falls back to the bundled relay on any
- * mint failure, so a false block costs relay quality, never the call.
+ * not turn every mint into an error and take webcam down globally, so an
+ * unavailable backend allows the call. Contention is the opposite case — it is
+ * *caused* by the burst being limited, so failing open would make the bypass rate
+ * climb with attack parallelism. Blocking costs a real user nothing but relay
+ * quality: `resolveIceServers` falls back to the bundled relay on any mint failure.
  */
 export async function enforceRateLimit(
   uid: string,

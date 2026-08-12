@@ -17,9 +17,9 @@ interface StatsLike {
 /**
  * Pick the nominated candidate pair out of a stats report and name both ends.
  *
- * Several pairs can sit at `succeeded` while only one is nominated, and
- * `selected` is legacy Firefox. Taking the first match reports `host` for calls
- * that are actually relaying — inverting the one measurement worth having.
+ * Several pairs can sit at `succeeded` while only one is nominated, and `selected`
+ * is legacy Firefox. Taking the first match reports `host` for calls that are
+ * actually relaying, inverting the answer.
  */
 export function selectCandidateTypes(stats: StatsLike): CandidateTypes | null {
   let transportPairId: string | undefined;
@@ -38,17 +38,13 @@ export function selectCandidateTypes(stats: StatsLike): CandidateTypes | null {
   const selected = (transportPairId && stats.get(transportPairId)) || nominated || fallback;
   if (!selected) return null;
 
-  const localId = selected.localCandidateId;
-  const remoteId = selected.remoteCandidateId;
+  const candidateType = (id: unknown): RTCIceCandidateType | undefined =>
+    typeof id === 'string'
+      ? (stats.get(id)?.candidateType as RTCIceCandidateType | undefined)
+      : undefined;
 
   return {
-    local:
-      typeof localId === 'string'
-        ? (stats.get(localId)?.candidateType as RTCIceCandidateType | undefined)
-        : undefined,
-    remote:
-      typeof remoteId === 'string'
-        ? (stats.get(remoteId)?.candidateType as RTCIceCandidateType | undefined)
-        : undefined,
+    local: candidateType(selected.localCandidateId),
+    remote: candidateType(selected.remoteCandidateId),
   };
 }
