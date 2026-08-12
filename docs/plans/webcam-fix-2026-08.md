@@ -8,7 +8,9 @@ Reports: users open the cam panel, see their own preview, never see anyone else.
 - `simple-peer@9.11.1`, last published **2023-01-26**. Unmaintained.
 - Deployed bundle (`origin/master`, Jul 28 2026) **does** contain TURN creds — TURN is not silently missing.
 - Live ICE config: `stun:stun.l.google.com:19302` + `turn:global.relay.metered.ca:443` (UDP only).
-- `cleanupVideoCallSignaling` (Functions v1 pubsub) prunes offers/answers/ICE >2min. It never prunes `users`.
+- `cleanupVideoCallSignaling` (Functions v1 pubsub) prunes offers/answers/ICE >2min. It never prunes
+  `users`, and it only deletes a room when `users` is empty — so one ghost keeps a room alive forever.
+  Confirmed deployed and running.
 - **Relay usage: 23 MB of 0.5 GB.** Quota intact, credentials valid — and near-zero relayed media,
   which is what a room full of connections that never establish looks like. See cause 1.
 
@@ -52,7 +54,28 @@ broken until page reload or a third person joins.
 This is why the symptom is sticky instead of self-healing. Fixing it downgrades every other cause
 from "permanently broken" to "reconnects in a few seconds."
 
-### 4. Ghost presence — `videoCallStore.ts:478`, `firebaseSignaling.ts:182`
+### 4. Ghost presence — the leading explanation after 1 and the stale-offer theory were refuted
+
+`videoCallStore.ts:478`, `firebaseSignaling.ts:182`
+
+Why this ends up on top once the others fall:
+
+- `cleanupVideoCallSignaling` **is** deployed and running (`firebase functions:list`), so stale
+  offers are being pruned. But it only deletes a room when `users` is **empty** — and it never
+  prunes `users`. A ghost therefore keeps its room alive forever and is never collected.
+- Ghosts accumulate monotonically. Nothing removes them: not `cleanup()`, not the scheduled job,
+  and `onDisconnect` misses every departure where the socket stays up.
+- With `MAX_PEERS = 4`, four accumulated ghosts mean a real joiner gets **zero** peers — the
+  `peers.size >= MAX_PEERS` gate returns before dialling anyone.
+- Public rooms are reused under the same name, and this user base is ~90% Solo-in-PUBLIC, so the
+  busiest room accumulates ghosts fastest.
+
+That predicts exactly what was reported: reports growing over months, "only see myself" as a
+persistent rather than intermittent state, and near-zero relay usage because no connection ever
+reaches the media stage.
+
+**Check it directly:** Firebase console → Realtime Database → `video-calls/{roomId}/users`. Entries
+far outnumbering people actually in the room confirms it.
 
 Neither `cleanup()` removes `video-calls/{roomId}/users/{userId}`. `onDisconnect().remove()` only
 fires when the RTDB socket drops — closing the desktop video sidebar keeps the socket alive, so
@@ -104,9 +127,11 @@ Reachable path: mobile only, `VideoControls` hang-up → call. Narrow, but real 
 - <https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/> — paste the TURN URL
   and creds from the bundle. Still worth running for the **TCP** entries specifically, since the
   deployed build only ever offered UDP and no user has exercised the others.
-- `firebase functions:list` → confirm `cleanupVideoCallSignaling` is actually deployed (v1 API).
-  If it never ran, stale offers accumulate and `onChildAdded` replays every historical offer to
-  each joiner — which burns MAX_PEERS slots on ghosts and fits the near-zero relay usage too.
+- ~~`firebase functions:list` → confirm `cleanupVideoCallSignaling` is deployed.~~ Done: it is,
+  along with 7 others. Stale offers are being pruned, so that theory is out too — which is what
+  leaves ghost presence (cause 4) standing.
+- **Firebase console → Realtime Database → `video-calls`.** Count `users` entries per room against
+  who is actually in it. This is the one remaining decisive check.
 
 ## Provider options (TURN relay)
 
