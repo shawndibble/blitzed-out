@@ -292,7 +292,7 @@ export const cleanupVideoCallSignaling = functions.pubsub
     // 10 minutes: 20x the client heartbeat. Kept in step with ROSTER_STALE_MS in
     // src/stores/videoCallStore.ts, which applies the same rule client-side —
     // separate packages, so the two constants cannot be shared.
-    const staleRosterCutoff = Date.now() - 10 * 60 * 1000;
+    const ROSTER_STALE_MS = 10 * 60 * 1000;
 
     try {
       functions.logger.info('Starting video call signaling cleanup process');
@@ -317,24 +317,48 @@ export const cleanupVideoCallSignaling = functions.pubsub
         // Cutoff sits well clear of the client's 30s heartbeat so a throttled
         // background tab is never mistaken for a departure.
         if (roomData.users) {
-          const ghosts: { [key: string]: null } = {};
-          Object.entries(roomData.users).forEach(([userId, presence]: [string, any]) => {
+          let removed = 0;
+
+          for (const [userId, presence] of Object.entries<any>(roomData.users)) {
             const lastSeen = presence?.lastSeen ?? presence?.joinedAt;
             // No usable timestamp means an entry nothing can ever age out. Those
             // are the ones that survive indefinitely and consume mesh slots, so
             // treat a missing timestamp as expired rather than as "keep forever".
-            if (typeof lastSeen !== 'number' || lastSeen < staleRosterCutoff) {
-              ghosts[`video-calls/${roomId}/users/${userId}`] = null;
-              // Also drop locally: the `hasActiveUsers` check below reads this.
-              delete roomData.users[userId];
+            if (typeof lastSeen === 'number' && lastSeen >= Date.now() - ROSTER_STALE_MS) {
+              continue;
             }
-          });
 
-          if (Object.keys(ghosts).length > 0) {
-            await db.ref().update(ghosts);
-            functions.logger.info(
-              `Removed ${Object.keys(ghosts).length} stale participants from room ${roomId}`
-            );
+            // `presence` came from the single up-front read of `video-calls` and
+            // this loop awaits its way through every room, so by now it can be
+            // minutes stale — the user may have rejoined and be mid-call. Re-read
+            // and re-test the cutoff inside a transaction so the delete is decided
+            // against the presence that exists at the moment of deletion, never
+            // against the snapshot the sweep started from.
+            const { committed } = await db
+              .ref(`video-calls/${roomId}/users/${userId}`)
+              .transaction((current: any) => {
+                if (current === null) return undefined; // already gone; skip the write
+                const seen = current?.lastSeen ?? current?.joinedAt;
+                if (typeof seen === 'number' && seen >= Date.now() - ROSTER_STALE_MS) {
+                  return undefined; // rejoined since the sweep read the room
+                }
+                return null;
+              });
+
+            // Only a committed delete drops the local copy, which the
+            // `hasActiveUsers` check below reads. Every uncertain case therefore
+            // keeps the room alive: mistakenly forgetting a spared entry could
+            // empty the room and delete it out from under a live caller, whereas
+            // keeping an already-gone entry just defers the room's removal to the
+            // next sweep, which re-reads `video-calls` fresh.
+            if (committed) {
+              delete roomData.users[userId];
+              removed++;
+            }
+          }
+
+          if (removed > 0) {
+            functions.logger.info(`Removed ${removed} stale participants from room ${roomId}`);
           }
         }
 

@@ -1,5 +1,7 @@
 import * as functions from 'firebase-functions/v1';
 import { getDatabase } from 'firebase-admin/database';
+import { appCheckRuntimeOptions, observeAppCheck } from './appCheck';
+import { enforceRateLimit, RateLimitPolicy } from './rateLimit';
 
 /**
  * Mints short-lived Cloudflare TURN credentials.
@@ -21,6 +23,37 @@ const CREDENTIAL_TTL_SECONDS = 2 * 60 * 60;
 /** Upstream budget. The client is waiting; a slow mint is worse than no mint. */
 const UPSTREAM_TIMEOUT_MS = 10_000;
 
+/**
+ * Per-uid mint budget.
+ *
+ * Presence in the room already ties a credential to a real call, but anonymous
+ * accounts are free to create and relay bandwidth is billed to us, so a
+ * determined authenticated caller could still sit in a room minting credentials
+ * to hand out elsewhere. Note what this does and does not bound: a single
+ * credential relays unlimited bytes for its whole TTL, so the cap limits how
+ * *broadly* one account can redistribute credentials, not how much bandwidth any
+ * one of them can burn. Bandwidth caps are Cloudflare's side of the deal.
+ *
+ * Sizing, with the numbers it is derived from:
+ *  - Steady state today is roughly **one mint per tab per 110 minutes**.
+ *    `resolveIceServers` has a single call site (`videoCallStore.ts`, on
+ *    `initialize`) and caches until TURN_CACHE_SLACK_MS (10 min) before the 2h
+ *    expiry — so a normal tab spends well under one unit of a 10-minute window,
+ *    and the quota is nowhere near the binding constraint on real use.
+ *  - The number is sized against the pessimistic case instead: minting once per
+ *    peer *retry*. MAX_PEERS (4) initial dials plus 4 peers x MAX_RETRY_ATTEMPTS
+ *    (5) retries is 24 mints, spread over ~57s by the 4s->15s backoff
+ *    (RETRY_BASE_MS doubling, capped at RETRY_MAX_MS). A full retry storm on
+ *    every peer plus a rejoin still sits at less than half the quota.
+ *  - Failures are not cached client-side, so a run of upstream failures re-mints
+ *    on each reconcile; the window is long enough that this cannot exhaust it
+ *    before the 5-retry ceiling stops the storm anyway.
+ */
+const MINT_RATE_LIMIT: RateLimitPolicy = {
+  quota: 60,
+  windowMs: 10 * 60 * 1000,
+};
+
 interface CloudflareIceServer {
   urls: string | string[];
   username?: string;
@@ -40,8 +73,14 @@ function toIceServerArray(payload: unknown): CloudflareIceServer[] {
 export const getTurnCredentials = functions
   // Bounded well under the 60s default: every path here is either a fast RTDB
   // read or a time-boxed upstream call, and the client is blocked meanwhile.
-  .runWith({ secrets: ['CLOUDFLARE_TURN_TOKEN'], timeoutSeconds: 30 })
+  .runWith({
+    ...appCheckRuntimeOptions(),
+    secrets: ['CLOUDFLARE_TURN_TOKEN'],
+    timeoutSeconds: 30,
+  })
   .https.onCall(async (data, context) => {
+    observeAppCheck(context, 'getTurnCredentials');
+
     if (!context.auth) {
       throw new functions.https.HttpsError(
         'unauthenticated',
@@ -67,6 +106,11 @@ export const getTurnCredentials = functions
         'Join the call before requesting TURN credentials'
       );
     }
+
+    // After the presence check, so a client hammering with a roomId it does not
+    // hold cannot burn the quota that its real calls need — and before the
+    // Cloudflare call, because the point is to not make that call.
+    await enforceRateLimit(context.auth.uid, 'turnCredentials', MINT_RATE_LIMIT);
 
     const apiToken = process.env.CLOUDFLARE_TURN_TOKEN;
     const keyId = process.env.CLOUDFLARE_TURN_KEY_ID;
