@@ -9,18 +9,28 @@ Reports: users open the cam panel, see their own preview, never see anyone else.
 - Deployed bundle (`origin/master`, Jul 28 2026) **does** contain TURN creds — TURN is not silently missing.
 - Live ICE config: `stun:stun.l.google.com:19302` + `turn:global.relay.metered.ca:443` (UDP only).
 - `cleanupVideoCallSignaling` (Functions v1 pubsub) prunes offers/answers/ICE >2min. It never prunes `users`.
+- **Relay usage: 23 MB of 0.5 GB.** Quota intact, credentials valid — and near-zero relayed media,
+  which is what a room full of connections that never establish looks like. See cause 1.
 
 ## Root causes, ranked
 
-### 1. Metered free tier is 20 GB/month — almost certainly exhausted
+### 1. ~~Relay quota exhausted~~ — REFUTED, and the refutation is itself the strongest evidence
 
-720p24 relayed ≈ 2 Mbps ≈ 0.9 GB/hour **per direction, per relayed peer**. 20 GB is roughly
-20 hours of relayed video _across the entire user base, per month_. Once the quota trips, TURN
-allocate fails and every user behind symmetric NAT / CGNAT / corporate firewall sees only
-themselves. Symptom is persistent, hits some users and not others, and worsens over the month —
-which matches "getting messages" (plural, growing).
+The dashboard reads **23 MB of 0.5 GB**. Quota is not the problem, and credentials work.
 
-Discriminator: metered dashboard GB remaining; or trickle-ICE test returns no `relay` candidates.
+But 23 MB is _nothing_ — roughly a minute or two of relayed video, ever. Relayed 720p24 runs
+≈0.9 GB/hour per direction. Two readings, and they point the same way:
+
+- Almost no call ever needs relay (implausible: ~10–20% of connections cannot go P2P), **or**
+- Calls that need relay never get far enough to move bytes.
+
+A connection that fails ICE relays zero bytes. So near-zero relay usage is the fingerprint of
+**connections not establishing at all** — not of media being throttled or cut off. That promotes
+causes 3 and 4 (no retry, ghost presence) from contributing factors to the primary explanation,
+and demotes the whole provider question from "the fix" to "worth doing anyway."
+
+Cause 2 still contributes and is consistent with this: on a UDP-blocking network the single UDP
+relay URL is unreachable, allocate never succeeds, and the byte counter never moves.
 
 ### 2. TURN is UDP-only — `src/config/webrtc.ts:20`
 
@@ -106,7 +116,12 @@ question is who supplies relay bandwidth.
 | **Cloudflare Realtime TURN** | **1,000 GB/mo**, then $0.05/GB | UDP, TCP, TLS (`turns:…:5349`) | API-generated, ≤48h TTL | 50× the free bandwidth. Shared with their SFU tier. `stun.cloudflare.com` free/unlimited.                                                                                                             |
 | Self-host coturn             | server cost only               | all                            | any                     | Full control, ops burden, needs a static IP + TLS cert.                                                                                                                                               |
 
-**Recommendation: Cloudflare Realtime TURN.** 50× the headroom, and short-lived credentials fix
+**Recommendation: Cloudflare Realtime TURN — but for security and transport coverage, not
+capacity.** With usage at 23 MB, headroom was never the constraint. What still earns the switch is
+short-lived credentials (the bundled ones are harvestable) and TLS transport, which the current
+relay host does not serve. Treat it as hardening, not as the fix for this bug.
+
+Original reasoning, still true on its own terms: 50× the headroom, and short-lived credentials fix
 the harvestable-static-creds issue already flagged in `docs/engineering/security.md`. Cloudflare's
 generated list covers UDP, TCP and TLS (`turns:…:5349?transport=tcp`), so it needs no help on
 transport coverage; the "no TCP" line in their FAQ refers to RFC 6062 TURN-TCP **relaying to the
