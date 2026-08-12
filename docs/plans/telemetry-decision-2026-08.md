@@ -232,6 +232,10 @@ instead through an existing authenticated callable would avoid both the new rule
 surface, at the cost of biased sampling — a design choice for the owner, deliberately not designed
 here.
 
+> **Step 2 is done** (2026-08-12): `thirdPartyErrorFilterIntegration` was removed from
+> `src/services/sentry.ts`, the source-only path below. Production error reporting works again
+> without collecting anything new. Sourcemap upload remains opt-in and unrelated.
+
 **Smallest version worth shipping (today, no privacy decision required):**
 
 1. Read the Cloudflare TURN usage view for the key in `docs/plans/webcam-fix-2026-08.md:179`. If

@@ -139,6 +139,7 @@ Steps to enable, in order — each one 403s every call on its own if skipped:
 
 - **Analytics** (`analytics.ts`, `analyticsTracking.ts`): event-level (setting changes, action/mode selection, engagement, perf). **Display names excluded**; room codes included. Session IDs via `crypto.randomUUID`.
 - **Sentry** (`src/services/sentry.ts`): error capture + **session replay**. Replay currently does **not mask text** → it can capture chat and action content, which for NSFW use is sensitive. **Recommended:** enable `maskAllText: true` (or scope replay off for message surfaces).
+  - **Fixed 2026-08:** `thirdPartyErrorFilterIntegration` was dropping **every stack-traced error in production** since Nov 2025. It relies on module metadata injected by `sentryVitePlugin`, which only registers when `SENTRY_UPLOAD_SOURCEMAPS=true` — set nowhere — so every frame looked third-party. Reporting appeared healthy while only stackless events (gtag noise) arrived. The integration is gone; `ignoreErrors` and `beforeSend` handle extension/browser noise without depending on a build flag. Re-adding it requires making that plugin unconditional first.
 - No in-app cookie/analytics consent banner or documented data-deletion/opt-out flow.
 
 ---
