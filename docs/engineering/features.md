@@ -170,8 +170,12 @@ Attach a photo to a chat message. On mobile, `@capacitor/camera` (`Camera.getPho
 ## In-room video calling (WebRTC)
 
 - **Transport:** `simple-peer` peer-to-peer connections; **Firebase Realtime Database is used only for signaling** (`src/services/firebaseSignaling.ts`), under `video-calls/{roomId}/{users,offers,answers,ice-candidates}`. TURN relay credentials come from env (`VITE_METERED_*`).
+- **ICE (`src/config/webrtc.ts`):** Google STUN plus one relay entry **per port/transport** the provider publishes (80/443 × UDP/TCP). A UDP-only relay strands every user on a UDP-blocking network — both sides see only themselves — so the list is deliberately not deduplicated.
 - **Store/UI:** `videoCallStore.ts` + `src/components/VideoCall`. Requests camera/mic (720p ideal, echo-cancel/noise-suppress/auto-gain), creates a peer per other user, and handles offer/answer/ICE with dedup and timeouts.
-- **Limits & UX:** up to **4 peers**. Auto-initializes on desktop; **mobile requires an explicit tap** (battery). Controls: mute, camera toggle, manual reconnect. Video auto-disables when the page is hidden.
+- **Roster reconciliation:** `reconcilePeers()` re-derives the peer map from the RTDB roster on every roster update _and_ on a 3s timer. A peer dying does not change the roster, so a timer-independent "did the user list change?" gate would leave one ICE failure permanently unrecoverable. Failed peers retry with exponential backoff (4s → 15s, 5 attempts); exhausted participants hold no `MAX_PEERS` slot. A successful connect clears the retry budget.
+- **Presence:** `firebaseSignaling` writes `users/{uid}` with `joinedAt`/`lastSeen`/`status`, refreshes `lastSeen` every 30s, and **removes the node on cleanup** — `onDisconnect` only fires when the socket drops, which leaving a call does not do. `cleanupVideoCallSignaling` prunes roster entries idle for 10 minutes as a backstop for crashed tabs.
+- **Diagnostics:** peer errors, ICE transitions, and the selected candidate pair's `local`/`remote` candidate types are logged through `logger`. `relay` on either end means TURN carried the call — the measurement that tells you whether relay capacity is why someone sees no one.
+- **Limits & UX:** up to **4 peers**. Auto-initializes on desktop; **mobile requires an explicit tap** (battery). Controls: mute, camera toggle, manual reconnect — reconnect `replaceTrack`s the fresh tracks onto surviving peers (`senderStream`/`senderTracks` on `PeerConnection` key simple-peer's sender map). Video auto-disables when the page is hidden.
 
 ---
 

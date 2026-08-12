@@ -265,6 +265,7 @@ export const cleanupVideoCallSignaling = functions.pubsub
   .onRun(async () => {
     const db = getDatabase();
     const twoMinutesAgo = Date.now() - 2 * 60 * 1000; // 2 minutes in milliseconds
+    const staleRosterCutoff = Date.now() - 10 * 60 * 1000; // 10 minutes: 20x the client heartbeat
 
     try {
       functions.logger.info('Starting video call signaling cleanup process');
@@ -283,6 +284,29 @@ export const cleanupVideoCallSignaling = functions.pubsub
 
       for (const roomId of roomIds) {
         const roomData = videoCallRooms[roomId];
+
+        // Clients drop off the roster via onDisconnect, which only fires when the
+        // socket dies. A crashed tab or a suspended phone can leave a ghost behind,
+        // and every ghost occupies one of the four mesh slots real callers need.
+        // The threshold is well clear of the client's 30s heartbeat so a throttled
+        // background tab is never mistaken for a departure.
+        if (roomData.users) {
+          const ghosts: { [key: string]: null } = {};
+          Object.entries(roomData.users).forEach(([userId, presence]: [string, any]) => {
+            const lastSeen = presence?.lastSeen ?? presence?.joinedAt;
+            if (typeof lastSeen === 'number' && lastSeen < staleRosterCutoff) {
+              ghosts[`video-calls/${roomId}/users/${userId}`] = null;
+              delete roomData.users[userId];
+            }
+          });
+
+          if (Object.keys(ghosts).length > 0) {
+            await db.ref().update(ghosts);
+            functions.logger.info(
+              `Removed ${Object.keys(ghosts).length} stale participants from room ${roomId}`
+            );
+          }
+        }
 
         // Check if room has any active users
         const hasActiveUsers = roomData.users && Object.keys(roomData.users).length > 0;

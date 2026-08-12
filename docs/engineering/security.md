@@ -61,17 +61,19 @@ The holder can then delete reported packs (`content-packs` delete rule) and invo
 
 Top-level defaults deny (`".read": false, ".write": false`) — good baseline. Then:
 
-| Path                                                | Read                                              | Write                              | Notes                                                       |
-| --------------------------------------------------- | ------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------- |
-| `users` / `users/{uid}`                             | **public (`true`)**                               | owner only (`auth.uid == $userId`) | ⚠ All presence records globally readable. Writes validated. |
-| `video-calls/{roomId}`                              | `auth != null`                                    | —                                  |                                                             |
-| `…/users/{uid}`                                     | `auth != null`                                    | owner only                         | Validated.                                                  |
-| `…/offers \| answers \| ice-candidates/{targetUid}` | **only the target** (`auth.uid == $targetUserId`) | **any auth (`auth != null`)**      | Read is correctly scoped; write is open.                    |
+| Path                                                | Read                                              | Write                              | Notes                                                                     |
+| --------------------------------------------------- | ------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------- |
+| `users` / `users/{uid}`                             | **public (`true`)**                               | owner only (`auth.uid == $userId`) | ⚠ All presence records globally readable. Writes validated.               |
+| `video-calls/{roomId}`                              | denied                                            | —                                  | No ancestor grant — RTDB read grants cascade and cannot be revoked below. |
+| `…/users` / `…/users/{uid}`                         | `auth != null`                                    | owner only                         | Roster must be readable by everyone in the room. Validated.               |
+| `…/offers \| answers \| ice-candidates/{targetUid}` | **only the target** (`auth.uid == $targetUserId`) | **any auth (`auth != null`)**      | Read is correctly scoped; write is open.                                  |
 
 **Key weaknesses:**
 
 1. **Presence is world-readable** (`users/.read: true`): anyone can enumerate display names, which room each user is in, and `lastSeen`. Privacy gap for an adult app. Hardening: scope reads to authenticated users / own record.
 2. **Signaling writes aren't scoped to the target** (`offers/answers/ice-candidates` write = `auth != null`). A malicious authed user can spam bogus offers/answers/candidates into another user's signaling path. Impact is limited (reads _are_ target-scoped, so they can't intercept responses), but it enables signaling-channel griefing. Hardening: require `auth.uid == $targetUserId` or validate the `from` field.
+
+**Fixed 2026-08:** `video-calls/$roomId` previously carried `".read": "auth != null"`. RTDB read grants cascade downward and **cannot be revoked by a stricter rule on a child**, so the per-target reads on `offers`/`answers`/`ice-candidates` were dead code and any authenticated user could read every room's signaling traffic. The ancestor grant is gone; reads are now granted only on `users` (the roster, which every participant needs) and per-target under the three signaling nodes. There is no RTDB rules test harness — `npm run test:rules` covers Firestore only — so **changes here must be checked by grepping every `video-calls/` read path in `src/`**.
 
 ---
 

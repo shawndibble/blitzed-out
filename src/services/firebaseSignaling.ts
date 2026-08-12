@@ -8,6 +8,7 @@ import {
   off,
   onDisconnect,
 } from 'firebase/database';
+import { logger } from '@/utils/logger';
 
 export interface SignalData {
   type: 'offer' | 'answer' | 'ice-candidate';
@@ -28,6 +29,8 @@ class FirebaseSignalingService {
   private offersRef: any = null;
   private answersRef: any = null;
   private iceCandidatesRef: any = null;
+  private presenceRef: any = null;
+  private presenceOnDisconnect: any = null;
   private roomId: string | null = null;
   private userId: string | null = null;
   private processedCandidates: Set<string> = new Set();
@@ -38,13 +41,16 @@ class FirebaseSignalingService {
     const database = getDatabase();
     this.roomRef = ref(database, `video-calls/${roomId}`);
 
-    const userPresenceRef = ref(database, `video-calls/${roomId}/users/${userId}`);
-    set(userPresenceRef, {
-      joinedAt: Date.now(),
+    const now = Date.now();
+    this.presenceRef = ref(database, `video-calls/${roomId}/users/${userId}`);
+    set(this.presenceRef, {
+      joinedAt: now,
+      lastSeen: now,
       status: 'online',
     });
 
-    onDisconnect(userPresenceRef).remove();
+    this.presenceOnDisconnect = onDisconnect(this.presenceRef);
+    this.presenceOnDisconnect.remove();
 
     this.offersRef = ref(database, `video-calls/${roomId}/offers/${userId}`);
     onChildAdded(this.offersRef, (snapshot) => {
@@ -179,6 +185,23 @@ class FirebaseSignalingService {
     }, 30000);
   }
 
+  /**
+   * Refresh the roster timestamp. `cleanupVideoCallSignaling` evicts entries that
+   * have gone stale, and `joinedAt` alone would evict anyone still in a long call.
+   */
+  async heartbeat(): Promise<void> {
+    if (!this.roomId || !this.userId) return;
+
+    const database = getDatabase();
+    const lastSeenRef = ref(database, `video-calls/${this.roomId}/users/${this.userId}/lastSeen`);
+
+    try {
+      await set(lastSeenRef, Date.now());
+    } catch (error) {
+      logger.warn('[signaling] Presence heartbeat failed', error);
+    }
+  }
+
   cleanup() {
     if (this.offersRef) {
       off(this.offersRef);
@@ -198,6 +221,18 @@ class FirebaseSignalingService {
     if (this.roomRef) {
       off(this.roomRef);
       this.roomRef = null;
+    }
+
+    // onDisconnect only fires when the socket drops, and leaving a call does not
+    // drop it. Without this the user lingers on the roster, and everyone still in
+    // the room spends a MAX_PEERS slot dialling a phantom that will never answer.
+    if (this.presenceRef) {
+      this.presenceOnDisconnect?.cancel?.();
+      Promise.resolve(set(this.presenceRef, null)).catch((error) => {
+        logger.warn('[signaling] Failed to remove presence node', error);
+      });
+      this.presenceRef = null;
+      this.presenceOnDisconnect = null;
     }
 
     this.processedCandidates.clear();

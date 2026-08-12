@@ -26,13 +26,16 @@ vi.mock('firebase/database', () => ({
 describe('firebaseSignaling', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
-    mockRef.mockReturnValue({ key: 'test-room' });
+    mockRef.mockImplementation((_db: unknown, path: string) => ({ key: 'test-room', path }));
     mockSet.mockResolvedValue(undefined);
     mockPush.mockResolvedValue({ key: 'test-key' });
     mockOnDisconnect.mockReturnValue({
       remove: vi.fn().mockResolvedValue(undefined),
+      cancel: vi.fn().mockResolvedValue(undefined),
     });
   });
+
+  const writesTo = (path: string) => mockSet.mock.calls.filter(([target]) => target?.path === path);
 
   afterEach(async () => {
     const { firebaseSignaling } = await import('../firebaseSignaling');
@@ -202,6 +205,55 @@ describe('firebaseSignaling', () => {
       expect(() => {
         firebaseSignaling.cleanup();
       }).not.toThrow();
+    });
+
+    // onDisconnect only fires when the socket drops. Leaving the call keeps the
+    // socket alive, so without an explicit removal the departed user stays on the
+    // roster and every remaining peer burns a MAX_PEERS slot dialling a phantom.
+    test('removes the presence node so the user stops occupying a roster slot', async () => {
+      const { firebaseSignaling } = await import('../firebaseSignaling');
+
+      firebaseSignaling.initialize('test-room', 'user-123', vi.fn());
+      firebaseSignaling.cleanup();
+
+      expect(writesTo('video-calls/test-room/users/user-123')).toContainEqual([
+        expect.anything(),
+        null,
+      ]);
+    });
+
+    test('cancels the onDisconnect removal so it cannot fire against a rejoined session', async () => {
+      const { firebaseSignaling } = await import('../firebaseSignaling');
+      const cancel = vi.fn().mockResolvedValue(undefined);
+      mockOnDisconnect.mockReturnValue({ remove: vi.fn().mockResolvedValue(undefined), cancel });
+
+      firebaseSignaling.initialize('test-room', 'user-123', vi.fn());
+      firebaseSignaling.cleanup();
+
+      expect(cancel).toHaveBeenCalled();
+    });
+  });
+
+  describe('heartbeat', () => {
+    // The scheduled cleanup function prunes roster entries by staleness. Without a
+    // heartbeat the only timestamp is the join time, so anyone in a long call gets
+    // evicted from their own room.
+    test('refreshes lastSeen on the presence node', async () => {
+      const { firebaseSignaling } = await import('../firebaseSignaling');
+
+      firebaseSignaling.initialize('test-room', 'user-123', vi.fn());
+      mockSet.mockClear();
+      await firebaseSignaling.heartbeat();
+
+      const [[, value]] = writesTo('video-calls/test-room/users/user-123/lastSeen');
+      expect(typeof value).toBe('number');
+    });
+
+    test('is a no-op before initialization', async () => {
+      const { firebaseSignaling } = await import('../firebaseSignaling');
+
+      await expect(firebaseSignaling.heartbeat()).resolves.toBeUndefined();
+      expect(mockSet).not.toHaveBeenCalled();
     });
   });
 });

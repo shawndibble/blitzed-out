@@ -3,7 +3,19 @@
  */
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, test, vi, afterEach } from 'vitest';
-import { useVideoCallStore } from '../videoCallStore';
+import {
+  HEARTBEAT_INTERVAL_MS,
+  MAX_RETRY_ATTEMPTS,
+  RECONCILE_INTERVAL_MS,
+  RETRY_MAX_MS,
+  useVideoCallStore,
+} from '../videoCallStore';
+import { MAX_PEERS } from '@/config/webrtc';
+
+const harness = vi.hoisted(() => ({
+  rosterListeners: [] as Array<(snapshot: { val: () => unknown }) => void>,
+  peers: [] as any[],
+}));
 
 vi.mock('@/services/firebaseSignaling', () => ({
   firebaseSignaling: {
@@ -11,22 +23,62 @@ vi.mock('@/services/firebaseSignaling', () => ({
     sendOffer: vi.fn(),
     sendAnswer: vi.fn(),
     sendIceCandidate: vi.fn(),
+    heartbeat: vi.fn().mockResolvedValue(undefined),
     cleanup: vi.fn(),
   },
 }));
+
+vi.mock('simple-peer', () => {
+  class MockPeer {
+    destroyed = false;
+    signal = vi.fn();
+    replaceTrack = vi.fn();
+    addTrack = vi.fn();
+    addStream = vi.fn();
+    _pc = { iceConnectionState: 'new' };
+    options: any;
+    private handlers = new Map<string, Array<(...args: any[]) => void>>();
+
+    constructor(options: any) {
+      this.options = options;
+      harness.peers.push(this);
+    }
+
+    on(event: string, handler: (...args: any[]) => void) {
+      const existing = this.handlers.get(event) ?? [];
+      this.handlers.set(event, [...existing, handler]);
+      return this;
+    }
+
+    emit(event: string, ...args: any[]) {
+      this.handlers.get(event)?.forEach((handler) => handler(...args));
+    }
+
+    destroy() {
+      if (this.destroyed) return;
+      this.destroyed = true;
+      this.emit('close');
+    }
+  }
+
+  return { default: MockPeer };
+});
 
 vi.mock('firebase/database', () => ({
   getDatabase: vi.fn(() => ({})),
   ref: vi.fn(() => ({})),
   onValue: vi.fn((_ref, callback) => {
-    // Immediately call callback with empty data to simulate Firebase
-    setTimeout(() => {
-      callback({ val: () => null });
-    }, 0);
+    harness.rosterListeners.push(callback);
     return vi.fn(); // Return unsubscribe function
   }),
   off: vi.fn(),
 }));
+
+/** Drive the RTDB roster listener the store registered during `initialize`. */
+function publishRoster(userIds: string[]) {
+  const value = Object.fromEntries(userIds.map((id) => [id, { status: 'online' }]));
+  harness.rosterListeners.forEach((listener) => listener({ val: () => value }));
+}
 
 describe('VideoCallStore', () => {
   let mockMediaStream: MediaStream;
@@ -36,6 +88,26 @@ describe('VideoCallStore', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
+    harness.rosterListeners.length = 0;
+    harness.peers.length = 0;
+
+    // jsdom ships no MediaStream; peers hold one per remote participant.
+    class StubMediaStream {
+      private tracks: MediaStreamTrack[];
+      constructor(tracks: MediaStreamTrack[] = []) {
+        this.tracks = [...tracks];
+      }
+      getTracks() {
+        return this.tracks;
+      }
+      getVideoTracks() {
+        return this.tracks.filter((track) => track.kind === 'video');
+      }
+      getAudioTracks() {
+        return this.tracks.filter((track) => track.kind === 'audio');
+      }
+    }
+    vi.stubGlobal('MediaStream', StubMediaStream);
 
     mockVideoTrack = {
       stop: vi.fn(),
@@ -309,59 +381,256 @@ describe('VideoCallStore', () => {
     });
   });
 
-  describe('Heartbeat System', () => {
-    test('should start heartbeat interval on initialization', async () => {
+  describe('Presence Heartbeat', () => {
+    test('refreshes presence on an interval so the server prune does not evict a live caller', async () => {
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room', 'test-user-id');
+        await result.current.initialize('test-room', 'self');
+      });
+      vi.mocked(firebaseSignaling.heartbeat).mockClear();
+
+      await act(async () => {
+        vi.advanceTimersByTime(HEARTBEAT_INTERVAL_MS * 2);
       });
 
-      expect(result.current.isInitialized).toBe(true);
+      expect(firebaseSignaling.heartbeat).toHaveBeenCalledTimes(2);
     });
 
-    test('should stop heartbeat on cleanup', async () => {
+    test('stops the heartbeat on cleanup', async () => {
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
       const { result } = renderHook(() => useVideoCallStore());
 
       await act(async () => {
-        await result.current.initialize('test-room', 'test-user-id');
+        await result.current.initialize('test-room', 'self');
       });
 
       act(() => {
         result.current.cleanup();
       });
+      vi.mocked(firebaseSignaling.heartbeat).mockClear();
 
-      expect(result.current.isInitialized).toBe(false);
+      await act(async () => {
+        vi.advanceTimersByTime(HEARTBEAT_INTERVAL_MS * 3);
+      });
+
+      expect(firebaseSignaling.heartbeat).not.toHaveBeenCalled();
     });
   });
 
-  describe('Periodic Cleanup', () => {
-    test('should run periodic cleanup every 30 minutes', async () => {
+  describe('Peer Reconciliation', () => {
+    async function joinRoom(userId = 'self') {
       const { result } = renderHook(() => useVideoCallStore());
+      await act(async () => {
+        await result.current.initialize('test-room', userId);
+      });
+      return result;
+    }
+
+    test('opens a peer for every other participant on the roster', async () => {
+      const result = await joinRoom();
+
+      act(() => {
+        publishRoster(['self', 'zed', 'yan']);
+      });
+
+      expect([...result.current.peers.keys()].sort()).toEqual(['yan', 'zed']);
+    });
+
+    test('never opens a peer to itself', async () => {
+      const result = await joinRoom();
+
+      act(() => {
+        publishRoster(['self']);
+      });
+
+      expect(result.current.peers.size).toBe(0);
+    });
+
+    test('stays within MAX_PEERS', async () => {
+      const result = await joinRoom('aaa');
+
+      act(() => {
+        publishRoster(['aaa', 'b', 'c', 'd', 'e', 'f', 'g']);
+      });
+
+      expect(result.current.peers.size).toBe(MAX_PEERS);
+    });
+
+    // The regression this whole change exists for: a peer that dies leaves the RTDB
+    // roster untouched, so the old code's "did the user list change?" gate returned
+    // early and the connection was never rebuilt. One transient ICE failure meant
+    // "I only see myself" until the page was reloaded.
+    test('rebuilds a peer that failed, without the roster changing', async () => {
+      const result = await joinRoom();
+
+      act(() => {
+        publishRoster(['self', 'zed']);
+      });
+      const [firstAttempt] = harness.peers;
+
+      act(() => {
+        firstAttempt.emit('error', new Error('ICE failed'));
+      });
+      expect(result.current.peers.has('zed')).toBe(false);
 
       await act(async () => {
-        await result.current.initialize('test-room', 'test-user-id');
+        vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
+      });
+
+      expect(result.current.peers.has('zed')).toBe(true);
+      expect(harness.peers.length).toBe(2);
+    });
+
+    test('rebuilds a peer whose ICE connection failed', async () => {
+      const result = await joinRoom();
+
+      act(() => {
+        publishRoster(['self', 'zed']);
       });
 
       act(() => {
-        vi.advanceTimersByTime(30 * 60 * 1000);
+        harness.peers[0].emit('iceStateChange', 'failed');
       });
-
-      expect(result.current.isInitialized).toBe(true);
-    });
-
-    test('should stop periodic cleanup on cleanup', async () => {
-      const { result } = renderHook(() => useVideoCallStore());
+      expect(result.current.peers.has('zed')).toBe(false);
 
       await act(async () => {
-        await result.current.initialize('test-room', 'test-user-id');
+        vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
       });
 
+      expect(result.current.peers.has('zed')).toBe(true);
+    });
+
+    test('backs off rather than reconnecting on every tick', async () => {
+      const result = await joinRoom();
+
+      act(() => {
+        publishRoster(['self', 'zed']);
+      });
+      act(() => {
+        harness.peers[0].emit('error', new Error('ICE failed'));
+      });
+
+      await act(async () => {
+        vi.advanceTimersByTime(RECONCILE_INTERVAL_MS);
+      });
+
+      expect(result.current.peers.has('zed')).toBe(false);
+    });
+
+    test('gives up after repeated failures instead of retrying forever', async () => {
+      const result = await joinRoom();
+
+      act(() => {
+        publishRoster(['self', 'zed']);
+      });
+
+      for (let attempt = 0; attempt < MAX_RETRY_ATTEMPTS + 2; attempt += 1) {
+        const peer = harness.peers[harness.peers.length - 1];
+        act(() => {
+          peer.emit('error', new Error('ICE failed'));
+        });
+        await act(async () => {
+          vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
+        });
+      }
+
+      expect(harness.peers.length).toBe(MAX_RETRY_ATTEMPTS);
+      expect(result.current.peers.has('zed')).toBe(false);
+    });
+
+    test('a successful connection clears the retry budget', async () => {
+      const result = await joinRoom();
+
+      act(() => {
+        publishRoster(['self', 'zed']);
+      });
+
+      for (let attempt = 0; attempt < MAX_RETRY_ATTEMPTS - 1; attempt += 1) {
+        act(() => {
+          harness.peers[harness.peers.length - 1].emit('error', new Error('ICE failed'));
+        });
+        await act(async () => {
+          vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
+        });
+      }
+
+      act(() => {
+        harness.peers[harness.peers.length - 1].emit('connect');
+      });
+      expect(result.current.peerRetries.has('zed')).toBe(false);
+
+      act(() => {
+        harness.peers[harness.peers.length - 1].emit('error', new Error('ICE failed'));
+      });
+      await act(async () => {
+        vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
+      });
+
+      expect(result.current.peers.has('zed')).toBe(true);
+    });
+
+    test('drops a participant who left and does not dial them again', async () => {
+      const result = await joinRoom();
+
+      act(() => {
+        publishRoster(['self', 'zed']);
+      });
+      act(() => {
+        publishRoster(['self']);
+      });
+
+      expect(result.current.peers.has('zed')).toBe(false);
+
+      await act(async () => {
+        vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
+      });
+
+      expect(harness.peers.length).toBe(1);
+    });
+
+    // A user stuck at their retry ceiling must not hold a MAX_PEERS slot, or one
+    // unreachable participant starves everyone still trying to connect.
+    test('an exhausted participant does not consume a peer slot', async () => {
+      const result = await joinRoom('aaa');
+
+      act(() => {
+        publishRoster(['aaa', 'b']);
+      });
+
+      for (let attempt = 0; attempt < MAX_RETRY_ATTEMPTS; attempt += 1) {
+        act(() => {
+          harness.peers[harness.peers.length - 1].emit('error', new Error('ICE failed'));
+        });
+        await act(async () => {
+          vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
+        });
+      }
+
+      act(() => {
+        publishRoster(['aaa', 'b', 'c', 'd', 'e', 'f']);
+      });
+
+      expect(result.current.peers.size).toBe(MAX_PEERS);
+      expect(result.current.peers.has('b')).toBe(false);
+    });
+
+    test('stops reconciling after cleanup', async () => {
+      const result = await joinRoom();
+
+      act(() => {
+        publishRoster(['self', 'zed']);
+      });
       act(() => {
         result.current.cleanup();
       });
 
-      expect(result.current.isInitialized).toBe(false);
+      await act(async () => {
+        vi.advanceTimersByTime(RETRY_MAX_MS + RECONCILE_INTERVAL_MS);
+      });
+
+      expect(harness.peers.length).toBe(1);
     });
   });
 
@@ -463,6 +732,60 @@ describe('VideoCallStore', () => {
       expect(result.current.isCallActive).toBe(true);
       expect(result.current.isMuted).toBe(false);
       expect(result.current.isVideoOff).toBe(false);
+    });
+
+    // Hanging up stops the local tracks but leaves the peer connections standing.
+    // Without pushing the fresh tracks onto those senders, the remote side keeps
+    // receiving dead media and the caller sees only their own preview.
+    test('pushes the fresh tracks onto peers that are still connected', async () => {
+      const { result } = renderHook(() => useVideoCallStore());
+
+      await act(async () => {
+        await result.current.initialize('test-room', 'self');
+      });
+      act(() => {
+        publishRoster(['self', 'zed']);
+      });
+      const [peer] = harness.peers;
+
+      act(() => {
+        result.current.disconnectCall();
+      });
+
+      const freshVideo = { stop: vi.fn(), kind: 'video', enabled: true } as unknown as MediaStream;
+      const freshAudio = { stop: vi.fn(), kind: 'audio', enabled: true } as unknown as MediaStream;
+      const freshStream = new MediaStream([freshVideo, freshAudio] as any);
+      (navigator.mediaDevices.getUserMedia as any).mockResolvedValueOnce(freshStream);
+
+      await act(async () => {
+        await result.current.reconnectCall();
+      });
+
+      expect(peer.replaceTrack).toHaveBeenCalledWith(mockVideoTrack, freshVideo, mockMediaStream);
+      expect(peer.replaceTrack).toHaveBeenCalledWith(mockAudioTrack, freshAudio, mockMediaStream);
+    });
+
+    test('does not touch peers that were already destroyed', async () => {
+      const { result } = renderHook(() => useVideoCallStore());
+
+      await act(async () => {
+        await result.current.initialize('test-room', 'self');
+      });
+      act(() => {
+        publishRoster(['self', 'zed']);
+      });
+      const [peer] = harness.peers;
+      peer.destroyed = true;
+
+      act(() => {
+        result.current.disconnectCall();
+      });
+
+      await act(async () => {
+        await result.current.reconnectCall();
+      });
+
+      expect(peer.replaceTrack).not.toHaveBeenCalled();
     });
 
     test('should not reconnect if not initialized', async () => {
