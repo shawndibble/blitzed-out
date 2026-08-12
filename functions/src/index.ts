@@ -8,23 +8,33 @@ export { onPackReported } from './reportNotification';
 export { getTurnCredentials } from './turnCredentials';
 
 /**
- * The database URL must come from the runtime, not a literal.
+ * The database URL is derived from the project, never hardcoded.
  *
- * This used to default to `blitzed-out-default-rtdb`, which is not this project
- * — the project is `blitzout-49b39`, so its database is
- * `blitzout-49b39-default-rtdb`. `DATABASE_URL` was never set anywhere, so every
- * admin read and write went to a namespace no client has ever used: the
- * scheduled cleanups found nothing to clean and reported success, which is how
- * `/PUBLIC` accumulated nine dead roster entries with a prune job running.
+ * It used to default to `blitzed-out-default-rtdb.firebaseio.com`, which is not
+ * this project's database — it is not any database; that host 404s. Since
+ * `DATABASE_URL` was never set anywhere, every admin read and write went
+ * nowhere: the scheduled cleanups hung until their 60s timeout, every five
+ * minutes, silently, which is how `/PUBLIC` accumulated nine dead roster entries
+ * with a prune job ostensibly running against it.
  *
- * In Cloud Functions `FIREBASE_CONFIG` already carries the correct URL, so the
- * fix is to stop overriding it. The explicit env var stays as an escape hatch
- * for the emulator.
+ * `FIREBASE_CONFIG` does not carry `databaseURL` in this project, so it cannot
+ * simply be omitted either — the admin SDK then throws "Can't determine Firebase
+ * Database URL". Deriving from the project id is the one form that cannot drift
+ * from the project it is deployed to.
  */
+const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT;
+const databaseURL =
+  process.env.DATABASE_URL ||
+  (projectId ? `https://${projectId}-default-rtdb.firebaseio.com` : undefined);
+
+if (!databaseURL) {
+  functions.logger.error('No database URL could be determined; RTDB access will fail');
+}
+
 if (!getApps().length) {
   initializeApp({
     credential: applicationDefault(),
-    ...(process.env.DATABASE_URL ? { databaseURL: process.env.DATABASE_URL } : {}),
+    ...(databaseURL ? { databaseURL } : {}),
   });
 }
 
