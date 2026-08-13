@@ -421,8 +421,7 @@ declare module '@mui/material/styles' {
       variants?: Array<{
         props: Record<string, any>;
         style:
-          | Record<string, any>
-          | ((props: { theme: Theme; ownerState: any }) => Record<string, any>);
+          Record<string, any> | ((props: { theme: Theme; ownerState: any }) => Record<string, any>);
       }>;
     } & ComponentsOverrides<Theme>['MuiBox'];
   }

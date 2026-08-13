@@ -4,10 +4,8 @@ import type {
   PeerTransport,
   PeerTransportOptions,
 } from '@/services/ports/PeerTransportPort';
+import { LINK_GRACE_MS } from '@/config/webrtc';
 import { logger } from '@/utils/logger';
-
-/** How long a `disconnected` link is given to heal before ICE is restarted. */
-const ICE_RESTART_GRACE_MS = 2500;
 
 interface OfferDecision {
   polite: boolean;
@@ -140,7 +138,7 @@ export function createNativePeerTransport({
         } catch (error) {
           logger.warn(`${tag} Could not restart ICE`, error);
         }
-      }, ICE_RESTART_GRACE_MS);
+      }, LINK_GRACE_MS);
     }
   });
 
@@ -148,6 +146,8 @@ export function createNativePeerTransport({
   // is the only signal that means media can actually flow.
   pc.addEventListener('connectionstatechange', () => {
     if (closed) return;
+
+    events.onConnectionStateChange(pc.connectionState);
 
     if (pc.connectionState === 'connected') {
       events.onConnected();
@@ -247,6 +247,28 @@ export function createNativePeerTransport({
           logger.warn(`${tag} Could not attach a fresh ${track.kind} track`, error);
         }
       });
+    },
+
+    setVideoTrack(track: MediaStreamTrack | null) {
+      const sender = senders.get('video');
+      if (sender) {
+        // Swapping onto an existing sender needs no renegotiation.
+        sender.replaceTrack(track).catch((error: unknown) => {
+          logger.warn(`${tag} Could not ${track ? 'attach' : 'detach'} the video track`, error);
+        });
+        return;
+      }
+
+      if (!track) return;
+
+      // No video sender at all, because this peer was dialled while the camera was
+      // off and the local stream carried audio only. Adding one renegotiates, which
+      // is the only way the far side ever receives video on this connection.
+      try {
+        senders.set('video', pc.addTrack(track, localStream));
+      } catch (error) {
+        logger.warn(`${tag} Could not add a video track`, error);
+      }
     },
 
     async candidateTypes(): Promise<CandidateTypes | null> {

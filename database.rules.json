@@ -19,8 +19,23 @@
           "$userId": {
             ".write": "auth != null && auth.uid == $userId",
             ".validate": "newData.hasChildren(['joinedAt', 'status']) && newData.child('joinedAt').isNumber() && newData.child('joinedAt').val() <= now + 60000 && newData.child('status').isString()",
+            "joinedAt": {
+              ".validate": "newData.isNumber() && newData.val() <= now + 60000"
+            },
+            "status": {
+              ".validate": "newData.isString() && newData.val().length <= 16"
+            },
             "lastSeen": {
               ".validate": "newData.isNumber() && newData.val() <= now + 60000"
+            },
+            "cam": {
+              ".validate": "newData.isString() && (newData.val() == 'on' || newData.val() == 'off' || newData.val() == 'none' || newData.val() == 'hidden')"
+            },
+            "mic": {
+              ".validate": "newData.isString() && (newData.val() == 'on' || newData.val() == 'off')"
+            },
+            "$other": {
+              ".validate": false
             }
           }
         },

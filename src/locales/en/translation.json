@@ -685,7 +685,18 @@
       "deviceInUse": "Camera or microphone is already in use by another application. Please close other apps and try again.",
       "constraintsNotSatisfied": "Your camera or microphone doesn't meet the required settings. Try using a different device.",
       "unknown": "Failed to access camera or microphone. Please check your device and try again."
-    }
+    },
+    "retry": "Retry",
+    "state": {
+      "audioOnly": "Audio only",
+      "muted": "Muted",
+      "noCamera": "No camera",
+      "away": "Away",
+      "connecting": "Connecting",
+      "reconnecting": "Reconnecting",
+      "disconnected": "Disconnected"
+    },
+    "participant": "Participant"
   },
   "scanToJoin": "Scan to join",
   "hapticFeedback": "Haptic feedback",

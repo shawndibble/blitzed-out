@@ -75,11 +75,15 @@ const VideoControls = ({ roomId, onEndCall }: VideoControlsProps) => {
           gap: 1,
           justifyContent: 'center',
           alignItems: 'center',
-          p: 2,
+          // Tighter on mobile, where this row sits between the nav and the tiles and
+          // every pixel it gives back becomes video. The small buttons still clear
+          // WCAG 2.2's 24px minimum target.
+          p: isMobile ? 0.5 : 2,
           backgroundColor: 'transparent',
         }}
       >
         <IconButton
+          size={isMobile ? 'small' : 'medium'}
           onClick={toggleMute}
           aria-label={isMuted ? t('videoCall.unmuteButton') : t('videoCall.muteButton')}
           disabled={!isCallActive}
@@ -94,6 +98,7 @@ const VideoControls = ({ roomId, onEndCall }: VideoControlsProps) => {
         </IconButton>
 
         <IconButton
+          size={isMobile ? 'small' : 'medium'}
           onClick={toggleVideo}
           aria-label={isVideoOff ? t('videoCall.videoOffButton') : t('videoCall.videoOnButton')}
           disabled={!isCallActive}
@@ -108,6 +113,7 @@ const VideoControls = ({ roomId, onEndCall }: VideoControlsProps) => {
         </IconButton>
 
         <IconButton
+          size={isMobile ? 'small' : 'medium'}
           onClick={handleCallToggle}
           aria-label={
             isMobile && !isCallActive ? t('videoCall.startCall') : t('videoCall.endCallButton')

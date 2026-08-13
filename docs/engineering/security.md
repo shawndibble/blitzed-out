@@ -61,12 +61,12 @@ The holder can then delete reported packs (`content-packs` delete rule) and invo
 
 Top-level defaults deny (`".read": false, ".write": false`) — good baseline. Then:
 
-| Path                                                | Read                                              | Write                              | Notes                                                                     |
-| --------------------------------------------------- | ------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------- |
-| `users` / `users/{uid}`                             | **public (`true`)**                               | owner only (`auth.uid == $userId`) | ⚠ All presence records globally readable. Writes validated.               |
-| `video-calls/{roomId}`                              | denied                                            | —                                  | No ancestor grant — RTDB read grants cascade and cannot be revoked below. |
-| `…/users` / `…/users/{uid}`                         | `auth != null`                                    | owner only                         | Roster must be readable by everyone in the room. Validated.               |
-| `…/offers \| answers \| ice-candidates/{targetUid}` | **only the target** (`auth.uid == $targetUserId`) | **any auth (`auth != null`)**      | Read is correctly scoped; write is open.                                  |
+| Path                                                | Read                                              | Write                              | Notes                                                                                                                                                                                                                        |
+| --------------------------------------------------- | ------------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `users` / `users/{uid}`                             | **public (`true`)**                               | owner only (`auth.uid == $userId`) | ⚠ All presence records globally readable. Writes validated.                                                                                                                                                                  |
+| `video-calls/{roomId}`                              | denied                                            | —                                  | No ancestor grant — RTDB read grants cascade and cannot be revoked below.                                                                                                                                                    |
+| `…/users` / `…/users/{uid}`                         | `auth != null`                                    | owner only                         | Roster must be readable by everyone in the room. Validated, including the `cam`/`mic` published-media flags, which are constrained to their vocabularies so a peer cannot write arbitrary strings other clients will render. |
+| `…/offers \| answers \| ice-candidates/{targetUid}` | **only the target** (`auth.uid == $targetUserId`) | **any auth (`auth != null`)**      | Read is correctly scoped; write is open.                                                                                                                                                                                     |
 
 **Key weaknesses:**
 

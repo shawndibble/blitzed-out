@@ -2,6 +2,7 @@ import { ArrowDropUp } from '@mui/icons-material';
 import { Button, ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper } from '@mui/material';
 import { t } from 'i18next';
 import { useRef, useState } from 'react';
+import useBreakpoint from '@/hooks/useBreakpoint';
 
 interface RollOptionsMenuProps {
   selectedRoll: string;
@@ -18,6 +19,7 @@ const RollOptionsMenu = ({
   const [open, setOpen] = useState<boolean>(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const anchorRef = useRef<HTMLButtonElement>(null);
+  const isMobile = useBreakpoint();
 
   const handleToggle = (): void => {
     setAnchorEl(anchorRef.current);
@@ -60,10 +62,15 @@ const RollOptionsMenu = ({
         anchorEl={anchorEl}
         transition
         disablePortal
-        placement="top-end"
+        // Opening upward would cover a third of the video panel on a phone, where
+        // the roll button sits directly beneath it.
+        placement={isMobile ? 'bottom-end' : 'top-end'}
       >
         {({ TransitionProps }) => (
-          <Grow {...TransitionProps} style={{ transformOrigin: 'right bottom' }}>
+          <Grow
+            {...TransitionProps}
+            style={{ transformOrigin: isMobile ? 'right top' : 'right bottom' }}
+          >
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu" autoFocusItem>

@@ -8,8 +8,10 @@ import {
   off,
   onDisconnect,
   serverTimestamp,
+  update,
   get,
 } from 'firebase/database';
+import type { MediaState } from '@/types/videoCall';
 import { logger } from '@/utils/logger';
 
 export interface SignalData {
@@ -38,15 +40,22 @@ class FirebaseSignalingService {
   private roomId: string | null = null;
   private userId: string | null = null;
   private processedCandidates: Set<string> = new Set();
+  /**
+   * What we last told the room we are publishing. `setPresent` rewrites the whole
+   * node, including on every 30s heartbeat, so a stale copy here would silently
+   * undo a mute half a minute after the user tapped it.
+   */
+  private mediaState: MediaState = {};
 
   /**
    * Claim a roster slot. Separate from `listen` because minting TURN credentials
    * requires presence to exist first, and that call must not run while signals
    * are already arriving — see `listen`.
    */
-  claim(roomId: string, userId: string): Promise<void> {
+  claim(roomId: string, userId: string, mediaState: MediaState): Promise<void> {
     this.userId = userId;
     this.roomId = roomId;
+    this.mediaState = mediaState;
     const database = getDatabase();
     this.roomRef = ref(database, `video-calls/${roomId}`);
 
@@ -232,13 +241,17 @@ class FirebaseSignalingService {
    * `hasChildren(['joinedAt','status'])` never runs for a write aimed at a child)
    * and tolerated by `liveRoster`, but not a presence node anyone should publish.
    */
-  async setPresent(present: boolean): Promise<void> {
+  async setPresent(present: boolean, mediaState?: MediaState): Promise<void> {
     if (!this.presenceRef) return;
 
     if (!present) {
       await set(this.presenceRef, null);
       return;
     }
+
+    // Reclaiming after a hang-up publishes fresh media alongside the slot. Left out
+    // on a heartbeat, which must carry whatever the last toggle set and nothing else.
+    if (mediaState) this.mediaState = mediaState;
 
     // Server time, not the device's. Staleness is judged by other clients and by
     // the cleanup job, so a device with a skewed clock would otherwise be read as
@@ -248,7 +261,26 @@ class FirebaseSignalingService {
       joinedAt: this.joinedAt ?? serverTimestamp(),
       lastSeen: serverTimestamp(),
       status: 'online',
+      ...this.mediaState,
     });
+  }
+
+  /**
+   * Tell the room what this participant is publishing.
+   *
+   * A partial write, so it cannot race the presence heartbeat into clobbering
+   * `joinedAt` — and the cached copy keeps the next full `setPresent` in step.
+   */
+  async publishMediaState(mediaState: MediaState): Promise<void> {
+    this.mediaState = mediaState;
+    if (!this.presenceRef) return;
+
+    try {
+      await update(this.presenceRef, mediaState);
+    } catch (error) {
+      // Survivable: the next heartbeat carries the same flags 30s from now.
+      logger.warn('[signaling] Could not publish media state', error);
+    }
   }
 
   /**
@@ -304,6 +336,7 @@ class FirebaseSignalingService {
     }
 
     this.processedCandidates.clear();
+    this.mediaState = {};
     this.roomId = null;
     this.userId = null;
   }

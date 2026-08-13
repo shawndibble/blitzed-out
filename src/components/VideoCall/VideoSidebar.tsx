@@ -121,7 +121,7 @@ const VideoSidebar = ({ roomId, onToggle, onWidthChange }: VideoSidebarProps) =>
             width: width,
             boxSizing: 'border-box',
             top: '64px',
-            height: 'calc(100vh - 64px)',
+            height: 'calc(100svh - 64px)',
             zIndex: 900,
             backgroundColor: 'transparent',
             backgroundImage: 'none',

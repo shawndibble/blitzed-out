@@ -29,6 +29,12 @@ export interface PeerTransportEvents {
   onClosed: () => void;
   onError: (error: Error) => void;
   onIceStateChange: (state: RTCIceConnectionState) => void;
+  /**
+   * The connection's own aggregate state, which unlike ICE state implies a finished
+   * DTLS handshake. Reported so the UI can tell "still connecting" from "connected
+   * but the far side is publishing nothing" — otherwise both are a black rectangle.
+   */
+  onConnectionStateChange: (state: RTCPeerConnectionState) => void;
 }
 
 export interface PeerTransportOptions {
@@ -54,6 +60,12 @@ export interface PeerTransport {
   accept: (signal: PeerSignal) => void;
   /** Point this connection's senders at a fresh local stream. */
   replaceLocalTracks: (stream: MediaStream) => void;
+  /**
+   * Attach or detach the outgoing video track. `null` is what actually stops video
+   * reaching the far side — a sender holding a stopped track still emits black
+   * frames, so releasing the camera alone changes nothing the peer can see.
+   */
+  setVideoTrack: (track: MediaStreamTrack | null) => void;
   /** Candidate types that carried the connection, for diagnostics. */
   candidateTypes: () => Promise<CandidateTypes | null>;
   /** Idempotent. Fires `onClosed` synchronously on the first call only. */

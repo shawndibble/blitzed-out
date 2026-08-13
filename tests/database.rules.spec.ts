@@ -9,7 +9,7 @@ import {
   initializeTestEnvironment,
   type RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
-import { get, push, ref, set } from 'firebase/database';
+import { get, push, ref, set, update } from 'firebase/database';
 
 const PROJECT_ID = 'demo-blitzed';
 const UID = 'user-123';
@@ -28,7 +28,7 @@ function dbAnon() {
   return testEnv.unauthenticatedContext().database();
 }
 
-/** Presence node shape written by firebaseSignaling.setPresent(). */
+/** Presence node shape written by firebaseSignaling.setPresent(), less media flags. */
 const validPresence = () => ({
   joinedAt: Date.now(),
   lastSeen: Date.now(),
@@ -287,6 +287,53 @@ describe('video-calls roster (users)', () => {
     await assertFails(
       set(ref(dbAs(UID), `video-calls/${ROOM}/users/${OTHER_UID}/lastSeen`), Date.now())
     );
+  });
+
+  describe('published media state', () => {
+    it('accepts a partial media update against an existing slot', async () => {
+      await seedPresence();
+
+      await assertSucceeds(
+        update(ref(dbAs(UID), `video-calls/${ROOM}/users/${UID}`), { cam: 'off', mic: 'on' })
+      );
+    });
+
+    it('accepts a full presence write carrying media flags', async () => {
+      await assertSucceeds(
+        set(ref(dbAs(UID), `video-calls/${ROOM}/users/${UID}`), {
+          ...validPresence(),
+          cam: 'none',
+          mic: 'off',
+        })
+      );
+    });
+
+    it('rejects camera and mic values outside the published vocabulary', async () => {
+      await seedPresence();
+
+      await assertFails(set(ref(dbAs(UID), `video-calls/${ROOM}/users/${UID}/cam`), 'sideways'));
+      await assertFails(set(ref(dbAs(UID), `video-calls/${ROOM}/users/${UID}/mic`), 42));
+    });
+
+    // A write aimed at a child skips the parent's `.validate`, so without a
+    // catch-all child rule any signed-in user could stuff unbounded data into their
+    // own roster slot — which every participant then downloads on each snapshot,
+    // since clients subscribe to the whole `users` node.
+    it('rejects children outside the roster shape', async () => {
+      await seedPresence();
+
+      await assertFails(
+        set(ref(dbAs(UID), `video-calls/${ROOM}/users/${UID}/junk`), 'x'.repeat(1000))
+      );
+    });
+
+    it("denies publishing media state on another user's behalf", async () => {
+      await seedPresence(OTHER_UID);
+
+      await assertFails(
+        update(ref(dbAs(UID), `video-calls/${ROOM}/users/${OTHER_UID}`), { cam: 'off' })
+      );
+    });
   });
 });
 

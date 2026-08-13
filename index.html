@@ -17,7 +17,10 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- viewport-fit=cover: without it iOS auto-insets the page and every
+         env(safe-area-inset-*) resolves to 0, so bottom-anchored chrome cannot
+         account for the home indicator. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#000000" />
     <!-- SEO Meta Tags -->
     <meta
@@ -52,15 +55,28 @@
     <!-- Preload critical fonts for faster LCP -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" as="style" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" media="print" onload="this.media='all'" />
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" /></noscript>
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      as="style"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      media="print"
+      onload="this.media = 'all'"
+    />
+    <noscript
+      ><link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+    /></noscript>
 
     <!-- Optimized preconnects - only for critical resources -->
     <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
 
     <!-- Let Vite handle module preloading automatically via build optimization -->
-    
+
     <!-- Preload critical CSS for instant styling -->
     <link rel="preload" href="/shared-loading.css" as="style" />
     <link rel="stylesheet" href="/shared-loading.css" />
@@ -70,7 +86,10 @@
       rel="preload"
       href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap"
       as="style"
-      onload="this.onload=null;this.rel='stylesheet'"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
       media="print"
     />
     <noscript

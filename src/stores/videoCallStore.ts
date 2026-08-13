@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { getDatabase, ref, onValue, off } from 'firebase/database';
 import { firebaseSignaling, SignalData } from '@/services/firebaseSignaling';
-import { ICE_SERVERS, IceServer, MAX_PEERS } from '@/config/webrtc';
+import { ICE_SERVERS, IceServer, LINK_GRACE_MS, MAX_PEERS } from '@/config/webrtc';
 import { resolveIceServers } from '@/services/iceServers';
 import {
   PeerSignal,
@@ -9,6 +9,7 @@ import {
   PeerTransportFactory,
 } from '@/services/ports/PeerTransportPort';
 import { createNativePeerTransport } from '@/services/adapters/NativePeerTransportAdapter';
+import { deriveLocalMedia, MediaState, parseMediaState } from '@/types/videoCall';
 import { logger } from '@/utils/logger';
 
 let peerTransportFactory: PeerTransportFactory = createNativePeerTransport;
@@ -102,6 +103,10 @@ export interface PeerConnection {
   peer: PeerTransport;
   /** Remote media, empty until the far side's tracks arrive. */
   stream: MediaStream;
+  /** The connection's own view of itself. `connected` implies DTLS finished. */
+  connectionState: RTCPeerConnectionState;
+  /** `disconnected` past LINK_GRACE_MS, i.e. worth telling the user about. */
+  reconnecting: boolean;
 }
 
 export interface RetryState {
@@ -125,8 +130,17 @@ export interface VideoCallState {
   /** Whether the first roster snapshot has arrived. Empty is a real state. */
   rosterLoaded: boolean;
   peerRetries: Map<string, RetryState>;
+  /**
+   * What each roster member says they are publishing, keyed by user id. Missing
+   * entries and missing fields both mean unknown — see `MediaState`.
+   */
+  mediaStates: Map<string, MediaState>;
   isMuted: boolean;
   isVideoOff: boolean;
+  /** Whether a camera was ever acquired. Distinguishes "turned off" from "has none". */
+  hasCamera: boolean;
+  /** Page visibility, which suppresses frames without releasing the device. */
+  isPageHidden: boolean;
   isInitialized: boolean;
   isCallActive: boolean;
   heartbeatInterval: number | null;
@@ -138,8 +152,14 @@ export interface VideoCallState {
   initialize: (roomId: string, userId: string) => Promise<void>;
   cleanup: () => void;
   toggleMute: () => void;
-  toggleVideo: () => void;
+  /**
+   * Async on the way back on: turning the camera off releases the device, so the
+   * light goes out, and resuming means acquiring a fresh track.
+   */
+  toggleVideo: () => Promise<void>;
   handleVisibilityChange: (isHidden: boolean) => void;
+  /** Forget a participant's spent retry budget and dial them again. */
+  retryPeer: (targetUserId: string) => void;
   disconnectCall: () => void;
   reconnectCall: () => Promise<void>;
   clearError: () => void;
@@ -161,6 +181,31 @@ let generationCounter = 0;
 let activeGeneration: number | null = null;
 
 export const useVideoCallStore = create<VideoCallState>((set, get) => {
+  /** Pending "has this `disconnected` lasted long enough to mention?" checks. */
+  const reconnectTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  let visibilityListener: (() => void) | null = null;
+  /** Guards the camera re-acquire against a double tap. See `toggleVideo`. */
+  let acquiringCamera = false;
+
+  function clearReconnectTimer(targetUserId: string): void {
+    const timer = reconnectTimers.get(targetUserId);
+    if (!timer) return;
+    clearTimeout(timer);
+    reconnectTimers.delete(targetUserId);
+  }
+
+  function patchPeer(targetUserId: string, patch: Partial<PeerConnection>): void {
+    const { peers } = get();
+    const existing = peers.get(targetUserId);
+    if (!existing) return;
+    set({ peers: new Map(peers).set(targetUserId, { ...existing, ...patch }) });
+  }
+
+  /** Call after any `set` that changes what we publish. Never before. */
+  function publishLocalMedia(): void {
+    firebaseSignaling.publishMediaState(deriveLocalMedia(get()));
+  }
+
   /**
    * Tear a peer down and remove it from the map. `retry: true` schedules another
    * attempt with backoff; `retry: false` is for participants who genuinely left.
@@ -169,6 +214,8 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
     const { peers, peerRetries } = get();
     const peerData = peers.get(targetUserId);
     if (!peerData) return;
+
+    clearReconnectTimer(targetUserId);
 
     const nextPeers = new Map(peers);
     nextPeers.delete(targetUserId);
@@ -292,6 +339,23 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
             onLost('ICE failed');
           }
         },
+
+        onConnectionStateChange: (connectionState) => {
+          clearReconnectTimer(targetUserId);
+          patchPeer(targetUserId, { connectionState, reconnecting: false });
+
+          // Not news yet — see LINK_GRACE_MS.
+          if (connectionState !== 'disconnected') return;
+
+          reconnectTimers.set(
+            targetUserId,
+            setTimeout(() => {
+              reconnectTimers.delete(targetUserId);
+              if (get().peers.get(targetUserId)?.connectionState !== 'disconnected') return;
+              patchPeer(targetUserId, { reconnecting: true });
+            }, LINK_GRACE_MS)
+          );
+        },
       },
     });
 
@@ -302,6 +366,8 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
     return {
       peer,
       stream: new MediaStream(),
+      connectionState: 'new',
+      reconnecting: false,
     };
   }
 
@@ -359,8 +425,11 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
     roster: [],
     rosterLoaded: false,
     peerRetries: new Map(),
+    mediaStates: new Map(),
     isMuted: false,
     isVideoOff: false,
+    hasCamera: false,
+    isPageHidden: false,
     isInitialized: false,
     isCallActive: false,
     heartbeatInterval: null,
@@ -406,8 +475,12 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
       // call — without a roster slot nobody can see this user — so it must not be
       // swallowed, and it must release the generation lock and the camera rather
       // than leaving both held with `isInitialized` false.
+      // Published from the first write, so a peer granted a mic but no camera is
+      // described correctly before any media has had a chance to flow.
+      const hasCamera = stream.getVideoTracks().length > 0;
+
       try {
-        await firebaseSignaling.claim(roomId, userId);
+        await firebaseSignaling.claim(roomId, userId, initialMediaState(hasCamera));
       } catch (error) {
         logger.error('[videocall] Could not claim a roster slot', error);
         stopTracks(stream);
@@ -434,16 +507,40 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
         roster: [],
         rosterLoaded: false,
         peerRetries: new Map(),
+        mediaStates: new Map(),
+        hasCamera,
+        isPageHidden: pageIsHidden(),
+        isMuted: false,
+        isVideoOff: false,
         roomId,
         userId,
       });
+
+      // Owned here rather than in a component: both the mobile tab and the desktop
+      // sidebar host the call, and a backgrounded tab that goes on emitting black
+      // frames is indistinguishable from a camera that was switched off.
+      visibilityListener = () => get().handleVisibilityChange(document.hidden);
+      document.addEventListener('visibilitychange', visibilityListener);
 
       const database = getDatabase();
       const usersRef = ref(database, `video-calls/${roomId}/users`);
 
       onValue(usersRef, (snapshot) => {
-        const alreadyLoaded = get().rosterLoaded;
-        set({ roster: liveRoster(snapshot.val()), rosterLoaded: true });
+        const { rosterLoaded: alreadyLoaded, roster: previousRoster } = get();
+        const users = snapshot.val();
+
+        // Media flags share this node, so every peer's mute, camera toggle and tab
+        // switch now re-fires the snapshot — where it used to fire only on join,
+        // leave and the 30s heartbeat. Handing back the previous array when
+        // membership is unchanged keeps that churn from re-rendering every tile.
+        const nextRoster = liveRoster(users);
+        const membershipChanged = !sameOrder(previousRoster, nextRoster);
+
+        set({
+          roster: membershipChanged ? nextRoster : previousRoster,
+          rosterLoaded: true,
+          mediaStates: rosterMediaStates(users),
+        });
         get().reconcilePeers();
 
         // Bind signalling only once the roster is known. `onChildAdded` replays
@@ -533,6 +630,14 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
       // rather than installing listeners and intervals after the teardown.
       activeGeneration = null;
 
+      if (visibilityListener) {
+        document.removeEventListener('visibilitychange', visibilityListener);
+        visibilityListener = null;
+      }
+
+      reconnectTimers.forEach((timer) => clearTimeout(timer));
+      reconnectTimers.clear();
+
       const { localStream, peers, heartbeatInterval, reconcileInterval, roomId } = get();
 
       if (localStream) {
@@ -567,6 +672,9 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
         roster: [],
         rosterLoaded: false,
         peerRetries: new Map(),
+        mediaStates: new Map(),
+        hasCamera: false,
+        isPageHidden: false,
         isInitialized: false,
         isCallActive: false,
         heartbeatInterval: null,
@@ -581,29 +689,89 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
       if (!localStream) return;
 
       const audioTrack = localStream.getAudioTracks()[0];
-      if (audioTrack) {
-        const newMutedState = !isMuted;
-        audioTrack.enabled = !newMutedState;
-        set({ isMuted: newMutedState });
-      }
+      if (!audioTrack) return;
+
+      // Disabled, never stopped: releasing a microphone makes Bluetooth headsets
+      // renegotiate their profile — audible, and it clips the first word back.
+      const newMutedState = !isMuted;
+      audioTrack.enabled = !newMutedState;
+      set({ isMuted: newMutedState });
+      publishLocalMedia();
     },
 
-    toggleVideo: () => {
-      const { localStream, isVideoOff } = get();
+    toggleVideo: async () => {
+      const { localStream, isVideoOff, peers } = get();
       if (!localStream) return;
 
-      const videoTrack = localStream.getVideoTracks()[0];
-      if (videoTrack) {
-        const newVideoOffState = !isVideoOff;
-        videoTrack.enabled = !newVideoOffState;
-        set({ isVideoOff: newVideoOffState });
+      // Re-acquiring the camera is several hundred milliseconds during which
+      // `isVideoOff` is still true and the button is still live. A second tap would
+      // start a second acquisition and orphan the first track — never stopped, so
+      // the camera light stays on for the rest of the session.
+      if (acquiringCamera) return;
+
+      if (!isVideoOff) {
+        // Detach from the senders first: a sender still holding a stopped track is
+        // required to keep emitting black frames, so releasing the camera on its own
+        // leaves every peer paying for a rectangle of nothing.
+        peers.forEach((peerData) => {
+          if (!peerData.peer.closed) peerData.peer.setVideoTrack(null);
+        });
+        localStream.getVideoTracks().forEach((track) => track.stop());
+
+        // A new stream object, not a mutated one: components key re-attachment off
+        // the stream's identity and would otherwise keep rendering the dead track.
+        set({
+          localStream: new MediaStream(localStream.getAudioTracks()),
+          isVideoOff: true,
+        });
+        publishLocalMedia();
+        return;
       }
+
+      let camera: MediaStream;
+      acquiringCamera = true;
+      try {
+        // Video only — re-acquiring audio would take the microphone down with it.
+        camera = await navigator.mediaDevices.getUserMedia({ video: MEDIA_CONSTRAINTS.video });
+      } catch (error) {
+        const mediaError = createMediaError(error);
+        logger.warn('[videocall] Could not re-acquire the camera', mediaError.type, error);
+        set({ error: mediaError });
+        return;
+      } finally {
+        acquiringCamera = false;
+      }
+
+      const videoTrack = camera.getVideoTracks()[0];
+      if (!videoTrack) return;
+
+      const current = get().localStream;
+      if (!current) {
+        // The call ended while the camera was being acquired.
+        videoTrack.stop();
+        return;
+      }
+
+      get().peers.forEach((peerData) => {
+        if (!peerData.peer.closed) peerData.peer.setVideoTrack(videoTrack);
+      });
+
+      set({
+        localStream: new MediaStream([...current.getAudioTracks(), videoTrack]),
+        isVideoOff: false,
+        hasCamera: true,
+      });
+      publishLocalMedia();
     },
 
     handleVisibilityChange: (isHidden: boolean) => {
+      set({ isPageHidden: isHidden });
+
       const { localStream, isVideoOff } = get();
       if (!localStream) return;
 
+      // Suppress frames but hold the device: backgrounding is transient, and
+      // releasing the camera would cost a re-acquire on every tab switch.
       const videoTrack = localStream.getVideoTracks()[0];
       if (videoTrack) {
         if (isHidden) {
@@ -612,6 +780,15 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
           videoTrack.enabled = true;
         }
       }
+
+      publishLocalMedia();
+    },
+
+    retryPeer: (targetUserId: string) => {
+      const nextRetries = new Map(get().peerRetries);
+      nextRetries.delete(targetUserId);
+      set({ peerRetries: nextRetries });
+      get().reconcilePeers();
     },
 
     disconnectCall: () => {
@@ -636,6 +813,8 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
         isCallActive: false,
         isMuted: false,
         isVideoOff: false,
+        hasCamera: false,
+        isPageHidden: false,
       });
     },
 
@@ -668,7 +847,9 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
         }
       });
 
-      firebaseSignaling.setPresent(true).catch((error) => {
+      const hasCamera = stream.getVideoTracks().length > 0;
+
+      firebaseSignaling.setPresent(true, initialMediaState(hasCamera)).catch((error) => {
         logger.warn('[videocall] Could not reclaim the roster slot', error);
       });
 
@@ -683,6 +864,8 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
         isCallActive: true,
         isMuted: false,
         isVideoOff: false,
+        hasCamera,
+        isPageHidden: pageIsHidden(),
       });
     },
 
@@ -717,6 +900,39 @@ export function liveRoster(users: unknown, now: number = Date.now()): string[] {
     .filter(({ seen }) => now - seen < ROSTER_STALE_MS)
     .sort((a, b) => b.seen - a.seen)
     .map(({ userId }) => userId);
+}
+
+function sameOrder(a: readonly string[], b: readonly string[]): boolean {
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}
+
+/** A fresh slot publishes the post-reset flags, which claim runs ahead of. */
+function initialMediaState(hasCamera: boolean): MediaState {
+  return deriveLocalMedia({
+    hasCamera,
+    isVideoOff: false,
+    isMuted: false,
+    isPageHidden: pageIsHidden(),
+  });
+}
+
+/** Safe in the store's own tests, which have no document. */
+function pageIsHidden(): boolean {
+  return typeof document !== 'undefined' && document.hidden;
+}
+
+/**
+ * Read every roster entry's published media flags. Rebuilt per snapshot rather than
+ * merged, so a participant who leaves takes their last known state with them.
+ */
+export function rosterMediaStates(users: unknown): Map<string, MediaState> {
+  const states = new Map<string, MediaState>();
+  if (!users || typeof users !== 'object') return states;
+
+  for (const [userId, entry] of Object.entries(users as Record<string, unknown>)) {
+    states.set(userId, parseMediaState(entry));
+  }
+  return states;
 }
 
 function startHeartbeat(): number {

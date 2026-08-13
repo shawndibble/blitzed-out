@@ -16,13 +16,15 @@ export default function TabPanel({
   style,
   ...other
 }: TabPanelProps): JSX.Element {
+  // Without `minHeight: 0` a flex item floors at its content size, leaving the
+  // scrolling Box below unbounded and its overflow clipped with no way to reach it.
   return (
     <div
       role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
-      style={{ height: '100%', overflow: 'hidden' }}
+      style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}
       {...other}
     >
       {value === index && (

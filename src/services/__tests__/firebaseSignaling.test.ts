@@ -12,6 +12,7 @@ const mockOff = vi.fn();
 const mockOnDisconnect = vi.fn();
 const mockGetDatabase = vi.fn();
 const mockGet = vi.fn();
+const mockUpdate = vi.fn();
 const SERVER_TIME = { '.sv': 'timestamp' };
 
 vi.mock('firebase/database', () => ({
@@ -25,6 +26,7 @@ vi.mock('firebase/database', () => ({
   onDisconnect: (...args: any[]) => mockOnDisconnect(...args),
   serverTimestamp: () => SERVER_TIME,
   get: (...args: any[]) => mockGet(...args),
+  update: (...args: any[]) => mockUpdate(...args),
 }));
 
 describe('firebaseSignaling', () => {
@@ -32,6 +34,7 @@ describe('firebaseSignaling', () => {
     vi.clearAllMocks();
     mockRef.mockImplementation((_db: unknown, path: string) => ({ key: 'test-room', path }));
     mockSet.mockResolvedValue(undefined);
+    mockUpdate.mockResolvedValue(undefined);
     mockGet.mockResolvedValue({ val: () => 1_700_000_000_000 });
     mockPush.mockResolvedValue({ key: 'test-key' });
     mockOnDisconnect.mockReturnValue({
@@ -53,7 +56,7 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      await firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId, { cam: 'on', mic: 'on' });
       firebaseSignaling.listen(vi.fn());
 
       expect(mockRef).toHaveBeenCalled();
@@ -65,7 +68,7 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      await firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId, { cam: 'on', mic: 'on' });
       firebaseSignaling.listen(vi.fn());
 
       expect(mockSet).toHaveBeenCalledWith(
@@ -81,7 +84,7 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      await firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId, { cam: 'on', mic: 'on' });
       firebaseSignaling.listen(vi.fn());
 
       expect(mockOnDisconnect).toHaveBeenCalled();
@@ -93,7 +96,7 @@ describe('firebaseSignaling', () => {
       const userId = 'user-123';
       const onSignal = vi.fn();
 
-      await firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId, { cam: 'on', mic: 'on' });
       firebaseSignaling.listen(onSignal);
 
       expect(mockOnValue).toHaveBeenCalled();
@@ -108,7 +111,7 @@ describe('firebaseSignaling', () => {
       const targetUserId = 'user-456';
       const offer = { type: 'offer' as const, sdp: 'test-sdp' };
 
-      await firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId, { cam: 'on', mic: 'on' });
       firebaseSignaling.listen(vi.fn());
       await firebaseSignaling.sendOffer(targetUserId, offer);
 
@@ -141,7 +144,7 @@ describe('firebaseSignaling', () => {
       const targetUserId = 'user-456';
       const answer = { type: 'answer' as const, sdp: 'test-sdp' };
 
-      await firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId, { cam: 'on', mic: 'on' });
       firebaseSignaling.listen(vi.fn());
       await firebaseSignaling.sendAnswer(targetUserId, answer);
 
@@ -174,7 +177,7 @@ describe('firebaseSignaling', () => {
       const targetUserId = 'user-456';
       const candidate = { candidate: 'test-candidate', sdpMLineIndex: 0 };
 
-      await firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId, { cam: 'on', mic: 'on' });
       firebaseSignaling.listen(vi.fn());
       await firebaseSignaling.sendIceCandidate(targetUserId, candidate);
 
@@ -205,7 +208,7 @@ describe('firebaseSignaling', () => {
       const roomId = 'test-room';
       const userId = 'user-123';
 
-      await firebaseSignaling.claim(roomId, userId);
+      await firebaseSignaling.claim(roomId, userId, { cam: 'on', mic: 'on' });
       firebaseSignaling.listen(vi.fn());
       firebaseSignaling.cleanup();
 
@@ -226,7 +229,7 @@ describe('firebaseSignaling', () => {
     test('removes the presence node so the user stops occupying a roster slot', async () => {
       const { firebaseSignaling } = await import('../firebaseSignaling');
 
-      await firebaseSignaling.claim('test-room', 'user-123');
+      await firebaseSignaling.claim('test-room', 'user-123', { cam: 'on', mic: 'on' });
       firebaseSignaling.listen(vi.fn());
       firebaseSignaling.cleanup();
 
@@ -241,7 +244,7 @@ describe('firebaseSignaling', () => {
       const cancel = vi.fn().mockResolvedValue(undefined);
       mockOnDisconnect.mockReturnValue({ remove: vi.fn().mockResolvedValue(undefined), cancel });
 
-      await firebaseSignaling.claim('test-room', 'user-123');
+      await firebaseSignaling.claim('test-room', 'user-123', { cam: 'on', mic: 'on' });
       firebaseSignaling.listen(vi.fn());
       firebaseSignaling.cleanup();
 
@@ -259,7 +262,7 @@ describe('firebaseSignaling', () => {
     test('stamps lastSeen with server time, not the device clock', async () => {
       const { firebaseSignaling } = await import('../firebaseSignaling');
 
-      await firebaseSignaling.claim('test-room', 'user-123');
+      await firebaseSignaling.claim('test-room', 'user-123', { cam: 'on', mic: 'on' });
       mockSet.mockClear();
       await firebaseSignaling.heartbeat();
 
@@ -273,7 +276,7 @@ describe('firebaseSignaling', () => {
     test('rewrites the whole presence node so a deleted one is restored', async () => {
       const { firebaseSignaling } = await import('../firebaseSignaling');
 
-      await firebaseSignaling.claim('test-room', 'user-123');
+      await firebaseSignaling.claim('test-room', 'user-123', { cam: 'on', mic: 'on' });
       mockSet.mockClear();
       await firebaseSignaling.heartbeat();
 
@@ -282,7 +285,39 @@ describe('firebaseSignaling', () => {
         joinedAt: expect.anything(),
         lastSeen: SERVER_TIME,
         status: 'online',
+        cam: 'on',
+        mic: 'on',
       });
+    });
+
+    // The heartbeat rewrites the whole node, so it has to carry the media flags too
+    // — otherwise every toggle is silently reverted within 30 seconds.
+    test('carries the latest published media state on every heartbeat', async () => {
+      const { firebaseSignaling } = await import('../firebaseSignaling');
+
+      await firebaseSignaling.claim('test-room', 'user-123', { cam: 'on', mic: 'on' });
+      await firebaseSignaling.publishMediaState({ cam: 'off', mic: 'off' });
+      mockSet.mockClear();
+      await firebaseSignaling.heartbeat();
+
+      const [[, value]] = writesTo('video-calls/test-room/users/user-123');
+      expect(value).toMatchObject({ cam: 'off', mic: 'off' });
+    });
+
+    // A partial write, so a toggle landing next to a heartbeat cannot clobber
+    // joinedAt and push this participant's apparent join time forward.
+    test('publishes media state without rewriting the rest of the node', async () => {
+      const { firebaseSignaling } = await import('../firebaseSignaling');
+
+      await firebaseSignaling.claim('test-room', 'user-123', { cam: 'on', mic: 'on' });
+      mockSet.mockClear();
+      await firebaseSignaling.publishMediaState({ cam: 'off', mic: 'on' });
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({ path: 'video-calls/test-room/users/user-123' }),
+        { cam: 'off', mic: 'on' }
+      );
+      expect(writesTo('video-calls/test-room/users/user-123')).toHaveLength(0);
     });
 
     // Rewriting the whole node every 30s would otherwise keep pushing the join
@@ -290,7 +325,7 @@ describe('firebaseSignaling', () => {
     test('preserves the original joinedAt across heartbeats', async () => {
       const { firebaseSignaling } = await import('../firebaseSignaling');
 
-      await firebaseSignaling.claim('test-room', 'user-123');
+      await firebaseSignaling.claim('test-room', 'user-123', { cam: 'on', mic: 'on' });
       await firebaseSignaling.heartbeat();
 
       const writes = writesTo('video-calls/test-room/users/user-123');
