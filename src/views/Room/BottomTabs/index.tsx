@@ -13,9 +13,10 @@ import { vibrate } from '@/utils/haptics';
 
 /**
  * The fixed top nav's real height: a dense `Toolbar` (48px floor) whose tallest child
- * is a 40px `IconButton` inside 5px vertical padding.
+ * is a 40px `IconButton` inside 5px vertical padding, plus the status-bar inset the
+ * bar pads itself by — `viewport-fit=cover` puts the page under it.
  */
-const NAV_HEIGHT = '50px';
+const NAV_HEIGHT = 'calc(50px + env(safe-area-inset-top))';
 /**
  * MUI `Tabs` default min-height, plus the home-indicator inset the bar now pads itself
  * by. Reserve and bar have to agree, or the last panel row hides behind the tabs.

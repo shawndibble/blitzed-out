@@ -52,7 +52,7 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
   };
 
   return (
-    <AppBar position="fixed">
+    <AppBar position="fixed" sx={{ paddingTop: 'env(safe-area-inset-top)' }}>
       <Toolbar disableGutters variant="dense" component="nav" className="nav">
         <div className="site-name">
           <Box

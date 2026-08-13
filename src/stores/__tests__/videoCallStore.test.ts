@@ -1473,6 +1473,58 @@ describe('VideoCallStore', () => {
       expect(mockVideoTrack.enabled).toBe(true);
     });
 
+    test('a camera acquired while the page is already hidden starts disabled', async () => {
+      vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+
+      const result = await initialized();
+
+      expect(mockVideoTrack.enabled).toBe(false);
+      expect(result.current.isPageHidden).toBe(true);
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      expect(firebaseSignaling.claim).toHaveBeenCalledWith(
+        'test-room',
+        'test-user-id',
+        expect.objectContaining({ cam: 'hidden' })
+      );
+    });
+
+    test('a camera acquired while the page is hidden mid-flight lands disabled', async () => {
+      const result = await initialized();
+      act(() => {
+        result.current.toggleVideo();
+      });
+
+      // Hold the acquire open, hide the page, then let it resolve — the window the
+      // one-shot check used to miss, since nothing observes visibility during it.
+      const freshVideoTrack = { stop: vi.fn(), kind: 'video', enabled: true };
+      let releaseCamera: (stream: unknown) => void = () => {};
+      (navigator.mediaDevices.getUserMedia as any).mockReturnValueOnce(
+        new Promise((resolve) => {
+          releaseCamera = resolve;
+        })
+      );
+
+      const resuming = result.current.toggleVideo();
+      act(() => {
+        result.current.handleVisibilityChange(true);
+      });
+      await act(async () => {
+        releaseCamera({
+          getTracks: () => [freshVideoTrack],
+          getVideoTracks: () => [freshVideoTrack],
+          getAudioTracks: () => [],
+        });
+        await resuming;
+      });
+
+      expect(freshVideoTrack.enabled).toBe(false);
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      expect(firebaseSignaling.publishMediaState).toHaveBeenLastCalledWith({
+        cam: 'hidden',
+        mic: 'on',
+      });
+    });
+
     test('backgrounding does not resurrect a camera the user turned off', async () => {
       const result = await initialized();
       act(() => {

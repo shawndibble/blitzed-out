@@ -686,17 +686,17 @@
       "constraintsNotSatisfied": "您的攝影機或麥克風不符合所需設定。請嘗試使用其他裝置。",
       "unknown": "無法存取攝影機或麥克風。請檢查您的裝置後重試。"
     },
-    "retry": "重试",
+    "retry": "重試",
     "state": {
-      "audioOnly": "仅音频",
-      "viewingOnly": "仅观看",
-      "noCamera": "无摄像头",
-      "away": "离开",
-      "connecting": "连接中",
-      "reconnecting": "重新连接中",
-      "disconnected": "已断开"
+      "audioOnly": "僅音訊",
+      "viewingOnly": "僅觀看",
+      "noCamera": "無攝影機",
+      "away": "離開",
+      "connecting": "連線中",
+      "reconnecting": "重新連線中",
+      "disconnected": "已中斷連線"
     },
-    "participant": "参与者"
+    "participant": "參與者"
   },
   "scanToJoin": "扫描加入",
   "hapticFeedback": "触觉反馈",

@@ -19,6 +19,13 @@ describe('resolveTileState', () => {
     ).toBe('viewingOnly');
   });
 
+  test('will not claim audio-only when the mic state was never published', () => {
+    // The camera fact still stands; only the microphone is unknown.
+    expect(resolveTileState({ hasVideoTrack: false, media: { cam: 'off' }, ...connected })).toBe(
+      'cameraOff'
+    );
+  });
+
   test('distinguishes having no camera from switching one off', () => {
     expect(
       resolveTileState({ hasVideoTrack: false, media: { cam: 'none', mic: 'on' }, ...connected })

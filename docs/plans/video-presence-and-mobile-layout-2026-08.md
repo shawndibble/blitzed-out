@@ -32,7 +32,7 @@ A second, independent bug: `VideoCallPanel.tsx:26-42` hardcodes `isMuted: false`
 
 Closed ledger, 640px viewport, Video tab:
 
-```
+```text
   64   BottomTabs paddingTop '4rem'        BottomTabs/index.tsx:44   (nav is ~50px → 14px dead)
 +  8   TabPanel p:1 top
 +  8   VideoCallPanel p:{xs:1} top          VideoCallPanel.tsx:53
@@ -59,7 +59,7 @@ The `pb: '70px'` reserves clearance for the ROLL button _outside_ the scroll con
 | #      | Decision                                                                                                                                                                       |
 | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Q1/Q26 | Camera-off peers **collapse in place** to a compact row (avatar + name + state label). No reordering, ever.                                                                    |
-| Q2     | Four surfaced states: `connecting`, `no video`, `reconnecting`, `failed`. Plus a fifth from the watchdog: transport stalled.                                                   |
+| Q2     | Four surfaced states: `connecting`, `no video`, `reconnecting`, `failed`. A fifth, transport-stalled, was to come from the watchdog — **deferred with it, see Phase 4**.       |
 | Q3     | Muted badge only. No speaking indicator (deferred).                                                                                                                            |
 | Q4/Q27 | Mobile call controls move to a row directly under the nav bar, smaller icons. Desktop unchanged.                                                                               |
 | Q5     | Controls stay Video-tab-only.                                                                                                                                                  |
@@ -76,7 +76,7 @@ The `pb: '70px'` reserves clearance for the ROLL button _outside_ the scroll con
 | Q24    | Snap, don't animate.                                                                                                                                                           |
 | Q25    | Fixed tile aspect via CSS `aspect-ratio`; a binary `data-orientation` flag switches `object-fit` between `cover` and `contain`. Tile size never derives from track dimensions. |
 | Q28    | Camera off → `stop()` the track (kills the LED) + signal. Mic off → `enabled = false` + signal.                                                                                |
-| Q29    | Build the stall watchdog.                                                                                                                                                      |
+| Q29    | Build the stall watchdog. **Not built — deferred, see Phase 4.**                                                                                                               |
 | Q30    | Wire format: `cam: 'on' \| 'off' \| 'none' \| 'hidden'`, `mic: 'on' \| 'off'`.                                                                                                 |
 
 ### Deliberate divergences from industry practice
@@ -94,7 +94,7 @@ Recorded so these read as chosen bets, not oversights.
 
 Two new children on the existing per-user roster node:
 
-```
+```text
 video-calls/{roomId}/users/{uid} = {
   joinedAt, lastSeen, status: 'online',
   cam: 'on' | 'off' | 'none' | 'hidden',
@@ -122,7 +122,8 @@ Resolved per peer, in precedence order:
 | roster `cam: 'none'`                                                     | Collapsed row, label **No camera**                                   |
 | roster `cam: 'hidden'`                                                   | Collapsed row, label **Away**                                        |
 | roster `cam: 'off'`, `mic: 'on'`                                         | Collapsed row, label **Audio only**                                  |
-| roster `cam: 'off'`, `mic: 'off'`                                        | Collapsed row, label **Muted**                                       |
+| roster `cam: 'off'`, `mic: 'off'`                                        | Collapsed row, label **Viewing only**, both icons                    |
+| roster `cam: 'off'`, mic unpublished                                     | Collapsed row, label **Camera off**                                  |
 | roster flags absent (old client)                                         | Video tile if a track flows, else collapsed row, name only, no label |
 | otherwise                                                                | Video tile; muted badge overlaid if `mic: 'off'`                     |
 
@@ -193,15 +194,16 @@ These are bugs that would make the rest look broken. No new behaviour.
 
 Label set:
 
-| State            | Label                  |
-| ---------------- | ---------------------- |
-| cam off, mic on  | Audio only             |
-| cam off, mic off | Muted                  |
-| no camera        | No camera              |
-| backgrounded     | Away                   |
-| connecting       | Connecting             |
-| reconnecting     | Reconnecting           |
-| failed           | Disconnected (+ Retry) |
+| State                    | Label                  |
+| ------------------------ | ---------------------- |
+| cam off, mic on          | Audio only             |
+| cam off, mic off         | Viewing only           |
+| cam off, mic unpublished | Camera off             |
+| no camera                | No camera              |
+| backgrounded             | Away                   |
+| connecting               | Connecting             |
+| reconnecting             | Reconnecting           |
+| failed                   | Disconnected (+ Retry) |
 
 ### Phase 3 — connection state
 

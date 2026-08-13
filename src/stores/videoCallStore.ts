@@ -201,6 +201,20 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
     set({ peers: new Map(peers).set(targetUserId, { ...existing, ...patch }) });
   }
 
+  /**
+   * A track acquired while the page is hidden has to start suppressed, or we publish
+   * `cam: 'hidden'` while sending real frames — peers would be told "Away" and shown
+   * video. The acquire is asynchronous, so visibility can flip mid-flight.
+   */
+  function suppressIfHidden(stream: MediaStream): void {
+    // The store's flag is what `deriveLocalMedia` publishes, so it is the authority.
+    // `document.hidden` covers `initialize`, which acquires before the flag is set.
+    if (!get().isPageHidden && !pageIsHidden()) return;
+    stream.getVideoTracks().forEach((track) => {
+      track.enabled = false;
+    });
+  }
+
   /** Call after any `set` that changes what we publish. Never before. */
   function publishLocalMedia(): void {
     firebaseSignaling.publishMediaState(deriveLocalMedia(get()));
@@ -522,6 +536,11 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
       visibilityListener = () => get().handleVisibilityChange(document.hidden);
       document.addEventListener('visibilitychange', visibilityListener);
 
+      // Reconcile against the page state *now*, not the one we acquired in: the claim
+      // above is a round trip, and nothing was listening for a flip during it.
+      suppressIfHidden(stream);
+      publishLocalMedia();
+
       const database = getDatabase();
       const usersRef = ref(database, `video-calls/${roomId}/users`);
 
@@ -744,6 +763,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
 
       const videoTrack = camera.getVideoTracks()[0];
       if (!videoTrack) return;
+      suppressIfHidden(camera);
 
       const current = get().localStream;
       if (!current) {
@@ -833,6 +853,8 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
         set({ error: mediaError });
         return;
       }
+
+      suppressIfHidden(stream);
 
       // Peers survived the hang-up holding senders for tracks we stopped. Swapping
       // the fresh tracks in is what makes the far side see video again; without it

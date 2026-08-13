@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import VideoCallPanel from '../VideoCallPanel';
 import type { MediaState } from '@/types/videoCall';
 
@@ -13,6 +13,7 @@ vi.mock('@mui/icons-material', () => ({
 }));
 
 const storeState = vi.hoisted(() => ({ current: {} as Record<string, unknown> }));
+const retryPeer = vi.hoisted(() => vi.fn());
 
 vi.mock('@/stores/videoCallStore', async () => {
   const actual =
@@ -83,7 +84,7 @@ function setStore({
     isVideoOff,
     hasCamera,
     isPageHidden,
-    retryPeer: vi.fn(),
+    retryPeer,
   };
 }
 
@@ -144,7 +145,10 @@ describe('VideoCallPanel', () => {
     render(<VideoCallPanel />);
 
     expect(tileState('peer-a')).toBe('failed');
-    expect(screen.getByRole('button', { name: 'videoCall.retry' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'videoCall.retry' }));
+
+    // Per peer, not a global reconnect, which would tear down the working ones too.
+    expect(retryPeer).toHaveBeenCalledWith('peer-a');
   });
 
   it('puts our own tile last and reads its state locally', () => {
