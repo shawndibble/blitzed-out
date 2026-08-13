@@ -16,7 +16,7 @@ describe('resolveTileState', () => {
     ).toBe('audioOnly');
     expect(
       resolveTileState({ hasVideoTrack: false, media: { cam: 'off', mic: 'off' }, ...connected })
-    ).toBe('muted');
+    ).toBe('viewingOnly');
   });
 
   test('distinguishes having no camera from switching one off', () => {
@@ -70,7 +70,7 @@ describe('resolveTileState', () => {
     ).toBe('video');
     expect(
       resolveTileState({ hasVideoTrack: false, media: { cam: 'off', mic: 'off' }, isLocal: true })
-    ).toBe('muted');
+    ).toBe('viewingOnly');
   });
 });
 
@@ -78,7 +78,15 @@ describe('showsVideo', () => {
   test('only the video state renders a video tile', () => {
     expect(showsVideo('video')).toBe(true);
     (
-      ['connecting', 'reconnecting', 'failed', 'audioOnly', 'muted', 'noCamera', 'away'] as const
+      [
+        'connecting',
+        'reconnecting',
+        'failed',
+        'audioOnly',
+        'viewingOnly',
+        'noCamera',
+        'away',
+      ] as const
     ).forEach((state) => expect(showsVideo(state)).toBe(false));
   });
 });

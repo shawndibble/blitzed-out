@@ -28,10 +28,14 @@ function StateIcon({ state }: { state: TileState }) {
   if (state === 'failed') {
     return <WifiTetheringOff fontSize="small" sx={{ color: 'error.main' }} />;
   }
-  if (state === 'muted') {
-    return <MicOff fontSize="small" sx={{ color: 'text.secondary' }} />;
-  }
-  return <VideocamOff fontSize="small" sx={{ color: 'text.secondary' }} />;
+  // Both, when both are off. One icon understates it — a lone MicOff reads as a
+  // muted participant whose camera is still live.
+  return (
+    <Box sx={{ display: 'flex', gap: 0.5, color: 'text.secondary' }}>
+      <VideocamOff fontSize="small" />
+      {state === 'viewingOnly' && <MicOff fontSize="small" />}
+    </Box>
+  );
 }
 
 /**

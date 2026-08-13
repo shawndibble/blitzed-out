@@ -21,8 +21,8 @@ export type TileState =
   | 'failed'
   /** Camera deliberately off, microphone live. */
   | 'audioOnly'
-  /** Camera off and microphone off. */
-  | 'muted'
+  /** Camera and microphone both off — present, contributing nothing. */
+  | 'viewingOnly'
   /** No camera to publish — no device, or permission refused. */
   | 'noCamera'
   /** Their page is backgrounded. */
@@ -77,7 +77,7 @@ export function resolveTileState({
     case 'hidden':
       return 'away';
     case 'off':
-      return media.mic === 'off' ? 'muted' : 'audioOnly';
+      return media.mic === 'off' ? 'viewingOnly' : 'audioOnly';
     case 'on':
       // They say the camera is on but nothing has arrived — still coming up, or a
       // transport that is nominally connected and carrying nothing.
@@ -94,7 +94,7 @@ const TILE_STATE_LABELS: Record<TileState, string | null> = {
   video: null,
   unknown: null,
   audioOnly: 'videoCall.state.audioOnly',
-  muted: 'videoCall.state.muted',
+  viewingOnly: 'videoCall.state.viewingOnly',
   noCamera: 'videoCall.state.noCamera',
   away: 'videoCall.state.away',
   connecting: 'videoCall.state.connecting',

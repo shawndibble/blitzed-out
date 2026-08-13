@@ -689,7 +689,7 @@
     "retry": "Erneut versuchen",
     "state": {
       "audioOnly": "Nur Audio",
-      "muted": "Stummgeschaltet",
+      "viewingOnly": "Nur zuschauen",
       "noCamera": "Keine Kamera",
       "away": "Abwesend",
       "connecting": "Verbinden",

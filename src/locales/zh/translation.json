@@ -689,7 +689,7 @@
     "retry": "重试",
     "state": {
       "audioOnly": "仅音频",
-      "muted": "已静音",
+      "viewingOnly": "仅观看",
       "noCamera": "无摄像头",
       "away": "离开",
       "connecting": "连接中",

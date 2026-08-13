@@ -165,7 +165,23 @@ describe('VideoCallPanel', () => {
       'video-tile-peer-a',
       'video-tile-local',
     ]);
-    expect(tileState('local')).toBe('muted');
+    expect(tileState('local')).toBe('viewingOnly');
+  });
+
+  it('shows both icons when a peer has neither camera nor microphone on', () => {
+    // One icon would understate it: "muted" alone reads as a live camera.
+    setStore({
+      roster: ['peer-a'],
+      peers: { 'peer-a': { stream: streamWith({ video: false }) } },
+      mediaStates: { 'peer-a': { cam: 'off', mic: 'off' } },
+    });
+
+    render(<VideoCallPanel />);
+
+    expect(tileState('peer-a')).toBe('viewingOnly');
+    const tile = screen.getByTestId('video-tile-peer-a');
+    expect(tile.querySelector('[data-testid="mui-icon-videocamoff"]')).toBeInTheDocument();
+    expect(tile.querySelector('[data-testid="mui-icon-micoff"]')).toBeInTheDocument();
   });
 
   it('leaves an older client that publishes no media state undescribed', () => {

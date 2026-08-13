@@ -689,7 +689,7 @@
     "retry": "Réessayer",
     "state": {
       "audioOnly": "Audio uniquement",
-      "muted": "Micro coupé",
+      "viewingOnly": "Spectateur",
       "noCamera": "Pas de caméra",
       "away": "Absent",
       "connecting": "Connexion",
