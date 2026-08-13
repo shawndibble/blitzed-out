@@ -134,6 +134,7 @@ describe('native peer transport', () => {
       onClosed: vi.fn(),
       onError: vi.fn(),
       onIceStateChange: vi.fn(),
+      onConnectionStateChange: vi.fn(),
     };
     const transport = createNativePeerTransport({
       polite,
@@ -495,6 +496,38 @@ describe('native peer transport', () => {
 
       expect(pc.senders).toHaveLength(2);
       expect(pc.senders[1].track).toBe(audio);
+    });
+
+    test('detaches the video track without dropping the sender', () => {
+      const { transport, pc } = open();
+      const [videoSender] = pc.senders;
+
+      transport.setVideoTrack(null);
+
+      expect(videoSender.replaceTrack).toHaveBeenCalledWith(null);
+    });
+
+    test('adds a video sender when the peer was dialled with the camera off', () => {
+      // Senders are fixed at construction, so a peer opened while the local stream
+      // carried audio only has no video transceiver to swap onto. Without this the
+      // camera coming back on never reaches them and their tile stays black.
+      localStream = streamOf([audio]);
+      const { transport, pc } = open();
+      const freshVideo = track('video');
+
+      transport.setVideoTrack(freshVideo);
+
+      expect(pc.senders).toHaveLength(2);
+      expect(pc.senders[1].track).toBe(freshVideo);
+    });
+
+    test('does nothing when detaching video from a peer that has no video sender', () => {
+      localStream = streamOf([audio]);
+      const { transport, pc } = open();
+
+      transport.setVideoTrack(null);
+
+      expect(pc.senders).toHaveLength(1);
     });
   });
 

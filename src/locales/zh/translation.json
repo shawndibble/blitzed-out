@@ -685,7 +685,18 @@
       "deviceInUse": "攝影機或麥克風已被其他應用程式使用。請關閉其他應用程式後重試。",
       "constraintsNotSatisfied": "您的攝影機或麥克風不符合所需設定。請嘗試使用其他裝置。",
       "unknown": "無法存取攝影機或麥克風。請檢查您的裝置後重試。"
-    }
+    },
+    "retry": "重試",
+    "state": {
+      "audioOnly": "僅音訊",
+      "viewingOnly": "僅觀看",
+      "noCamera": "無攝影機",
+      "away": "離開",
+      "connecting": "連線中",
+      "reconnecting": "重新連線中",
+      "disconnected": "已中斷連線"
+    },
+    "participant": "參與者"
   },
   "scanToJoin": "扫描加入",
   "hapticFeedback": "触觉反馈",

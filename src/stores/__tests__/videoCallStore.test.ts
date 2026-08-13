@@ -30,6 +30,7 @@ vi.mock('@/services/firebaseSignaling', () => ({
     sendIceCandidate: vi.fn(),
     heartbeat: vi.fn().mockResolvedValue(undefined),
     setPresent: vi.fn().mockResolvedValue(undefined),
+    publishMediaState: vi.fn().mockResolvedValue(undefined),
     cleanup: vi.fn(),
   },
 }));
@@ -39,6 +40,7 @@ class FakeTransport {
   closed = false;
   accept = vi.fn();
   replaceLocalTracks = vi.fn();
+  setVideoTrack = vi.fn();
   candidateTypes = vi.fn(async () => null);
   options: any;
 
@@ -87,6 +89,26 @@ function publishRoster(userIds: string[]) {
   harness.rosterListeners.forEach((listener) => listener({ val: () => value }));
 }
 
+/** As `publishRoster`, but with control over each entry's published media flags. */
+function publishRosterEntries(entries: Record<string, Record<string, unknown>>) {
+  const value = Object.fromEntries(
+    Object.entries(entries).map(([id, extra]) => [
+      id,
+      { status: 'online', lastSeen: Date.now(), ...extra },
+    ])
+  );
+  harness.rosterListeners.forEach((listener) => listener({ val: () => value }));
+}
+
+/** A store with a call already up, which every media-state assertion needs. */
+async function initialized() {
+  const { result } = renderHook(() => useVideoCallStore());
+  await act(async () => {
+    await result.current.initialize('test-room', 'test-user-id');
+  });
+  return result;
+}
+
 describe('VideoCallStore', () => {
   let restoreTransport: () => void;
   let mockMediaStream: MediaStream;
@@ -106,6 +128,7 @@ describe('VideoCallStore', () => {
     vi.mocked(firebaseSignaling.claim).mockResolvedValue(undefined);
     vi.mocked(firebaseSignaling.setPresent).mockResolvedValue(undefined);
     vi.mocked(firebaseSignaling.heartbeat).mockResolvedValue(undefined);
+    vi.mocked(firebaseSignaling.publishMediaState).mockResolvedValue(undefined);
 
     // jsdom ships no MediaStream; peers hold one per remote participant.
     class StubMediaStream {
@@ -308,28 +331,6 @@ describe('VideoCallStore', () => {
   });
 
   describe('Toggle Video', () => {
-    test('should toggle video track enabled state', async () => {
-      const { result } = renderHook(() => useVideoCallStore());
-
-      await act(async () => {
-        await result.current.initialize('test-room', 'test-user-id');
-      });
-
-      act(() => {
-        result.current.toggleVideo();
-      });
-
-      expect(result.current.isVideoOff).toBe(true);
-      expect(mockVideoTrack.enabled).toBe(false);
-
-      act(() => {
-        result.current.toggleVideo();
-      });
-
-      expect(result.current.isVideoOff).toBe(false);
-      expect(mockVideoTrack.enabled).toBe(true);
-    });
-
     test('should not throw if toggleVideo called before initialization', () => {
       const { result } = renderHook(() => useVideoCallStore());
 
@@ -1335,6 +1336,347 @@ describe('VideoCallStore', () => {
 
       // Verify error was cleared on successful initialization
       expect(result.current.error).toBeNull();
+    });
+  });
+
+  describe('Publishing our own media state', () => {
+    test('claims the roster slot with the media it is about to publish', async () => {
+      await initialized();
+
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      expect(firebaseSignaling.claim).toHaveBeenCalledWith('test-room', 'test-user-id', {
+        cam: 'on',
+        mic: 'on',
+      });
+    });
+
+    test('claims with cam none when the device yields no video track', async () => {
+      const audioOnly = {
+        getTracks: vi.fn(() => [mockAudioTrack]),
+        getVideoTracks: vi.fn(() => []),
+        getAudioTracks: vi.fn(() => [mockAudioTrack]),
+      } as unknown as MediaStream;
+      (navigator.mediaDevices.getUserMedia as any).mockResolvedValueOnce(audioOnly);
+
+      await initialized();
+
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      expect(firebaseSignaling.claim).toHaveBeenCalledWith(
+        'test-room',
+        'test-user-id',
+        expect.objectContaining({ cam: 'none' })
+      );
+    });
+
+    test('publishes the new mic state when muting', async () => {
+      const result = await initialized();
+
+      act(() => {
+        result.current.toggleMute();
+      });
+
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      expect(firebaseSignaling.publishMediaState).toHaveBeenCalledWith({
+        cam: 'on',
+        mic: 'off',
+      });
+      expect(mockAudioTrack.enabled).toBe(false);
+      // Disabled, never stopped — see toggleMute.
+      expect(mockAudioTrack.stop).not.toHaveBeenCalled();
+    });
+
+    test('stops the camera track when turning video off, so the device light goes out', async () => {
+      const result = await initialized();
+
+      act(() => {
+        result.current.toggleVideo();
+      });
+
+      expect(mockVideoTrack.stop).toHaveBeenCalled();
+      expect(result.current.isVideoOff).toBe(true);
+      expect(result.current.localStream?.getVideoTracks()).toHaveLength(0);
+
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      expect(firebaseSignaling.publishMediaState).toHaveBeenCalledWith({
+        cam: 'off',
+        mic: 'on',
+      });
+    });
+
+    test('stops sending video to every peer when turning video off', async () => {
+      const result = await initialized();
+      act(() => {
+        publishRoster(['test-user-id', 'peer-a', 'peer-b']);
+      });
+      expect(harness.peers).toHaveLength(2);
+
+      act(() => {
+        result.current.toggleVideo();
+      });
+
+      harness.peers.forEach((peer) => {
+        expect(peer.setVideoTrack).toHaveBeenCalledWith(null);
+      });
+    });
+
+    test('re-acquires video only when turning the camera back on', async () => {
+      const result = await initialized();
+      act(() => {
+        result.current.toggleVideo();
+      });
+
+      const freshVideoTrack = { stop: vi.fn(), kind: 'video', enabled: true };
+      (navigator.mediaDevices.getUserMedia as any).mockResolvedValueOnce({
+        getTracks: () => [freshVideoTrack],
+        getVideoTracks: () => [freshVideoTrack],
+        getAudioTracks: () => [],
+      });
+
+      await act(async () => {
+        await result.current.toggleVideo();
+      });
+
+      // Video only — re-acquiring audio would take the mic down with it.
+      const lastCall = (navigator.mediaDevices.getUserMedia as any).mock.calls.at(-1)[0];
+      expect(lastCall).not.toHaveProperty('audio');
+      expect(lastCall).toHaveProperty('video');
+
+      expect(result.current.isVideoOff).toBe(false);
+      expect(result.current.localStream?.getVideoTracks()).toEqual([freshVideoTrack]);
+      expect(result.current.localStream?.getAudioTracks()).toEqual([mockAudioTrack]);
+    });
+
+    test('publishes cam hidden when the page is backgrounded, without releasing the camera', async () => {
+      const result = await initialized();
+
+      act(() => {
+        result.current.handleVisibilityChange(true);
+      });
+
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      expect(firebaseSignaling.publishMediaState).toHaveBeenCalledWith({
+        cam: 'hidden',
+        mic: 'on',
+      });
+      expect(mockVideoTrack.enabled).toBe(false);
+      // Backgrounding is transient — the device stays held.
+      expect(mockVideoTrack.stop).not.toHaveBeenCalled();
+
+      act(() => {
+        result.current.handleVisibilityChange(false);
+      });
+
+      expect(firebaseSignaling.publishMediaState).toHaveBeenLastCalledWith({
+        cam: 'on',
+        mic: 'on',
+      });
+      expect(mockVideoTrack.enabled).toBe(true);
+    });
+
+    test('a camera acquired while the page is already hidden starts disabled', async () => {
+      vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+
+      const result = await initialized();
+
+      expect(mockVideoTrack.enabled).toBe(false);
+      expect(result.current.isPageHidden).toBe(true);
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      expect(firebaseSignaling.claim).toHaveBeenCalledWith(
+        'test-room',
+        'test-user-id',
+        expect.objectContaining({ cam: 'hidden' })
+      );
+    });
+
+    test('a camera acquired while the page is hidden mid-flight lands disabled', async () => {
+      const result = await initialized();
+      act(() => {
+        result.current.toggleVideo();
+      });
+
+      // Hold the acquire open, hide the page, then let it resolve — the window the
+      // one-shot check used to miss, since nothing observes visibility during it.
+      const freshVideoTrack = { stop: vi.fn(), kind: 'video', enabled: true };
+      let releaseCamera: (stream: unknown) => void = () => {};
+      (navigator.mediaDevices.getUserMedia as any).mockReturnValueOnce(
+        new Promise((resolve) => {
+          releaseCamera = resolve;
+        })
+      );
+
+      const resuming = result.current.toggleVideo();
+      act(() => {
+        result.current.handleVisibilityChange(true);
+      });
+      await act(async () => {
+        releaseCamera({
+          getTracks: () => [freshVideoTrack],
+          getVideoTracks: () => [freshVideoTrack],
+          getAudioTracks: () => [],
+        });
+        await resuming;
+      });
+
+      expect(freshVideoTrack.enabled).toBe(false);
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      expect(firebaseSignaling.publishMediaState).toHaveBeenLastCalledWith({
+        cam: 'hidden',
+        mic: 'on',
+      });
+    });
+
+    test('backgrounding does not resurrect a camera the user turned off', async () => {
+      const result = await initialized();
+      act(() => {
+        result.current.toggleVideo();
+      });
+
+      act(() => {
+        result.current.handleVisibilityChange(true);
+      });
+      act(() => {
+        result.current.handleVisibilityChange(false);
+      });
+
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      expect(firebaseSignaling.publishMediaState).toHaveBeenLastCalledWith({
+        cam: 'off',
+        mic: 'on',
+      });
+    });
+  });
+
+  describe('Remote media state', () => {
+    test('reads published flags off the roster', async () => {
+      const result = await initialized();
+
+      act(() => {
+        publishRosterEntries({
+          'test-user-id': {},
+          'peer-a': { cam: 'off', mic: 'on' },
+        });
+      });
+
+      expect(result.current.mediaStates.get('peer-a')).toEqual({ cam: 'off', mic: 'on' });
+    });
+
+    test('leaves flags unknown for a peer running an older client', async () => {
+      const result = await initialized();
+
+      act(() => {
+        publishRosterEntries({ 'test-user-id': {}, 'peer-a': {} });
+      });
+
+      // Unknown, not "on" — an old client that muted would otherwise be shown as live.
+      expect(result.current.mediaStates.get('peer-a')).toEqual({});
+    });
+
+    test('discards values it does not recognise', async () => {
+      const result = await initialized();
+
+      act(() => {
+        publishRosterEntries({
+          'test-user-id': {},
+          'peer-a': { cam: 'sideways', mic: 42 },
+        });
+      });
+
+      expect(result.current.mediaStates.get('peer-a')).toEqual({});
+    });
+
+    test('forgets a peer that leaves the roster', async () => {
+      const result = await initialized();
+      act(() => {
+        publishRosterEntries({ 'test-user-id': {}, 'peer-a': { cam: 'off' } });
+      });
+
+      act(() => {
+        publishRosterEntries({ 'test-user-id': {} });
+      });
+
+      expect(result.current.mediaStates.has('peer-a')).toBe(false);
+    });
+  });
+
+  describe('Peer connection state', () => {
+    async function withPeer() {
+      const { result } = renderHook(() => useVideoCallStore());
+      await act(async () => {
+        await result.current.initialize('test-room', 'test-user-id');
+      });
+      act(() => {
+        publishRoster(['test-user-id', 'peer-a']);
+      });
+      return { result, peer: harness.peers[0] };
+    }
+
+    test('records the transport connection state per peer', async () => {
+      const { result, peer } = await withPeer();
+
+      act(() => {
+        peer.emit('onConnectionStateChange', 'connected');
+      });
+
+      expect(result.current.peers.get('peer-a')?.connectionState).toBe('connected');
+    });
+
+    test('marks a peer reconnecting only once disconnected outlives the grace period', async () => {
+      const { result, peer } = await withPeer();
+
+      act(() => {
+        peer.emit('onConnectionStateChange', 'disconnected');
+      });
+
+      // `disconnected` is explicitly transient in the spec and usually heals on its
+      // own; surfacing it immediately produces a banner that flickers on any flaky link.
+      expect(result.current.peers.get('peer-a')?.reconnecting).toBe(false);
+
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      expect(result.current.peers.get('peer-a')?.reconnecting).toBe(true);
+    });
+
+    test('a link that heals inside the grace period never reports reconnecting', async () => {
+      const { result, peer } = await withPeer();
+
+      act(() => {
+        peer.emit('onConnectionStateChange', 'disconnected');
+      });
+      act(() => {
+        vi.advanceTimersByTime(1000);
+        peer.emit('onConnectionStateChange', 'connected');
+      });
+      act(() => {
+        vi.advanceTimersByTime(5000);
+      });
+
+      expect(result.current.peers.get('peer-a')?.reconnecting).toBe(false);
+    });
+
+    test('retryPeer clears an exhausted budget and dials again', async () => {
+      const { result, peer } = await withPeer();
+
+      for (let attempt = 0; attempt < MAX_RETRY_ATTEMPTS; attempt++) {
+        act(() => {
+          harness.peers.at(-1)?.emit('onError', new Error('boom'));
+        });
+        act(() => {
+          vi.advanceTimersByTime(RETRY_MAX_MS + 1);
+          result.current.reconcilePeers();
+        });
+      }
+      expect(peer.closed).toBe(true);
+      const dialledBeforeRetry = harness.peers.length;
+      expect(result.current.peers.has('peer-a')).toBe(false);
+
+      act(() => {
+        result.current.retryPeer('peer-a');
+      });
+
+      expect(result.current.peerRetries.has('peer-a')).toBe(false);
+      expect(harness.peers.length).toBeGreaterThan(dialledBeforeRetry);
     });
   });
 });

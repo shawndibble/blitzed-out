@@ -41,12 +41,7 @@ describe('ExtendDefaultGroupDialog', () => {
 
   it('renders built-in levels as locked chips', () => {
     renderWithoutProviders(
-      <ExtendDefaultGroupDialog
-        open
-        group={defaultGroup}
-        onClose={vi.fn()}
-        onSaved={vi.fn()}
-      />
+      <ExtendDefaultGroupDialog open group={defaultGroup} onClose={vi.fn()} onSaved={vi.fn()} />
     );
 
     expect(screen.getByText('1. Slap/Squeeze')).toBeInTheDocument();

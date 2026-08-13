@@ -42,3 +42,13 @@ if (METERED_USERNAME && METERED_CREDENTIAL) {
     '[webrtc] No TURN credentials configured — peers behind symmetric NAT or a firewall will fail to connect.'
   );
 }
+
+/**
+ * How long a `disconnected` link is given to heal before anything acts on it.
+ *
+ * `disconnected` is transient by specification and usually recovers unaided, so both
+ * the ICE restart and the UI that admits something is wrong wait this out first.
+ * Shared so the two never contradict each other in a way a user would notice —
+ * though they watch different state machines and so arm at different moments.
+ */
+export const LINK_GRACE_MS = 2500;

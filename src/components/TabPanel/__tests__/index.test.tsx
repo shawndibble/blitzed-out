@@ -43,7 +43,7 @@ describe('TabPanel', () => {
     );
 
     const tabpanel = screen.getByRole('tabpanel');
-    expect(tabpanel).toHaveStyle({ height: '100%', overflow: 'hidden' });
+    expect(tabpanel).toHaveStyle({ overflow: 'hidden' });
   });
 
   it('applies custom styles correctly', () => {
@@ -61,6 +61,18 @@ describe('TabPanel', () => {
     // (The actual styling is handled by Material-UI's Box component internally)
     const tabpanel = screen.getByRole('tabpanel');
     expect(tabpanel).toBeInTheDocument();
+  });
+
+  it('makes the active panel a flex child that can shrink', () => {
+    // Applied to the tabpanel element itself, not merely its inner Box.
+    render(
+      <TabPanel value={0} index={0}>
+        <div>Test Content</div>
+      </TabPanel>
+    );
+
+    const tabpanel = screen.getByRole('tabpanel');
+    expect(tabpanel).toHaveStyle({ flex: '1', minHeight: '0px' });
   });
 
   it('hides content with hidden attribute when not active', () => {

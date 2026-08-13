@@ -1,10 +1,15 @@
 import { Avatar, Tooltip } from '@mui/material';
 import { memo, useMemo } from 'react';
 
+type AvatarSize = 'small' | 'medium' | number;
+
+/** Hand-picked pairs of [diameter, font size]; a numeric size scales instead. */
+const NAMED_SIZES = { small: [18, 10], medium: [24, 12] } as const;
+
 interface TextAvatarProps {
   uid: string;
   displayName: string;
-  size?: 'small' | 'medium';
+  size?: AvatarSize;
 }
 
 function contrastBgColor(bgColor: string, lightColor: string, darkColor: string): string {
@@ -33,10 +38,10 @@ function stringToColor(string: string): string {
   return color;
 }
 
-function stringAvatar(name: string, uid: string, size?: 'small' | 'medium') {
+function stringAvatar(name: string, uid: string, size?: AvatarSize) {
   const bgcolor = stringToColor(uid);
-  const dimension = size === 'small' ? 18 : 24;
-  const fontSize = size === 'small' ? 10 : 12;
+  const [dimension, fontSize] =
+    typeof size === 'number' ? [size, Math.round(size * 0.45)] : NAMED_SIZES[size ?? 'medium'];
   return {
     sx: {
       bgcolor,
@@ -55,7 +60,7 @@ function TextAvatar({ uid, displayName, size }: TextAvatarProps): JSX.Element {
 
   return (
     <Tooltip title={displayName}>
-      <Avatar {...avatarProps} className="player-online" />
+      <Avatar {...avatarProps} />
     </Tooltip>
   );
 }

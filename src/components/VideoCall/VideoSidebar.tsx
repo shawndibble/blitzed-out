@@ -120,8 +120,8 @@ const VideoSidebar = ({ roomId, onToggle, onWidthChange }: VideoSidebarProps) =>
           '& .MuiDrawer-paper': {
             width: width,
             boxSizing: 'border-box',
-            top: '64px',
-            height: 'calc(100vh - 64px)',
+            top: 'calc(64px + env(safe-area-inset-top))',
+            height: 'calc(100svh - 64px - env(safe-area-inset-top))',
             zIndex: 900,
             backgroundColor: 'transparent',
             backgroundImage: 'none',

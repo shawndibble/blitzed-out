@@ -43,7 +43,7 @@ Initialized in `src/services/firebase/app.ts`, the only module that touches the 
   - `rate-limits/{uid}` — system-only.
 - **Realtime Database** — presence and WebRTC signaling:
   - `users/{uid}` — presence (`displayName`, `room`, `isAnonymous`, `lastSeen`). Owned end-to-end (write + read) by `src/services/roomPresence.ts`.
-  - `video-calls/{roomId}/{users,offers,answers,ice-candidates}` — WebRTC signaling.
+  - `video-calls/{roomId}/{users,offers,answers,ice-candidates}` — WebRTC signaling. A roster entry is `{joinedAt, lastSeen, status}` plus the published media flags `cam` (`on`/`off`/`none`/`hidden`) and `mic` (`on`/`off`); both flags are optional, and absent means unknown rather than off, so clients on older builds stay readable.
 - **Storage** — `/images/{id}.{ext}` for chat photos (auth, ≤5 MB, `image/*`, extension allowlist).
 - **Functions** — cleanup jobs + presence triggers (see [architecture.md](architecture.md#cloud-functions-functions) and [security.md](security.md#cloud-functions)).
 

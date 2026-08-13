@@ -15,15 +15,13 @@ export function cssUrl(url: string): string {
     // - C1 controls: U+0080 to U+009F
     // - Line separator: U+2028
     // - Paragraph separator: U+2029
-    if (
-      !(
-        (codePoint >= 0x00 && codePoint <= 0x1f) ||
-        codePoint === 0x7f ||
-        (codePoint >= 0x80 && codePoint <= 0x9f) ||
-        codePoint === 0x2028 ||
-        codePoint === 0x2029
-      )
-    ) {
+    if (!(
+      (codePoint >= 0x00 && codePoint <= 0x1f) ||
+      codePoint === 0x7f ||
+      (codePoint >= 0x80 && codePoint <= 0x9f) ||
+      codePoint === 0x2028 ||
+      codePoint === 0x2029
+    )) {
       cleanedUrl += char;
     }
   }

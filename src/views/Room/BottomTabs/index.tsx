@@ -11,6 +11,18 @@ import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/stores/settingsStore';
 import { vibrate } from '@/utils/haptics';
 
+/**
+ * The fixed top nav's real height: a dense `Toolbar` (48px floor) whose tallest child
+ * is a 40px `IconButton` inside 5px vertical padding, plus the status-bar inset the
+ * bar pads itself by — `viewport-fit=cover` puts the page under it.
+ */
+const NAV_HEIGHT = 'calc(50px + env(safe-area-inset-top))';
+/**
+ * MUI `Tabs` default min-height, plus the home-indicator inset the bar now pads itself
+ * by. Reserve and bar have to agree, or the last panel row hides behind the tabs.
+ */
+const TAB_BAR_HEIGHT = 'calc(48px + env(safe-area-inset-bottom))';
+
 export interface BottomTabsProps {
   tab1: ReactNode;
   tab2: ReactNode;
@@ -31,7 +43,10 @@ export default function BottomTabs({ tab1, tab2, tab3 }: BottomTabsProps): JSX.E
 
   return (
     <>
-      <AppBar position="fixed" sx={{ top: 'auto', bottom: 0 }}>
+      <AppBar
+        position="fixed"
+        sx={{ top: 'auto', bottom: 0, paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
         <Tabs value={value} onChange={handleChange} indicatorColor="secondary" variant="fullWidth">
           <Tab label={t('game')} {...a11yProps(0)} />
           <Tab label={t('messages')} {...a11yProps(1)} />
@@ -41,21 +56,24 @@ export default function BottomTabs({ tab1, tab2, tab3 }: BottomTabsProps): JSX.E
 
       <Box
         sx={{
-          paddingTop: '4rem',
-          paddingBottom: '48px',
-          height: '100vh',
+          paddingTop: NAV_HEIGHT,
+          paddingBottom: TAB_BAR_HEIGHT,
+          // Plain viewport units map to the *large* viewport by spec, so `100vh`
+          // overshoots on iOS Safari and hides the tab bar under the URL bar. `svh`
+          // is the smallest stable height and never thrashes mid-scroll like `dvh`.
+          height: '100svh',
           display: 'flex',
           flexDirection: 'column',
         }}
       >
-        <TabPanel value={value} index={0} style={{ flex: 1, overflow: 'hidden', p: 0 }}>
+        <TabPanel value={value} index={0} style={{ p: 0 }}>
           {tab1}
         </TabPanel>
-        <TabPanel value={value} index={1} style={{ flex: 1, overflow: 'hidden', p: 1 }}>
+        <TabPanel value={value} index={1} style={{ p: 1 }}>
           {tab2}
         </TabPanel>
         {tab3 && (
-          <TabPanel value={value} index={2} style={{ flex: 1, overflow: 'hidden', p: 1 }}>
+          <TabPanel value={value} index={2} style={{ p: 1 }}>
             {tab3}
           </TabPanel>
         )}

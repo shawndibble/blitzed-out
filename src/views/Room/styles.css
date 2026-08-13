@@ -7,7 +7,7 @@
   overflow-y: auto; /* Allow vertical scrolling */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: fadeIn 0.5s ease-out forwards;
-  padding-top: 4rem; /* Account for fixed navbar */
+  padding-top: calc(4rem + env(safe-area-inset-top)); /* Fixed navbar + status bar inset */
 }
 
 /* Default gradient background when no custom background is set */
@@ -38,7 +38,7 @@
 }
 
 .video-adjust {
-  height: calc(100vh - 4rem);
+  height: calc(100svh - 4rem - env(safe-area-inset-top));
 }
 
 /* Game board container styling */
