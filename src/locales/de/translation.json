@@ -112,6 +112,7 @@
   "noActionsAvailableDescription": "Wir konnten keine verfügbaren Aktionen für deine Spielkonfiguration finden. Dies könnte an einem vorübergehenden Problem oder einer unvollständigen Datenmigration liegen.",
   "errorDetails": "Fehlerdetails",
   "tryAgain": "Erneut versuchen",
+  "sectionFailedToLoad": "Dieser Bereich konnte nicht geladen werden. Prüfe deine Verbindung und versuche es erneut.",
   "unsupportedBrowser": "Browser nicht unterstützt",
   "unsupportedBrowserMessage": "Dein Browser wird von dieser Anwendung nicht unterstützt.",
   "unsupportedBrowserAction": "Bitte aktualisiere deinen Browser oder verwende einen anderen.",

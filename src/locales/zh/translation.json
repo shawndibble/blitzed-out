@@ -115,6 +115,7 @@
   "noActionsAvailableDescription": "我們找不到適合您遊戲配置的可用動作。這可能是由於臨時問題或資料遷移不完整造成的。",
   "errorDetails": "錯誤詳情",
   "tryAgain": "重試",
+  "sectionFailedToLoad": "無法載入此區段。請檢查您的網路連線後再試一次。",
   "unsupportedBrowser": "不支持的瀏覽器",
   "unsupportedBrowserMessage": "此應用程式不支持您的瀏覽器。",
   "unsupportedBrowserAction": "請升級您的瀏覽器或使用其他瀏覽器。",
