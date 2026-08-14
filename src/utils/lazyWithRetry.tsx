@@ -103,9 +103,10 @@ export const createRetryableLazy = (
   // the same lazy component can never succeed.
   const makeLazy = () => lazy(() => attemptImport(1));
 
-  // Deliberately not component state. The child suspends before this component commits, so a
-  // `useState` initialiser re-runs on every suspended render and starts a duplicate import.
-  // One holder per call site is the same scope React.lazy itself uses.
+  // Deliberately not per-instance. The child suspends before this component commits, so hook
+  // state is discarded and re-initialised on every suspended render — `useRef` and `useState`
+  // both start a duplicate import (measured: 5 for 2). One holder per call site is the scope
+  // React.lazy itself uses, and the "retries and recovers" tests pin the import count.
   let currentLazy = makeLazy();
   const resetLazy = () => {
     currentLazy = makeLazy();

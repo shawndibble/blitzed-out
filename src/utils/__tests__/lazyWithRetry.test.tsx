@@ -1,6 +1,6 @@
 import { Component, ReactNode, Suspense } from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
 import { createRetryableLazy } from '@/utils/lazyWithRetry';
@@ -41,9 +41,28 @@ const cssPreloadError = () =>
 const dynamicImportError = () =>
   new TypeError('Failed to fetch dynamically imported module: /js/GameGuide-abc.js');
 
+const originalLocation = Object.getOwnPropertyDescriptor(window, 'location');
+
+/**
+ * Swaps in a spyable `location.reload`. `vi.restoreAllMocks` does not undo `defineProperty`,
+ * so the descriptor is put back in afterEach or the stub leaks into every later test.
+ */
+function stubReload() {
+  const reload = vi.fn();
+  Object.defineProperty(window, 'location', {
+    configurable: true,
+    value: { ...window.location, reload },
+  });
+  return reload;
+}
+
 beforeEach(() => {
   sessionStorage.clear();
   vi.restoreAllMocks();
+});
+
+afterEach(() => {
+  if (originalLocation) Object.defineProperty(window, 'location', originalLocation);
 });
 
 /**
@@ -86,14 +105,18 @@ describe('createRetryableLazy', () => {
     expect(importFn).toHaveBeenCalledTimes(2);
   });
 
-  it('gives up after the configured number of attempts', async () => {
+  it('gives up after the configured number of attempts, without reloading', async () => {
     silenceReactErrorLogging();
+    const reload = stubReload();
 
     const importFn = vi.fn().mockRejectedValue(cssPreloadError());
 
     renderLazy(importFn, 2);
 
     await waitFor(() => expect(importFn).toHaveBeenCalledTimes(2));
+    await screen.findByText('sectionFailedToLoad');
+    // A stylesheet failing on its own is not a stale deploy — a redeploy takes the JS with it.
+    expect(reload).not.toHaveBeenCalled();
   });
 
   it('shows its own fallback rather than letting the app die', async () => {
@@ -160,11 +183,7 @@ describe('createRetryableLazy', () => {
 
     // A redeploy deletes the old hashed chunks, so no number of retries can succeed — only a
     // fresh document can. Gating this on Chrome's wording alone stranded every iOS user.
-    const reload = vi.fn();
-    Object.defineProperty(window, 'location', {
-      configurable: true,
-      value: { ...window.location, reload },
-    });
+    const reload = stubReload();
 
     renderLazy(vi.fn().mockRejectedValue(new Error(message)), 1);
     await screen.findByText('sectionFailedToLoad');
