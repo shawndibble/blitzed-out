@@ -26,6 +26,44 @@ export const MODULE_LOADING_ERROR_PATTERNS = [
 ] as const;
 
 /**
+ * A code chunk failed to arrive. Each browser words it differently, and Vite words the CSS
+ * half differently again — matching the message rather than the error constructor is what
+ * makes this reliable, since Vite's preload helper rejects with a plain `Error`.
+ */
+const MODULE_FETCH_ERROR_PATTERNS = [
+  'failed to fetch dynamically imported module', // Chrome
+  'error loading dynamically imported module', // Firefox
+  'importing a module script failed', // WebKit
+] as const;
+
+const CSS_PRELOAD_ERROR_PATTERN = 'unable to preload css';
+
+export const CHUNK_LOAD_ERROR_PATTERNS = [
+  ...MODULE_FETCH_ERROR_PATTERNS,
+  CSS_PRELOAD_ERROR_PATTERN,
+] as const;
+
+/** Any chunk or stylesheet that failed to load — worth retrying. */
+export function isChunkLoadError(errorMessage: unknown): boolean {
+  const msg = typeof errorMessage === 'string' ? errorMessage.toLowerCase() : '';
+  if (!msg) return false;
+  return CHUNK_LOAD_ERROR_PATTERNS.some((pattern) => msg.includes(pattern));
+}
+
+/**
+ * The JavaScript module itself could not be fetched, in any browser's wording.
+ *
+ * `gh-pages` replaces the branch on every deploy, so a tab left open can hold an `index.html`
+ * naming chunks that no longer exist. Retrying cannot help — only a fresh document can.
+ * A stylesheet failing on its own does not qualify: a redeploy takes the JS with it.
+ */
+export function isStaleBundleError(errorMessage: unknown): boolean {
+  const msg = typeof errorMessage === 'string' ? errorMessage.toLowerCase() : '';
+  if (!msg) return false;
+  return MODULE_FETCH_ERROR_PATTERNS.some((pattern) => msg.includes(pattern));
+}
+
+/**
  * Network/loading error patterns that are usually temporary and not actionable
  * These occur due to network issues, browser quirks, or temporary connection problems
  */
@@ -54,8 +92,8 @@ const MINIFIED_ERROR_PATTERNS_LC = MINIFIED_ERROR_PATTERNS.map((p) =>
 
 /**
  * Check if an error message matches expected DOM reconciliation error patterns
- * Requires the specific combination that characterizes React reconciliation errors
- * (insertBefore or removeChild with "not a child" message)
+ * Matches either a named DOM method (insertBefore/removeChild) or WebKit's bare
+ * "object can not be found here" DOMException, which names no method at all.
  * @param errorMessage - The error message to check
  * @returns true if the error matches expected DOM reconciliation patterns
  */
@@ -76,8 +114,11 @@ export function isExpectedDOMError(errorMessage: unknown): boolean {
   if (msg.includes("failed to execute 'insertbefore'")) return true;
   // cspell:disable-next-line
   if (msg.includes("failed to execute 'removechild'")) return true;
-  // NotFoundError from DOM insertBefore or removeChild operations
-  if (hasNotFound && (hasInsertBefore || hasRemoveChild)) return true;
+  // WebKit raises the same reconciliation failure as a bare DOMException naming no DOM method;
+  // the insertBefore/removeChild evidence lives only in the stack frames, which never reach here.
+  // Requiring a method name suppressed nothing and crash-screened the user, since
+  // getDerivedStateFromError shares this predicate.
+  if (hasNotFound) return true;
 
   return false;
 }

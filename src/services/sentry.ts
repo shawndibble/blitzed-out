@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/react';
 import React from 'react';
+import { isInjectedScriptStackOverflow, isOpaqueStacklessError } from '@/services/sentryFilters';
 import {
   useLocation,
   useNavigationType,
@@ -40,6 +41,9 @@ const NETWORK_ERROR_PATTERNS = [
   /failed to fetch/i,
   /networkerror/i,
   /load failed/i,
+  // Vite's preload helper, once `lazyWithRetry` has exhausted its attempts. Surviving three
+  // tries means the connection is gone, not that the asset is wrong.
+  /unable to preload css/i,
 ];
 
 /**
@@ -76,6 +80,12 @@ function beforeSendHandler(event: Sentry.ErrorEvent): Sentry.ErrorEvent | null {
   // Filter rrweb/Replay internal feature errors (DuckDuckGo/privacy browsers)
   // Only suppress when both the message matches AND the error comes from rrweb
   if (/feature named.*was not found/i.test(errorMessage) && isRrwebReplayError(event)) {
+    return null;
+  }
+
+  // Errors raised outside our own bundle. Both need the stack frames, so neither can be
+  // expressed as an `ignoreErrors` pattern.
+  if (isOpaqueStacklessError(event) || isInjectedScriptStackOverflow(event)) {
     return null;
   }
 
