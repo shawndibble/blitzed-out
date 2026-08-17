@@ -19,7 +19,10 @@ export interface FilterableEvent {
   exception?: { values?: FilterableException[] };
 }
 
-/** Every chunk we ship is served from one of these directories. */
+/**
+ * Where our chunks are served from. Vendor chunks land here too — `chunkFileNames` falls back to
+ * `chunk` when a chunk has no `facadeModuleId` — so a frame here is not proof of our own code.
+ */
 const OWN_BUNDLE_DIRECTORIES = ['/assets/', '/js/'];
 
 /** A minified identifier with nothing else in it — no spaces, no punctuation. */

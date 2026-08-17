@@ -38,6 +38,13 @@ const MODULE_FETCH_ERROR_PATTERNS = [
 
 const CSS_PRELOAD_ERROR_PATTERN = 'unable to preload css';
 
+/**
+ * iOS Safari's Web Audio refusal. Suppressed twice — console in `src/index.jsx`, Sentry in
+ * `src/services/sentry.ts` — so the message lives here: reword one copy and the other stops
+ * matching with nothing failing.
+ */
+export const AUDIO_DEVICE_START_ERROR = 'Failed to start the audio device';
+
 export const CHUNK_LOAD_ERROR_PATTERNS = [
   ...MODULE_FETCH_ERROR_PATTERNS,
   CSS_PRELOAD_ERROR_PATTERN,

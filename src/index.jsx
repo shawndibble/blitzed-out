@@ -5,6 +5,7 @@ import App from './App';
 import { MinimalAuthProvider } from './context/minimalAuth';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { AUDIO_DEVICE_START_ERROR } from '@/constants/errorPatterns';
 import { initializeSentry } from '@/services/sentry';
 import { logger } from '@/utils/logger';
 import ErrorBoundaryFallback from '@/components/ErrorBoundaryFallback';
@@ -40,7 +41,7 @@ if (typeof window !== 'undefined' && !window.importShim) {
   // Handle unhandled promise rejections for dynamic imports and method errors
   window.addEventListener('unhandledrejection', function (event) {
     const reason = event.reason;
-    if (reason && reason.message) {
+    if (reason && typeof reason.message === 'string') {
       const errorMsg = reason.message;
       if (
         errorMsg.includes('module script failed') ||
@@ -51,12 +52,10 @@ if (typeof window !== 'undefined' && !window.importShim) {
         event.preventDefault(); // Prevent the error from showing in console as unhandled
       }
 
-      // iOS Safari rejects Web Audio resume()/start() with InvalidStateError
-      // ("Failed to start the audio device") when the audio session is in a
-      // silent/interrupted state. Benign — playback silently skips. Howler
-      // (via use-sound) resumes the AudioContext in a detached promise, so this
-      // rejection can't be caught at the call site.
-      if (errorMsg.includes('Failed to start the audio device')) {
+      // iOS Safari rejects Web Audio resume()/start() when the audio session is silent or
+      // interrupted; howler (via use-sound) resumes in a detached promise, so nothing can catch
+      // it. Benign. This only silences the console — the Sentry drop lives in services/sentry.ts.
+      if (errorMsg.includes(AUDIO_DEVICE_START_ERROR)) {
         event.preventDefault();
       }
     }
