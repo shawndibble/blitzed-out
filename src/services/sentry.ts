@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/react';
 import React from 'react';
+import { AUDIO_DEVICE_START_ERROR } from '@/constants/errorPatterns';
 import { isInjectedScriptStackOverflow, isOpaqueStacklessError } from '@/services/sentryFilters';
 import {
   useLocation,
@@ -9,7 +10,8 @@ import {
 } from 'react-router-dom';
 
 /**
- * Error patterns to ignore - move simple patterns here instead of beforeSend
+ * Matched against the message alone. Anything needing the stack frames goes in `sentryFilters.ts`
+ * and is called from `beforeSend`; `docs/engineering/security.md` holds the seam rules.
  */
 const IGNORED_ERROR_PATTERNS = [
   // iOS Safari module loading errors - not actionable, iOS Safari bug
@@ -31,6 +33,16 @@ const IGNORED_ERROR_PATTERNS = [
   /the user aborted a request/i,
   // Rejected promise with no value — nothing to act on (known noisy pattern)
   /Non-Error promise rejection captured/i,
+  // Message-matched, not type-matched: real Dexie/WebRTC bugs also throw `InvalidStateError`.
+  // `src/index.jsx` cancels the same rejection, which silences the console but not Sentry.
+  new RegExp(AUDIO_DEVICE_START_ERROR, 'i'),
+  // `extractMessage` substitutes this placeholder for a blank message; anchoring on it keeps an
+  // NS_ERROR_FAILURE that says what failed. Origin and consequences: security.md § Sentry.
+  /^NS_ERROR_FAILURE: No error message$/,
+  // IndexedDB closed under a live consumer — teardown or iOS backgrounding, not app misuse.
+  // Anchored on the condition, not the `Failed to execute 'x' on 'y'` prefix naming the caller.
+  // Origin, and the Dexie false positive accepted with it: security.md § Sentry.
+  /the database connection is closing/i,
 ];
 
 /**
@@ -118,19 +130,10 @@ function beforeSendHandler(event: Sentry.ErrorEvent): Sentry.ErrorEvent | null {
 }
 
 /**
- * Initialize Sentry error tracking and monitoring
+ * Split from `initializeSentry` so the test asserts the `ignoreErrors` production sends: reading
+ * the pattern array directly would stay green if it were never wired into `Sentry.init`.
  */
-export function initializeSentry(): void {
-  // Skip Sentry in test environment
-  if (import.meta.env.MODE === 'test') {
-    return;
-  }
-
-  // Idempotency guard: prevent double initialization (HMR, repeated calls)
-  if (Sentry.getClient() !== undefined) {
-    return;
-  }
-
+export function buildSentryOptions(): Sentry.BrowserOptions {
   // No `thirdPartyErrorFilterIntegration` here, deliberately. It needs the module
   // metadata that `sentryVitePlugin` injects, and that plugin only registers when
   // `SENTRY_UPLOAD_SOURCEMAPS=true` — which nothing sets. Frames without metadata
@@ -139,11 +142,12 @@ export function initializeSentry(): void {
   // handled by `ignoreErrors` and `beforeSend` instead, neither of which depends on
   // a build flag. Re-registering the filter is only safe alongside making that
   // plugin unconditional.
-  Sentry.init({
+  return {
     dsn: import.meta.env.VITE_SENTRY_DSN,
     environment: import.meta.env.MODE,
 
-    // Use ignoreErrors for simple pattern matching (more efficient than beforeSend)
+    // Matches the **last** exception value, where the thrown error lives once
+    // `linkedErrorsIntegration` has chained a `cause` in front of it.
     ignoreErrors: IGNORED_ERROR_PATTERNS,
 
     integrations: [
@@ -166,9 +170,21 @@ export function initializeSentry(): void {
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
 
-    // Only use beforeSend for complex contextual filtering
     beforeSend: beforeSendHandler,
-  });
+  };
+}
+
+export function initializeSentry(): void {
+  if (import.meta.env.MODE === 'test') {
+    return;
+  }
+
+  // Idempotency guard: prevent double initialization (HMR, repeated calls)
+  if (Sentry.getClient() !== undefined) {
+    return;
+  }
+
+  Sentry.init(buildSentryOptions());
 }
 
 /**

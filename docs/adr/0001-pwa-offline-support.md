@@ -100,6 +100,8 @@ tab manager does not share the cache across tabs, causing redundant Firestore re
 
 **Secondary tab metadata bug** (firebase-js-sdk issue #8314): Secondary tabs do not correctly report `metadata.fromCache=false` when using `persistentMultipleTabManager`. Mitigation: the app does not use `metadata.fromCache` to drive UI logic, so this bug has no user-visible impact.
 
+**`persistentMultipleTabManager` is the app's only unguarded `localStorage` dependency.** It brings in Firestore's `SharedClientState`, which coordinates tabs through `localStorage` and clears its keys from a `pagehide` handler. Firefox with storage blocked throws `NS_ERROR_FAILURE` there, inside the SDK, on a tab that is already closing — no app-side seam can catch it. Mitigation: suppressed in Sentry (see `docs/engineering/security.md` § Sentry). A cost of the choice above, not a reason to revisit it.
+
 **Maskable icon cropping risk:** Marking an existing square icon as `maskable` can produce poor
 cropping on install surfaces if the artwork is too close to the edge. Mitigation: inspect the
 manifest icons in Chrome DevTools and split normal and maskable icon entries if the current asset
