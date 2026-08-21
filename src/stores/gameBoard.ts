@@ -1,14 +1,28 @@
 import db from './store';
 import { DBGameBoard } from '@/types/gameBoard';
+import { retryOnCursorError } from '@/utils/dbRecovery';
+import { logger } from '@/utils/logger';
 
 const { gameBoard } = db;
 
-export const getBoards = (): Promise<DBGameBoard[]> => {
-  return gameBoard.orderBy('title').toArray();
-};
+// Errors propagate rather than resolving to []/undefined: sync consumers
+// (gameBoardsSync, remoteUserData) already catch a rejection and skip the
+// cycle, but a swallowed empty result reads as "genuinely zero boards".
+export const getBoards = (): Promise<DBGameBoard[]> =>
+  retryOnCursorError(db, () => gameBoard.orderBy('title').toArray());
 
-export const getActiveBoard = async (): Promise<DBGameBoard | undefined> => {
-  return gameBoard.where('isActive').equals(1)?.first();
+export const getActiveBoard = (): Promise<DBGameBoard | undefined> =>
+  retryOnCursorError(db, () => gameBoard.where('isActive').equals(1).first());
+
+// Safe variant for useLiveQuery, which has no catch of its own and would
+// otherwise turn a read failure into an unhandled rejection.
+export const getActiveBoardLive = async (): Promise<DBGameBoard | undefined> => {
+  try {
+    return await getActiveBoard();
+  } catch (error) {
+    logger.error('Error in getActiveBoardLive:', error);
+    return undefined;
+  }
 };
 
 export const getBoard = (id: number): Promise<DBGameBoard | undefined> => {

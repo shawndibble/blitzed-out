@@ -108,6 +108,9 @@ export default function AddCustomTile({
   const lastSelectionRef = useRef<[number, number] | null>(null);
   // Caret to restore once React commits the inserted token; null = nothing pending.
   const pendingCaretRef = useRef<number | null>(null);
+  // Set when Autocomplete's own freeSolo commit (Enter) just added a tag, so the
+  // `blurOnSelect` blur that follows in the same dispatch doesn't add it again.
+  const justCommittedTagRef = useRef(false);
 
   // True when some *other* text field holds focus.
   const otherFieldHasFocus = (element: Element | null): boolean =>
@@ -193,24 +196,27 @@ export default function AddCustomTile({
     bumpGroupsRefresh();
   };
 
+  // Enter is handled by Autocomplete itself: freeSolo + multiple already commits
+  // the typed text as a tag via onChange. Only ',' needs a custom delimiter here.
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>): void => {
-    switch (event.key) {
-      case ',':
-      case 'Enter': {
-        event.preventDefault();
-        event.stopPropagation();
-        if (event.currentTarget.value.length > 0) {
-          addDraftTag(event.currentTarget.value);
-          setTagInputValue('');
-        }
-        break;
-      }
-      default:
+    if (event.key !== ',') return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.currentTarget.value.length > 0) {
+      addDraftTag(event.currentTarget.value);
+      setTagInputValue('');
     }
   };
 
   const handleTagInputBlur = (event: FocusEvent<HTMLInputElement>): void => {
-    if (event.target.value.length > 0) {
+    // Enter's freeSolo commit (see Autocomplete's onChange below) blurs the field
+    // via `blurOnSelect` in the same synchronous dispatch, before React has
+    // re-rendered the now-cleared controlled value — so `event.target.value` here
+    // still reads the just-committed text. Skip re-adding it as a duplicate.
+    if (justCommittedTagRef.current) {
+      justCommittedTagRef.current = false;
+    } else if (event.target.value.length > 0) {
       addDraftTag(event.target.value);
       setTagInputValue('');
     }
@@ -448,7 +454,10 @@ export default function AddCustomTile({
               freeSolo
               options={tagList}
               value={draft.tags}
-              onChange={(_event, newValues) => {
+              onChange={(_event, newValues, reason) => {
+                if (reason === 'createOption') {
+                  justCommittedTagRef.current = true;
+                }
                 setDraftTags(newValues as string[]);
               }}
               inputValue={tagInputValue}
@@ -459,8 +468,17 @@ export default function AddCustomTile({
                 <TextField
                   {...params}
                   label={t('tags')}
-                  onKeyDown={handleKeyDown}
                   onBlur={handleTagInputBlur}
+                  slotProps={{
+                    ...params.slotProps,
+                    htmlInput: {
+                      ...params.slotProps.htmlInput,
+                      onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => {
+                        params.slotProps.htmlInput.onKeyDown?.(event);
+                        handleKeyDown(event);
+                      },
+                    },
+                  }}
                 />
               )}
               sx={{ pb: 2 }}

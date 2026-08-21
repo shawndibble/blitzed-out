@@ -4,7 +4,7 @@ import { renderHook, waitFor, act } from '@testing-library/react';
 import useSendSettings from '../useSendSettings';
 import sendGameSettingsMessage from '@/services/gameSettingsMessage';
 import { useContentMode, useSettings } from '@/stores/settingsStore';
-import { getActiveBoard } from '@/stores/gameBoard';
+import { getActiveBoardLive } from '@/stores/gameBoard';
 import type { User } from '@/types';
 
 vi.mock('react-router-dom', () => ({
@@ -21,18 +21,18 @@ vi.mock('@/stores/settingsStore', () => ({
   useSettings: vi.fn(),
   useContentMode: vi.fn(),
 }));
-vi.mock('@/stores/gameBoard', () => ({ getActiveBoard: vi.fn() }));
+vi.mock('@/stores/gameBoard', () => ({ getActiveBoardLive: vi.fn() }));
 vi.mock('@/stores/contentLibrary', () => ({ getActiveTiles: vi.fn(async () => []) }));
 
 // The hook resolves both live queries through useLiveQuery; feed it the board
-// for the getActiveBoard querier and mode-fresh tile arrays otherwise, so a
+// for the getActiveBoardLive querier and mode-fresh tile arrays otherwise, so a
 // contentMode switch produces a new customTiles reference (as it would live).
 // Known limitation: this mock ignores the deps array, so it pins the
 // settingsSent guard but NOT the [contentMode] resubscription itself — that
 // stale-querier behavior lives in dexie-react-hooks, not code we own.
 vi.mock('dexie-react-hooks', () => ({
   useLiveQuery: vi.fn((querier: () => unknown) =>
-    querier === getActiveBoard ? mockBoard : [{ id: 1, action: 'tile' }]
+    querier === getActiveBoardLive ? mockBoard : [{ id: 1, action: 'tile' }]
   ),
 }));
 

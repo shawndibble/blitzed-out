@@ -44,21 +44,43 @@ if (missingVars.length > 0) {
   logger.error('Please check your .env file and ensure all VITE_FIREBASE_* variables are set');
 }
 
-const app = initializeApp(firebaseConfig);
-let _db: ReturnType<typeof initializeFirestore>;
-try {
-  _db = initializeFirestore(app, {
-    localCache: persistentLocalCache({
-      tabManager: persistentMultipleTabManager(),
-    }),
-  });
-} catch (e) {
-  // IndexedDB unavailable (private browsing, quota exceeded, etc.) — fall back to in-memory
-  if (import.meta.env.DEV)
-    logger.error('Firestore persistence unavailable, using in-memory cache:', e);
-  _db = initializeFirestore(app, {});
+// `persistentMultipleTabManager` writes to `localStorage` lazily, after this
+// module's own try/catch below has returned, so probe with a real write here —
+// Firestore's own fallback logic doesn't trust a raw `DOMException` from there.
+function isStorageBlocked(): boolean {
+  const probeKey = '__firestore_storage_probe__';
+  try {
+    window.localStorage.setItem(probeKey, '1');
+    window.localStorage.removeItem(probeKey);
+    return false;
+  } catch {
+    return true;
+  }
 }
-export const db = _db;
+
+const app = initializeApp(firebaseConfig);
+
+function initializeFirestoreWithFallback(): ReturnType<typeof initializeFirestore> {
+  if (isStorageBlocked()) {
+    if (import.meta.env.DEV) logger.error('Storage blocked, using in-memory Firestore cache');
+    return initializeFirestore(app, {});
+  }
+
+  try {
+    return initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    });
+  } catch (e) {
+    // IndexedDB unavailable (private browsing, quota exceeded, etc.) — fall back to in-memory
+    if (import.meta.env.DEV)
+      logger.error('Firestore persistence unavailable, using in-memory cache:', e);
+    return initializeFirestore(app, {});
+  }
+}
+
+export const db = initializeFirestoreWithFallback();
 
 // Firestore database initialized
 

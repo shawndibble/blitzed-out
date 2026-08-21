@@ -16,7 +16,7 @@ import { Settings } from '@/types/Settings';
 import ToastAlert from '@/components/ToastAlert';
 import TurnTransition from '@/components/TurnTransition';
 import clsx from 'clsx';
-import { getActiveBoard } from '@/stores/gameBoard';
+import { getActiveBoardLive } from '@/stores/gameBoard';
 import { isPublicRoom } from '@/helpers/strings';
 import getBackgroundSource from '@/services/getBackgroundSource';
 import useBreakpoint from '@/hooks/useBreakpoint';
@@ -77,7 +77,7 @@ export default function Room() {
   const { localPlayers, sessionSettings, currentPlayerIndex, isLocalPlayerRoom } =
     useLocalPlayers();
 
-  const gameBoard = useLiveQuery(getActiveBoard)?.tiles;
+  const gameBoard = useLiveQuery(getActiveBoardLive)?.tiles;
 
   // Use useCallback to memoize the setRollValue function
   const memoizedSetRollValue = useCallback((newValue: number) => {

@@ -43,6 +43,13 @@ const IGNORED_ERROR_PATTERNS = [
   // Anchored on the condition, not the `Failed to execute 'x' on 'y'` prefix naming the caller.
   // Origin, and the Dexie false positive accepted with it: security.md § Sentry.
   /the database connection is closing/i,
+  // Storage (IndexedDB/localStorage) entirely blocked — iOS Lockdown Mode, aggressive
+  // tracking prevention, or similarly locked-down private browsing. Thrown from Dexie's
+  // internal cross-tab polling (`indexedDB.databases()`) and Firestore's `SharedClientState`
+  // localStorage check, both vendor code the app cannot wrap in a try/catch. Anchored on the
+  // exact `type: value` wording rather than a bare substring — WebKit reuses "SecurityError"
+  // for unrelated tainted-canvas access, which this must not swallow. Origin: security.md § Sentry.
+  /^SecurityError: The operation is insecure\.$/,
 ];
 
 /**

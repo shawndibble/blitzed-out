@@ -36,6 +36,17 @@ vi.mock('@/services/placeholderAliasService', async (importOriginal) => {
 });
 
 const addDraftTag = vi.fn();
+const setDraftTags = vi.fn();
+
+beforeEach(() => {
+  addDraftTag.mockClear();
+  setDraftTags.mockClear();
+});
+
+// Stable reference: Autocomplete resets its freeSolo draft text when the `value`
+// (tags) prop identity changes, which a fresh `[]` literal on every render would
+// trigger on each keystroke — mirroring the real hook's stable array reference.
+const EMPTY_TAGS: string[] = [];
 
 function Harness({ initialAction = '' }: { initialAction?: string }) {
   const [action, setAction] = useState(initialAction);
@@ -49,9 +60,9 @@ function Harness({ initialAction = '' }: { initialAction?: string }) {
     clearEdit: vi.fn(),
     refreshTrigger: 0,
     triggerRefresh: vi.fn(),
-    draft: { action, tags: [] },
+    draft: { action, tags: EMPTY_TAGS },
     setDraftAction: setAction,
-    setDraftTags: vi.fn(),
+    setDraftTags,
     addDraftTag,
     tagInputValue,
     setTagInputValue,
@@ -175,5 +186,33 @@ describe('AddCustomTile placeholder insertion', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/insertTooLong/i);
     expect(actionField().value).toBe('a'.repeat(2000));
+  });
+});
+
+describe('AddCustomTile tags input', () => {
+  it('commits a tag on comma without throwing', async () => {
+    const user = userEvent.setup();
+    renderWithoutProviders(<Harness />);
+
+    await user.click(screen.getByLabelText(/tags/i));
+    await user.keyboard('rough,');
+
+    expect(addDraftTag).toHaveBeenCalledTimes(1);
+    expect(addDraftTag).toHaveBeenCalledWith('rough');
+  });
+
+  // Autocomplete's own freeSolo+multiple handling already commits typed text as a
+  // tag on Enter (via onChange -> setDraftTags), so handleKeyDown/handleTagInputBlur
+  // must not also call addDraftTag — doing so double-inserts the tag.
+  it('commits exactly one tag via Autocomplete on Enter, not addDraftTag', async () => {
+    const user = userEvent.setup();
+    renderWithoutProviders(<Harness />);
+
+    await user.click(screen.getByLabelText(/tags/i));
+    await user.keyboard('rough{Enter}');
+
+    expect(setDraftTags).toHaveBeenCalledTimes(1);
+    expect(setDraftTags).toHaveBeenCalledWith(['rough']);
+    expect(addDraftTag).not.toHaveBeenCalled();
   });
 });
