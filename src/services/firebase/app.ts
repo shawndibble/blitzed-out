@@ -65,12 +65,15 @@ function isStorageBlocked(): boolean {
 }
 
 const app = initializeApp(firebaseConfig);
-let _db: ReturnType<typeof initializeFirestore>;
-if (isStorageBlocked()) {
-  _db = initializeFirestore(app, {});
-} else {
+
+function initializeFirestoreWithFallback(): ReturnType<typeof initializeFirestore> {
+  if (isStorageBlocked()) {
+    if (import.meta.env.DEV) logger.error('Storage blocked, using in-memory Firestore cache');
+    return initializeFirestore(app, {});
+  }
+
   try {
-    _db = initializeFirestore(app, {
+    return initializeFirestore(app, {
       localCache: persistentLocalCache({
         tabManager: persistentMultipleTabManager(),
       }),
@@ -79,10 +82,11 @@ if (isStorageBlocked()) {
     // IndexedDB unavailable (private browsing, quota exceeded, etc.) — fall back to in-memory
     if (import.meta.env.DEV)
       logger.error('Firestore persistence unavailable, using in-memory cache:', e);
-    _db = initializeFirestore(app, {});
+    return initializeFirestore(app, {});
   }
 }
-export const db = _db;
+
+export const db = initializeFirestoreWithFallback();
 
 // Firestore database initialized
 
