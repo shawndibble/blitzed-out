@@ -1,5 +1,5 @@
 import { Params, useParams } from 'react-router-dom';
-import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
+import { getActiveBoardLive, upsertBoard } from '@/stores/gameBoard';
 
 import type { SubmitContext, LocalEffects } from '@/services/gameSettingsOrchestrator';
 import type { FirebaseGatewayPort } from '@/services/ports/FirebaseGatewayPort';
@@ -31,7 +31,7 @@ export function useGameSettingsWiring(): GameSettingsWiring {
   const [settings, updateSettings] = useSettings();
   const contentMode = useContentMode();
   const customTiles = useLiveQuery(() => getActiveTiles(contentMode), [contentMode]);
-  const gameBoard = useLiveQuery(getActiveBoard);
+  const gameBoard = useLiveQuery(getActiveBoardLive);
   const navigate = useRoomNavigate();
   const { messages } = useMessages();
   const { createLocalSession, hasLocalPlayers } = useLocalPlayers();

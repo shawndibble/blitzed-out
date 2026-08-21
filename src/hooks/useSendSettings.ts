@@ -8,7 +8,7 @@ import { latestMessageByType, latestMessageBy } from '@/helpers/messages';
 import { Params, useParams } from 'react-router-dom';
 import { getActiveTiles } from '@/stores/contentLibrary';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { getActiveBoard } from '@/stores/gameBoard';
+import { getActiveBoardLive } from '@/stores/gameBoard';
 import { isPublicRoom } from '@/helpers/strings';
 import { Message, RoomMessage } from '@/types/Message';
 import { DBGameBoard } from '@/types/gameBoard';
@@ -44,7 +44,7 @@ export default function useSendSettings(
   const [settings] = useSettings();
   const contentMode = useContentMode();
   const customTiles = useLiveQuery(() => getActiveTiles(contentMode), [contentMode]);
-  const board = useLiveQuery<DBGameBoard | undefined>(getActiveBoard);
+  const board = useLiveQuery<DBGameBoard | undefined>(getActiveBoardLive);
 
   const sendSettings = useCallback(async (): Promise<void> => {
     if (

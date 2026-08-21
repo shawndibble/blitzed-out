@@ -36,6 +36,13 @@ vi.mock('@/services/placeholderAliasService', async (importOriginal) => {
 });
 
 const addDraftTag = vi.fn();
+const setDraftTags = vi.fn();
+
+beforeEach(() => {
+  addDraftTag.mockClear();
+  setDraftTags.mockClear();
+});
+
 // Stable reference: Autocomplete resets its freeSolo draft text when the `value`
 // (tags) prop identity changes, which a fresh `[]` literal on every render would
 // trigger on each keystroke — mirroring the real hook's stable array reference.
@@ -55,7 +62,7 @@ function Harness({ initialAction = '' }: { initialAction?: string }) {
     triggerRefresh: vi.fn(),
     draft: { action, tags: EMPTY_TAGS },
     setDraftAction: setAction,
-    setDraftTags: vi.fn(),
+    setDraftTags,
     addDraftTag,
     tagInputValue,
     setTagInputValue,
@@ -195,15 +202,17 @@ describe('AddCustomTile tags input', () => {
   });
 
   // Autocomplete's own freeSolo+multiple handling already commits typed text as a
-  // tag on Enter (via onChange), so handleKeyDown must not also call addDraftTag —
-  // doing so double-inserts the tag.
-  it('does not double-commit a tag on Enter', async () => {
+  // tag on Enter (via onChange -> setDraftTags), so handleKeyDown/handleTagInputBlur
+  // must not also call addDraftTag — doing so double-inserts the tag.
+  it('commits exactly one tag via Autocomplete on Enter, not addDraftTag', async () => {
     const user = userEvent.setup();
     renderWithoutProviders(<Harness />);
 
     await user.click(screen.getByLabelText(/tags/i));
     await user.keyboard('rough{Enter}');
 
+    expect(setDraftTags).toHaveBeenCalledTimes(1);
+    expect(setDraftTags).toHaveBeenCalledWith(['rough']);
     expect(addDraftTag).not.toHaveBeenCalled();
   });
 });

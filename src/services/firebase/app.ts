@@ -44,20 +44,14 @@ if (missingVars.length > 0) {
   logger.error('Please check your .env file and ensure all VITE_FIREBASE_* variables are set');
 }
 
-/**
- * `persistentMultipleTabManager` reaches for `window.localStorage` (cross-tab
- * coordination) the first time Firestore lazily opens IndexedDB persistence —
- * well after this module's synchronous `try`/`catch` below has returned. On
- * some iOS Safari configurations (Lockdown Mode, aggressive tracking
- * prevention) merely reading `localStorage` throws `SecurityError`, and
- * Firestore's own fallback-to-memory logic only trusts `FirebaseError`s or a
- * missing `indexedDB` global — a raw `DOMException` with `indexedDB` present
- * slips past it and surfaces as an unhandled rejection instead of degrading.
- * Probing here, before persistence is ever requested, catches that case too.
- */
+// `persistentMultipleTabManager` writes to `localStorage` lazily, after this
+// module's own try/catch below has returned, so probe with a real write here —
+// Firestore's own fallback logic doesn't trust a raw `DOMException` from there.
 function isStorageBlocked(): boolean {
+  const probeKey = '__firestore_storage_probe__';
   try {
-    void window.localStorage;
+    window.localStorage.setItem(probeKey, '1');
+    window.localStorage.removeItem(probeKey);
     return false;
   } catch {
     return true;

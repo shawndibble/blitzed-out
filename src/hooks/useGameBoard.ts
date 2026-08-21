@@ -4,7 +4,7 @@ import { enforceTopologyRoomInvariant, useSettings } from '@/stores/settingsStor
 import { deriveParticipationContentMode } from '@/helpers/strings';
 import { useTranslation } from 'react-i18next';
 import buildGameBoard from '@/services/buildGame';
-import { getActiveBoard, upsertBoard } from '@/stores/gameBoard';
+import { getActiveBoardLive, upsertBoard } from '@/stores/gameBoard';
 import { useCallback } from 'react';
 import { Settings } from '@/types/Settings';
 import { DBGameBoard, GameBoardResult } from '@/types/gameBoard';
@@ -15,7 +15,7 @@ import { DEFAULT_TILE_COUNT } from '@/constants/boardConstants';
  * @returns A function that takes in a form data object and returns an object.
  */
 export default function useGameBoard(): (data: Settings) => Promise<GameBoardResult> {
-  const gameBoard = useLiveQuery<DBGameBoard | undefined>(getActiveBoard);
+  const gameBoard = useLiveQuery<DBGameBoard | undefined>(getActiveBoardLive);
   const [settings, updateSettings] = useSettings();
   const { i18n } = useTranslation();
 

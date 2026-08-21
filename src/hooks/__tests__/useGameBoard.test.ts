@@ -26,7 +26,7 @@ vi.mock('@/services/buildGame', () => ({
 }));
 
 vi.mock('@/stores/gameBoard', () => ({
-  getActiveBoard: vi.fn(),
+  getActiveBoardLive: vi.fn(),
   upsertBoard: vi.fn(),
 }));
 
