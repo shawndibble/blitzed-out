@@ -459,8 +459,17 @@ export default function AddCustomTile({
                 <TextField
                   {...params}
                   label={t('tags')}
-                  onKeyDown={handleKeyDown}
                   onBlur={handleTagInputBlur}
+                  slotProps={{
+                    ...params.slotProps,
+                    htmlInput: {
+                      ...params.slotProps.htmlInput,
+                      onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => {
+                        params.slotProps.htmlInput.onKeyDown?.(event);
+                        handleKeyDown(event);
+                      },
+                    },
+                  }}
                 />
               )}
               sx={{ pb: 2 }}

@@ -1,14 +1,26 @@
 import db from './store';
 import { DBGameBoard } from '@/types/gameBoard';
+import { retryOnCursorError } from '@/utils/dbRecovery';
+import { logger } from '@/utils/logger';
 
 const { gameBoard } = db;
 
-export const getBoards = (): Promise<DBGameBoard[]> => {
-  return gameBoard.orderBy('title').toArray();
+export const getBoards = async (): Promise<DBGameBoard[]> => {
+  try {
+    return await retryOnCursorError(db, () => gameBoard.orderBy('title').toArray());
+  } catch (error) {
+    logger.error('Error in getBoards:', error);
+    return [];
+  }
 };
 
 export const getActiveBoard = async (): Promise<DBGameBoard | undefined> => {
-  return gameBoard.where('isActive').equals(1)?.first();
+  try {
+    return await retryOnCursorError(db, () => gameBoard.where('isActive').equals(1).first());
+  } catch (error) {
+    logger.error('Error in getActiveBoard:', error);
+    return undefined;
+  }
 };
 
 export const getBoard = (id: number): Promise<DBGameBoard | undefined> => {

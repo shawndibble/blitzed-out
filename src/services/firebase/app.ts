@@ -44,19 +44,43 @@ if (missingVars.length > 0) {
   logger.error('Please check your .env file and ensure all VITE_FIREBASE_* variables are set');
 }
 
+/**
+ * `persistentMultipleTabManager` reaches for `window.localStorage` (cross-tab
+ * coordination) the first time Firestore lazily opens IndexedDB persistence —
+ * well after this module's synchronous `try`/`catch` below has returned. On
+ * some iOS Safari configurations (Lockdown Mode, aggressive tracking
+ * prevention) merely reading `localStorage` throws `SecurityError`, and
+ * Firestore's own fallback-to-memory logic only trusts `FirebaseError`s or a
+ * missing `indexedDB` global — a raw `DOMException` with `indexedDB` present
+ * slips past it and surfaces as an unhandled rejection instead of degrading.
+ * Probing here, before persistence is ever requested, catches that case too.
+ */
+function isStorageBlocked(): boolean {
+  try {
+    void window.localStorage;
+    return false;
+  } catch {
+    return true;
+  }
+}
+
 const app = initializeApp(firebaseConfig);
 let _db: ReturnType<typeof initializeFirestore>;
-try {
-  _db = initializeFirestore(app, {
-    localCache: persistentLocalCache({
-      tabManager: persistentMultipleTabManager(),
-    }),
-  });
-} catch (e) {
-  // IndexedDB unavailable (private browsing, quota exceeded, etc.) — fall back to in-memory
-  if (import.meta.env.DEV)
-    logger.error('Firestore persistence unavailable, using in-memory cache:', e);
+if (isStorageBlocked()) {
   _db = initializeFirestore(app, {});
+} else {
+  try {
+    _db = initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    });
+  } catch (e) {
+    // IndexedDB unavailable (private browsing, quota exceeded, etc.) — fall back to in-memory
+    if (import.meta.env.DEV)
+      logger.error('Firestore persistence unavailable, using in-memory cache:', e);
+    _db = initializeFirestore(app, {});
+  }
 }
 export const db = _db;
 

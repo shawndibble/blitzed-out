@@ -105,4 +105,29 @@ describe('the ignored error patterns Sentry is initialized with', () => {
       expect(sentryWouldIgnore(errorEvent({ type: 'InvalidStateError', value }))).toBe(false);
     });
   });
+
+  // Dexie's cross-tab `indexedDB.databases()` poll and Firestore's `localStorage` check both
+  // throw this from vendor code the app cannot wrap in a try/catch — see docs/engineering/
+  // security.md § Sentry.
+  describe('storage entirely blocked (iOS Lockdown Mode, tracking prevention)', () => {
+    it('drops the exact SecurityError wording Safari uses', () => {
+      expect(
+        sentryWouldIgnore(
+          errorEvent({ type: 'SecurityError', value: 'The operation is insecure.' })
+        )
+      ).toBe(true);
+    });
+
+    it('keeps a SecurityError with different wording, e.g. tainted-canvas access', () => {
+      expect(
+        sentryWouldIgnore(
+          errorEvent({
+            type: 'SecurityError',
+            value:
+              "Failed to execute 'getImageData' on 'CanvasRenderingContext2D': The canvas has been tainted by cross-origin data.",
+          })
+        )
+      ).toBe(false);
+    });
+  });
 });
