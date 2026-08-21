@@ -1,0 +1,2 @@
+import{o as e}from"./chunk-BVhptDZq.js";import{o as a}from"./chunk-KDE-xZux.js";function n(){return e.resolvedLanguage||e.language||"en"}async function o(o,t={}){const r=t.waitForPropagation?function(a=500){return new Promise(n=>{let o=!1;const t=()=>{o||(o=!0,e.off("languageChanged",t),clearTimeout(r),n())},r=setTimeout(t,a);e.on("languageChanged",t)})}():Promise.resolve();return await e.changeLanguage(o),a.getState().setLocale(n()),await r,n()}export{n,o as t};
+//# sourceMappingURL=chunk-Bs0iX5_V2.js.map
