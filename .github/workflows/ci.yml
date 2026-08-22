@@ -99,7 +99,7 @@ jobs:
         with:
           # Matches functions/package.json engines — the Cloud Functions runtime,
           # which is pinned to 22 because Gen 2's nodejs24 is a separate decision.
-          node-version: 22.x
+          node-version: 24.x
           cache: 'npm'
           cache-dependency-path: functions/package-lock.json
       - name: Install dependencies
