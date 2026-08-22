@@ -1,2 +1,0 @@
-var e={genital:"जननांग",tip:"सिरा",hole:"छेद",chest:"छाती",pronoun_subject:"सर्वनाम_कर्ता",pronoun_object:"सर्वनाम_कर्म",pronoun_possessive:"सर्वनाम_स्वामित्व",pronoun_reflexive:"सर्वनाम_आत्म",player:"खिलाड़ी",dom:"प्रभुत्वशाली",sub:"आज्ञाकारी"},o={tokens:e};export{o as default,e as tokens};
-//# sourceMappingURL=placeholders.json-BLlA-V3V.js.map

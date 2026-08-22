@@ -1,0 +1,2 @@
+var e=null;function t(t){return e=t,()=>{e=null}}function n(){if(!(!(e!=null&&e.user)||e.user.isAnonymous))try{e.syncData().catch(()=>void 0)}catch(e){}}export{n,t};
+//# sourceMappingURL=chunk-BzNnO_nN.js.map

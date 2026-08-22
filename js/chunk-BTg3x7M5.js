@@ -1,0 +1,2 @@
+var e=[`development`,`test`].includes(`production`);function t(){try{return typeof window>`u`?!1:new URLSearchParams(window.location.search).get(`debug`)===`1`||window.localStorage.getItem(`debug`)===`true`}catch(e){return!1}}function n(n,r){var i;!e&&!t()||((i=console[n])==null?console.log:i)(...r)}var r={debug:(...e)=>n(`debug`,e),info:(...e)=>n(`info`,e),warn:(...e)=>n(`warn`,e),error:(...e)=>n(`error`,e)};export{r as t};
+//# sourceMappingURL=chunk-BTg3x7M5.js.map

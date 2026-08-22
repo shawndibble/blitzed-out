@@ -1,0 +1,2 @@
+function e(e,t,n){let r=`default-${t}-${n}-${e}`,i=0;for(let e=0;e<r.length;e++){let t=r.charCodeAt(e);i=(i<<5)-i+t,i&=i}return`default_${t}_${n}_${e}_${Math.abs(i).toString(16).padStart(8,`0`)}`.slice(0,50)}export{e as t};
+//# sourceMappingURL=chunk-CtEukgl0.js.map
