@@ -17,6 +17,10 @@ Companion to [README.md](README.md). Security model, the actual rules in force, 
 - **Never gate a rules-backed capability on `isAnonymous`.** It is the flag that lies in the state above. `AuthContext` exposes **`hasPermanentProvider`**, read from the ID token's `signInProvider` (`context/auth.tsx`) and therefore the same fact `publicVisibilityGated()` sees. `PackCreator` keys the Public option, the helper text, the review line, and submit-time enforcement on it; `MenuDrawer` shows the account item when `isAnonymous || !hasPermanentProvider`, so a half-linked session keeps a durable route back to finishing the sign-in instead of losing the affordance the moment `isAnonymous` flips. The token is re-read on every `user` change, so a reload recovers the truth rather than inheriting the lie.
 - Auth state via `onAuthStateChanged`; logout clears auth, and a wipe path clears all local storage/IndexedDB/cookies.
 
+**Gen 2 notes.** Instances now serve up to 80 concurrent requests, where Gen 1 served one. The mint quota is unaffected because `consumeRateLimit` decides inside a Firestore transaction rather than read-then-write — that property is now load-bearing, so keep it if you touch `rateLimit.ts`. Gen 2 also runs as a different default service account than Gen 1's `<project>@appspot.gserviceaccount.com`, so the Secret Manager grants for `CLOUDFLARE_TURN_TOKEN` and `SENDGRID_API_KEY` have to follow it. Both failures are **silent**: a missing TURN secret degrades to the bundled relay via the client's catch-all fallback, and a missing SendGrid key logs an error and returns, so pack reports simply stop emailing.
+
+**Verification.** `functions/src/__tests__/callables.test.ts` covers the `request`/`event` shapes with the SDK's `.run()` hook, and CI's `functions` job builds and runs it. The Functions emulator cannot invoke these handlers at all — `initializeApp({ credential: applicationDefault() })` fails there without real credentials, on v1 and v2 alike — so it verifies only that definitions load with the right trigger types and region.
+
 **Weaknesses / hardening:**
 
 - No client-side password policy (length/complexity/breach check) — relies on Firebase defaults.
@@ -88,9 +92,11 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 
 ## Cloud Functions (`functions/src/index.ts`)
 
+All 9 are **2nd gen** (`firebase-functions/v2`), pinned to `us-central1` via `setGlobalOptions` so they cannot drift from the client's region-less `getFunctions(app)`. The Cloud Functions runtime stays **node 22**: nodejs24 is 2nd-gen-only _and_ not yet a decision taken here. Handlers read a single `request` (`request.auth`, `request.data`) rather than `(data, context)`, and Firestore triggers read `event.data`, which v2 types as optional.
+
 9 exported functions: scheduled cleanups (stale users ~5 min, inactive anonymous accounts daily, video-call signaling + stale roster entries ~5 min), RTDB presence triggers (`onUserDisconnect`, presence validation), a pack-report notification, two **callable** admin helpers, and `getTurnCredentials`.
 
-**`getTurnCredentials`** — mints Cloudflare TURN credentials (2h TTL, 10s upstream budget, 30s function timeout so a hung call returns a real error rather than a platform timeout with no CORS headers) from the `CLOUDFLARE_TURN_TOKEN` secret. Not admin-gated: any signed-in caller may use it, but only for a room where they already hold a `video-calls/{roomId}/users/{uid}` presence node. That check is the first spend control — relay bandwidth bills to us and anonymous guest accounts are free to create, so `context.auth` alone would gate nothing.
+**`getTurnCredentials`** — mints Cloudflare TURN credentials (2h TTL, 10s upstream budget, 30s function timeout so a hung call returns a real error rather than a platform timeout with no CORS headers) from the `CLOUDFLARE_TURN_TOKEN` secret. Not admin-gated: any signed-in caller may use it, but only for a room where they already hold a `video-calls/{roomId}/users/{uid}` presence node. That check is the first spend control — relay bandwidth bills to us and anonymous guest accounts are free to create, so `request.auth` alone would gate nothing.
 
 **Per-uid rate limit** (`functions/src/rateLimit.ts`): **60 mints per 10-minute window**, enforced after the presence check and before any Cloudflare call. `rate-limits/{uid}` holds one document per user with a `{ count, windowStartedAt }` bucket per action; the collection is `allow read, write: if false` in `firestore.rules`, so only the admin SDK touches it. Read-decide-write runs in a transaction — a bare `FieldValue.increment` would make the write atomic but not the _decision_. Blocked calls write nothing and raise `resource-exhausted` with `retryAfterMs`. Two deliberate choices: the quota is **generous** (steady state is ~1 mint per tab per 110 min; the worst legitimate case, a full retry storm across all 4 peers, is 24 mints in ~57s) because a false block breaks webcam calls, and the gate **fails open** if Firestore is unavailable, so a Firestore blip cannot take video down globally. Note what this does _not_ do: one credential relays unlimited bytes for its 2h TTL, so the cap bounds how widely an account can redistribute credentials, not bandwidth.
 
@@ -106,8 +112,12 @@ Steps to enable, in order — each one 403s every call on its own if skipped:
 
 **Admin callables** — `manualCleanupStaleUsers` and `manualCleanupAnonymousAccounts`:
 
-- Both gate on an `admin` **custom claim** (`context.auth.token.admin`), bypassed only in the Functions emulator. The anonymous-cleanup one additionally keys on `isProduction`.
+- Both gate on an `admin` **custom claim** (`request.auth.token.admin`), bypassed only in the Functions emulator. The anonymous-cleanup one additionally keys on `isProduction`.
 - **This fails closed in production:** if no user has the `admin` claim set, nobody can invoke them. (The earlier worry that "any authenticated user could trigger cleanup" is **not** accurate for the production path.)
+
+**Gen 2 notes.** Instances now serve up to 80 concurrent requests, where Gen 1 served one. The mint quota is unaffected because `consumeRateLimit` decides inside a Firestore transaction rather than read-then-write — that property is now load-bearing, so keep it if you touch `rateLimit.ts`. Gen 2 also runs as a different default service account than Gen 1's `<project>@appspot.gserviceaccount.com`, so the Secret Manager grants for `CLOUDFLARE_TURN_TOKEN` and `SENDGRID_API_KEY` have to follow it. Both failures are **silent**: a missing TURN secret degrades to the bundled relay via the client's catch-all fallback, and a missing SendGrid key logs an error and returns, so pack reports simply stop emailing.
+
+**Verification.** `functions/src/__tests__/callables.test.ts` covers the `request`/`event` shapes with the SDK's `.run()` hook, and CI's `functions` job builds and runs it. The Functions emulator cannot invoke these handlers at all — `initializeApp({ credential: applicationDefault() })` fails there without real credentials, on v1 and v2 alike — so it verifies only that definitions load with the right trigger types and region.
 
 **Weaknesses / hardening:**
 
@@ -120,7 +130,7 @@ Steps to enable, in order — each one 403s every call on its own if skipped:
 ## Secrets & configuration
 
 - Client Firebase config (`VITE_FIREBASE_*`) and the Sentry DSN are **public by design** — they're meant to ship in the bundle, and Firebase access is constrained by the rules above. This is expected, not a leak.
-- **TURN relay credentials.** The primary path is now short-lived: `getTurnCredentials` (a callable requiring `context.auth`) mints Cloudflare credentials server-side from the `CLOUDFLARE_TURN_TOKEN` Secret Manager secret, which never reaches the client. The bundled credentials (`VITE_METERED_*`) still ship in the client and remain harvestable — treat as low-privilege and **rotate periodically**. They are not merely a fallback: every call _starts_ on them, because minting happens in the background rather than blocking startup, so peers dialled before it completes keep using them for the life of the connection. They are also what the client falls back to whenever minting fails.
+- **TURN relay credentials.** The primary path is now short-lived: `getTurnCredentials` (a callable requiring `request.auth`) mints Cloudflare credentials server-side from the `CLOUDFLARE_TURN_TOKEN` Secret Manager secret, which never reaches the client. The bundled credentials (`VITE_METERED_*`) still ship in the client and remain harvestable — treat as low-privilege and **rotate periodically**. They are not merely a fallback: every call _starts_ on them, because minting happens in the background rather than blocking startup, so peers dialled before it completes keep using them for the life of the connection. They are also what the client falls back to whenever minting fails.
 - **`.env` is git-ignored today** (verified: not tracked). **However, git history shows `.env` was committed in early 2024** (added in commit `22b444db`, removed in `98364f35`). Any credential present during that window should be considered **exposed in history** and rotated; scrubbing history is the stronger remedy.
 - Sentry build token lives in `.env.sentry-build-plugin` (git-ignored). Keep it CI-only.
 

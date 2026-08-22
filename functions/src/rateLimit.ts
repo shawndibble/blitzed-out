@@ -1,4 +1,5 @@
-import * as functions from 'firebase-functions/v1';
+import { logger } from 'firebase-functions';
+import { HttpsError } from 'firebase-functions/v2/https';
 import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore';
 
 /**
@@ -143,28 +144,24 @@ export async function enforceRateLimit(
     decision = await consumeRateLimit(uid, action, policy);
   } catch (error) {
     if (isContention(error)) {
-      functions.logger.warn('Rate limit contention; blocking the call', { uid, action });
-      throw new functions.https.HttpsError(
-        'resource-exhausted',
-        'Too many requests. Try again shortly.',
-        { retryAfterMs: policy.windowMs }
-      );
+      logger.warn('Rate limit contention; blocking the call', { uid, action });
+      throw new HttpsError('resource-exhausted', 'Too many requests. Try again shortly.', {
+        retryAfterMs: policy.windowMs,
+      });
     }
-    functions.logger.warn('Rate limit check failed; allowing the call', { uid, action, error });
+    logger.warn('Rate limit check failed; allowing the call', { uid, action, error });
     return;
   }
 
   if (!decision.allowed) {
-    functions.logger.warn('Rate limit exceeded', {
+    logger.warn('Rate limit exceeded', {
       uid,
       action,
       quota: policy.quota,
       windowMs: policy.windowMs,
     });
-    throw new functions.https.HttpsError(
-      'resource-exhausted',
-      'Too many requests. Try again shortly.',
-      { retryAfterMs: decision.retryAfterMs }
-    );
+    throw new HttpsError('resource-exhausted', 'Too many requests. Try again shortly.', {
+      retryAfterMs: decision.retryAfterMs,
+    });
   }
 }

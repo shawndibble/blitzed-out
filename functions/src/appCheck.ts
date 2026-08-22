@@ -1,5 +1,5 @@
-import * as functions from 'firebase-functions/v1';
-import { CallableContext } from 'firebase-functions/v1/https';
+import { logger } from 'firebase-functions';
+import { CallableRequest } from 'firebase-functions/v2/https';
 
 /**
  * App Check wiring for callables — **staged and deliberately inert.**
@@ -26,11 +26,11 @@ export const APP_CHECK_ENFORCED: boolean = false;
  * Silent today, which is the point: the first appearance of this line is the
  * evidence that client wiring landed and enforcement will not lock anyone out.
  */
-export function observeAppCheck(context: CallableContext, callableName: string): void {
-  if (context.app) {
-    functions.logger.info('App Check token verified; enforcement can be enabled', {
+export function observeAppCheck(request: CallableRequest, callableName: string): void {
+  if (request.app) {
+    logger.info('App Check token verified; enforcement can be enabled', {
       callable: callableName,
-      appId: context.app.appId,
+      appId: request.app.appId,
     });
   }
 }

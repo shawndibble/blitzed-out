@@ -1,4 +1,5 @@
-import * as functions from 'firebase-functions/v1';
+import { logger } from 'firebase-functions';
+import { CallableRequest, HttpsError, onCall } from 'firebase-functions/v2/https';
 import { getDatabase } from 'firebase-admin/database';
 import { APP_CHECK_ENFORCED, observeAppCheck } from './appCheck';
 import { enforceRateLimit, RateLimitPolicy } from './rateLimit';
@@ -53,47 +54,41 @@ function toIceServerArray(payload: unknown): CloudflareIceServer[] {
   return Array.isArray(iceServers) ? iceServers : [iceServers as CloudflareIceServer];
 }
 
-export const getTurnCredentials = functions
+export const getTurnCredentials = onCall(
   // Bounded well under the 60s default: every path here is either a fast RTDB
   // read or a time-boxed upstream call, and the client is blocked meanwhile.
-  .runWith({
+  {
     enforceAppCheck: APP_CHECK_ENFORCED,
     secrets: ['CLOUDFLARE_TURN_TOKEN'],
     timeoutSeconds: 30,
-  })
-  .https.onCall(async (data, context) => {
-    observeAppCheck(context, 'getTurnCredentials');
+  },
+  async (request: CallableRequest<{ roomId?: unknown }>) => {
+    observeAppCheck(request, 'getTurnCredentials');
 
-    if (!context.auth) {
-      throw new functions.https.HttpsError(
-        'unauthenticated',
-        'Sign in before requesting TURN credentials'
-      );
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Sign in before requesting TURN credentials');
     }
 
     // Anonymous guest accounts are free to create, so authentication alone is
     // not a spend control — relay bandwidth is billed to us. Requiring the
     // caller to already hold a roster slot ties every credential to a real call.
-    const roomId = typeof data?.roomId === 'string' ? data.roomId : '';
+    const roomId = typeof request.data?.roomId === 'string' ? request.data.roomId : '';
     if (!roomId || !/^[A-Za-z0-9_-]{1,64}$/.test(roomId)) {
-      throw new functions.https.HttpsError('invalid-argument', 'A valid roomId is required');
+      throw new HttpsError('invalid-argument', 'A valid roomId is required');
     }
 
     const presence = await getDatabase()
-      .ref(`video-calls/${roomId}/users/${context.auth.uid}`)
+      .ref(`video-calls/${roomId}/users/${request.auth.uid}`)
       .once('value');
 
     if (!presence.exists()) {
-      throw new functions.https.HttpsError(
-        'permission-denied',
-        'Join the call before requesting TURN credentials'
-      );
+      throw new HttpsError('permission-denied', 'Join the call before requesting TURN credentials');
     }
 
     // After the presence check, so a client hammering with a roomId it does not
     // hold cannot burn the quota that its real calls need — and before the
     // Cloudflare call, because the point is to not make that call.
-    await enforceRateLimit(context.auth.uid, 'turnCredentials', MINT_RATE_LIMIT);
+    await enforceRateLimit(request.auth.uid, 'turnCredentials', MINT_RATE_LIMIT);
 
     const apiToken = process.env.CLOUDFLARE_TURN_TOKEN;
     const keyId = process.env.CLOUDFLARE_TURN_KEY_ID;
@@ -101,11 +96,11 @@ export const getTurnCredentials = functions
     if (!apiToken || !keyId) {
       // The client falls back to its bundled relay, so this is a degradation
       // rather than an outage — but it is one nobody would otherwise notice.
-      functions.logger.error('Cloudflare TURN is not configured; falling back to bundled relay', {
+      logger.error('Cloudflare TURN is not configured; falling back to bundled relay', {
         hasToken: Boolean(apiToken),
         hasKeyId: Boolean(keyId),
       });
-      throw new functions.https.HttpsError('failed-precondition', 'TURN provider not configured');
+      throw new HttpsError('failed-precondition', 'TURN provider not configured');
     }
 
     let response: Response;
@@ -125,23 +120,23 @@ export const getTurnCredentials = functions
         signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
       });
     } catch (error) {
-      functions.logger.error('Cloudflare TURN request failed', error);
-      throw new functions.https.HttpsError('unavailable', 'Could not reach the TURN provider');
+      logger.error('Cloudflare TURN request failed', error);
+      throw new HttpsError('unavailable', 'Could not reach the TURN provider');
     }
 
     if (!response.ok) {
-      functions.logger.error('Cloudflare TURN rejected the request', {
+      logger.error('Cloudflare TURN rejected the request', {
         status: response.status,
         body: await response.text().catch(() => '<unreadable>'),
       });
-      throw new functions.https.HttpsError('unavailable', 'TURN provider rejected the request');
+      throw new HttpsError('unavailable', 'TURN provider rejected the request');
     }
 
     const iceServers = toIceServerArray(await response.json());
 
     if (iceServers.length === 0) {
-      functions.logger.error('Cloudflare TURN returned no ICE servers');
-      throw new functions.https.HttpsError('unavailable', 'TURN provider returned no servers');
+      logger.error('Cloudflare TURN returned no ICE servers');
+      throw new HttpsError('unavailable', 'TURN provider returned no servers');
     }
 
     return {
@@ -150,4 +145,5 @@ export const getTurnCredentials = functions
       // against ours any more precisely than the TTL already tolerates.
       expiresAt: Date.now() + CREDENTIAL_TTL_SECONDS * 1000,
     };
-  });
+  }
+);

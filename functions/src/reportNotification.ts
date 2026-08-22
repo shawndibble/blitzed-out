@@ -1,4 +1,5 @@
-import * as functions from 'firebase-functions/v1';
+import { logger } from 'firebase-functions';
+import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { getFirestore } from 'firebase-admin/firestore';
 import sgMail from '@sendgrid/mail';
 
@@ -20,10 +21,19 @@ interface ReportDoc {
  * Requires the SENDGRID_API_KEY secret and a SendGrid-verified MODERATION_FROM
  * sender; the destination is MODERATION_TO.
  */
-export const onPackReported = functions
-  .runWith({ secrets: ['SENDGRID_API_KEY'] })
-  .firestore.document('reports/{reportId}')
-  .onCreate(async (snap) => {
+export const onPackReported = onDocumentCreated(
+  { document: 'reports/{reportId}', secrets: ['SENDGRID_API_KEY'] },
+  async (event) => {
+    // v2 hands the snapshot in `event.data`, and types it optional: a retried
+    // delivery for an already-deleted document arrives with nothing to read.
+    const snap = event.data;
+    if (!snap) {
+      logger.warn('Report document missing on delivery; nothing to notify', {
+        reportId: event.params.reportId,
+      });
+      return;
+    }
+
     const report = snap.data() as ReportDoc;
     const packId = report.packId ?? '(unknown)';
 
@@ -31,8 +41,8 @@ export const onPackReported = functions
     const from = process.env.MODERATION_FROM || 'reports@blitzedout.com';
     const apiKey = process.env.SENDGRID_API_KEY;
     if (!apiKey) {
-      functions.logger.error('SENDGRID_API_KEY not set; cannot send report email', { packId });
-      return null;
+      logger.error('SENDGRID_API_KEY not set; cannot send report email', { packId });
+      return;
     }
     sgMail.setApiKey(apiKey);
 
@@ -48,7 +58,7 @@ export const onPackReported = functions
         visibility = pack.visibility ?? visibility;
       }
     } catch (error) {
-      functions.logger.warn('Failed to load reported pack metadata', { packId, error });
+      logger.warn('Failed to load reported pack metadata', { packId, error });
     }
 
     const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT || 'blitzout-49b39';
@@ -75,9 +85,9 @@ export const onPackReported = functions
         subject: `Pack reported: ${packName}`,
         text: lines.join('\n'),
       });
-      functions.logger.info('Sent pack-report notification email', { packId });
+      logger.info('Sent pack-report notification email', { packId });
     } catch (error) {
-      functions.logger.error('Failed to send pack-report email', { packId, error });
+      logger.error('Failed to send pack-report email', { packId, error });
     }
-    return null;
-  });
+  }
+);
