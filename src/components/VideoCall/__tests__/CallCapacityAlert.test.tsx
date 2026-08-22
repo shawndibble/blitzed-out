@@ -13,6 +13,11 @@ function presenceAt(count: number) {
   useCallPresenceStore.setState({ count, capacityCount: count, loaded: true });
 }
 
+/** Everyone still holds a slot, but some have dropped off the badge's window. */
+function presenceSplit(count: number, capacityCount: number) {
+  useCallPresenceStore.setState({ count, capacityCount, loaded: true });
+}
+
 describe('CallCapacityAlert', () => {
   beforeEach(() => {
     useCallPresenceStore.setState({ count: 0, capacityCount: 0, loaded: false });
@@ -47,6 +52,22 @@ describe('CallCapacityAlert', () => {
     render(<CallCapacityAlert />);
 
     expect(screen.getByText('videoCall.capacity.full')).toBeInTheDocument();
+  });
+
+  // The message has to agree with whatever refuses the join. Reading the badge's
+  // count instead leaves a refused joiner with a blank panel and no explanation.
+  test('says full when only the mesh still sees the slots', () => {
+    presenceSplit(2, MAX_CALL_PARTICIPANTS);
+    render(<CallCapacityAlert />);
+
+    expect(screen.getByText('videoCall.capacity.full')).toBeInTheDocument();
+  });
+
+  test('warns on crowding the badge has not caught up to', () => {
+    presenceSplit(1, CALL_QUALITY_WARNING_PARTICIPANTS);
+    render(<CallCapacityAlert />);
+
+    expect(screen.getByText('videoCall.capacity.warning')).toBeInTheDocument();
   });
 
   // Ghosts inflating the roster past the cap must not turn the message back into

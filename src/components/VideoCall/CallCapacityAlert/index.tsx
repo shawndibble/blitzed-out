@@ -15,11 +15,14 @@ import { useCallPresenceStore } from '@/stores/callPresenceStore';
  */
 const CallCapacityAlert = () => {
   const { t } = useTranslation();
-  const count = useCallPresenceStore((state) => state.count);
+  // `capacityCount`, not the badge's `count`: this has to agree with whatever
+  // refuses the join, or a call with backgrounded participants is refused while
+  // the panel says nothing — blank grid, disabled button, no explanation.
+  const capacityCount = useCallPresenceStore((state) => state.capacityCount);
 
-  if (count < CALL_QUALITY_WARNING_PARTICIPANTS) return null;
+  if (capacityCount < CALL_QUALITY_WARNING_PARTICIPANTS) return null;
 
-  const isFull = count >= MAX_CALL_PARTICIPANTS;
+  const isFull = capacityCount >= MAX_CALL_PARTICIPANTS;
 
   return (
     <Alert severity={isFull ? 'error' : 'warning'} sx={{ mb: 1, flexShrink: 0 }}>
