@@ -364,9 +364,7 @@ describe('content-packs', () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await setDoc(doc(ctx.firestore(), 'content-packs/p1'), validPack({ importCount: 7 }));
     });
-    await assertSucceeds(
-      updateDoc(doc(dbAs(OTHER_UID), 'content-packs/p1'), { importCount: 8 })
-    );
+    await assertSucceeds(updateDoc(doc(dbAs(OTHER_UID), 'content-packs/p1'), { importCount: 8 }));
   });
 
   it('lets an importer bump a legacy doc without importCount to 1', async () => {
@@ -384,9 +382,7 @@ describe('content-packs', () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
       await setDoc(doc(ctx.firestore(), 'content-packs/p1'), validPack({ importCount: 7 }));
     });
-    await assertFails(
-      updateDoc(doc(dbAs(OTHER_UID), 'content-packs/p1'), { importCount: 9 })
-    );
+    await assertFails(updateDoc(doc(dbAs(OTHER_UID), 'content-packs/p1'), { importCount: 9 }));
   });
 
   it('rejects an importCount bump combined with other field changes', async () => {
@@ -442,7 +438,10 @@ describe('content-packs', () => {
 
   it('allows authors to list their own packs regardless of visibility', async () => {
     await testEnv.withSecurityRulesDisabled(async (ctx) => {
-      await setDoc(doc(ctx.firestore(), 'content-packs/mine'), validPack({ visibility: 'private' }));
+      await setDoc(
+        doc(ctx.firestore(), 'content-packs/mine'),
+        validPack({ visibility: 'private' })
+      );
     });
     const col = collection(dbAs(UID), 'content-packs');
     // Author-scoped query is provably safe: every matching doc is the caller's.

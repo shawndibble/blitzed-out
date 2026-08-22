@@ -119,7 +119,7 @@
     ]
   },
   "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": [
+    "**/*.{js,cjs,mjs,jsx,ts,tsx}": [
       "eslint --fix",
       "prettier --write"
     ],

@@ -21,6 +21,8 @@ jobs:
         run: npm ci
       - name: Run linting
         run: npm run lint
+      - name: Validate locale placeholders
+        run: npm run validate:placeholders
 
   test:
     runs-on: ubuntu-latest
@@ -84,3 +86,5 @@ jobs:
         run: npm run build
         env:
           SENTRY_TELEMETRY: false
+      - name: Verify PWA build output
+        run: npm run verify:pwa-build
