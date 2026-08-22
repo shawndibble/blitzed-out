@@ -10,7 +10,8 @@
           ".write": "auth != null && auth.uid == $userId",
           ".validate": "newData.isNumber()"
         }
-      }
+      },
+      ".indexOn": ["lastSeen"]
     },
     "video-calls": {
       "$roomId": {

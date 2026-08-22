@@ -52,6 +52,10 @@ const rtdbUnsubscribe = vi.fn();
 
 beforeEach(async () => {
   vi.clearAllMocks();
+  // roomPresence remembers the row it last wrote so the heartbeat can restore it
+  // after a server prune. That is module state, so without this every test would
+  // inherit whichever room the previous one registered.
+  vi.resetModules();
   vi.useFakeTimers();
   rtdbCallback = undefined;
   h.auth.currentUser = null;
@@ -167,13 +171,71 @@ describe('updatePresenceHeartbeat', () => {
     expect(h.get).not.toHaveBeenCalled();
   });
 
-  it('is a no-op when the presence record does not exist', async () => {
+  it('is a no-op when the record is gone and this session never registered one', async () => {
     const { updatePresenceHeartbeat } = await import('../roomPresence');
     h.auth.currentUser = { uid: 'user-1', isAnonymous: false };
     h.get.mockResolvedValueOnce({ exists: () => false, val: () => null });
 
     await updatePresenceHeartbeat();
 
+    // Nothing to restore: displayName and room only ever came from the row itself.
+    expect(h.set).not.toHaveBeenCalled();
+  });
+
+  it('re-registers when the row was deleted under a live session', async () => {
+    // The server sweep prunes `users/{uid}` on inactivity. Before this, the
+    // heartbeat just no-opped forever, so anyone pruned while still on the page
+    // stayed invisible in every roster until they reloaded.
+    const { setMyPresence, updatePresenceHeartbeat } = await import('../roomPresence');
+    h.auth.currentUser = { uid: 'user-1', isAnonymous: true };
+
+    await setMyPresence({ newRoom: 'abcd', oldRoom: null, newDisplayName: 'Alex' });
+    h.set.mockClear();
+
+    h.get.mockResolvedValueOnce({ exists: () => false, val: () => null });
+    await updatePresenceHeartbeat();
+
+    expect(h.set).toHaveBeenCalledWith(
+      { path: 'users/user-1' },
+      expect.objectContaining({
+        displayName: 'Alex',
+        room: 'ABCD',
+        isAnonymous: true,
+        lastSeen: expect.any(Number),
+      })
+    );
+  });
+
+  it('re-registers into the newest room, not a room it has since left', async () => {
+    const { setMyPresence, updatePresenceHeartbeat } = await import('../roomPresence');
+    h.auth.currentUser = { uid: 'user-1', isAnonymous: false };
+
+    await setMyPresence({ newRoom: 'first', oldRoom: null, newDisplayName: 'Alex' });
+    await setMyPresence({ newRoom: 'second', oldRoom: 'first', newDisplayName: 'Alex' });
+    h.set.mockClear();
+
+    h.get.mockResolvedValueOnce({ exists: () => false, val: () => null });
+    await updatePresenceHeartbeat();
+
+    expect(h.set).toHaveBeenCalledWith(
+      { path: 'users/user-1' },
+      expect.objectContaining({ room: 'SECOND' })
+    );
+  });
+
+  it('stops re-registering once the user has deliberately left', async () => {
+    const { setMyPresence, removeMyPresence, updatePresenceHeartbeat } =
+      await import('../roomPresence');
+    h.auth.currentUser = { uid: 'user-1', isAnonymous: false };
+
+    await setMyPresence({ newRoom: 'abcd', oldRoom: null, newDisplayName: 'Alex' });
+    await removeMyPresence();
+    h.set.mockClear();
+
+    h.get.mockResolvedValueOnce({ exists: () => false, val: () => null });
+    await updatePresenceHeartbeat();
+
+    // Otherwise a heartbeat racing the leave would resurrect the row.
     expect(h.set).not.toHaveBeenCalled();
   });
 

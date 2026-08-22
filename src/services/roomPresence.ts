@@ -27,6 +27,21 @@ interface SetPresenceOptions {
 }
 
 /**
+ * The presence row this session last wrote, or null once it has deliberately left.
+ *
+ * The server sweep deletes `users/{uid}` on inactivity, and `displayName`/`room`
+ * live nowhere else — so without this, a heartbeat arriving after a prune had
+ * nothing to write and simply no-opped. Anyone pruned while still sitting on the
+ * page stayed invisible in every roster until they reloaded, because the sweep
+ * only needs the tab's timers to be throttled (backgrounded mobile Safari) for
+ * longer than the threshold, not the user to be gone.
+ *
+ * Cleared by removeMyPresence so a heartbeat racing a deliberate leave cannot
+ * resurrect the row.
+ */
+let lastWrittenPresence: UserPresenceData | null = null;
+
+/**
  * Set user presence in a room with automatic cleanup and server timestamp.
  * Works with the server-side cleanup function to manage stale users.
  */
@@ -66,6 +81,7 @@ export async function setMyPresence({
     };
 
     await set(userRef, presenceData);
+    lastWrittenPresence = presenceData;
 
     // Set up automatic removal on disconnect
     if (removeOnDisconnect) {
@@ -125,6 +141,15 @@ export async function updatePresenceHeartbeat(): Promise<void> {
         lastSeen: Date.now(),
       };
       await set(userRef, updatedData);
+      return;
+    }
+
+    // Pruned by the server sweep while this session is still live: restore the
+    // row rather than going quiet, so the user reappears within one heartbeat
+    // instead of staying invisible until they reload. A partial write would be
+    // rejected by the rules' hasChildren validation, so re-send the whole shape.
+    if (lastWrittenPresence) {
+      await set(userRef, { ...lastWrittenPresence, lastSeen: Date.now() });
     }
   } catch (error) {
     logger.error('Error updating presence heartbeat:', error);
@@ -147,6 +172,8 @@ export async function removeMyPresence(): Promise<void> {
 
   try {
     await remove(userRef);
+    // Before the heartbeat can race the leave and put the row back.
+    lastWrittenPresence = null;
   } catch (error) {
     logger.error('Error removing user presence:', error);
   }

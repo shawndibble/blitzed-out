@@ -47,6 +47,50 @@ if (!getApps().length) {
 }
 
 /**
+ * Presence rows under `users/{uid}` each fire two triggers on delete —
+ * `onUserDisconnect` and `validateUserPresence` — and Realtime Database caps the
+ * events one write may fan out at roughly a thousand. Deleting every stale row in
+ * a single multi-path update therefore fails outright with `too_many_triggers`
+ * once a few hundred have accumulated, deleting **nothing**, so the backlog only
+ * grows and the next sweep fails harder. That is how `users` reached 1156 rows
+ * with a prune job ostensibly running every five minutes.
+ *
+ * 250 keeps the fan-out (500 events) well inside the cap. Chunks run in sequence,
+ * not in parallel: the limit is per write, but a burst of concurrent writes is
+ * also what pushes RTDB into rejecting them.
+ */
+const DELETE_CHUNK_SIZE = 250;
+
+/**
+ * Delete `users/{uid}` rows in fan-out-safe chunks. Returns how many were removed,
+ * which can be short of `userIds.length` if a chunk fails — a partial sweep is the
+ * point, since the alternative is an all-or-nothing write that always loses.
+ */
+async function deleteStaleUserRows(userIds: string[], context: string): Promise<number> {
+  const db = getDatabase();
+  let deleted = 0;
+
+  for (let i = 0; i < userIds.length; i += DELETE_CHUNK_SIZE) {
+    const chunk = userIds.slice(i, i + DELETE_CHUNK_SIZE);
+    const updates: { [key: string]: null } = {};
+    chunk.forEach((userId) => {
+      updates[`users/${userId}`] = null;
+    });
+
+    try {
+      await db.ref().update(updates);
+      deleted += chunk.length;
+    } catch (error) {
+      // Keep going: a later chunk may well succeed, and every row removed is one
+      // fewer dead entry in the room rosters every client downloads.
+      logger.error(`${context}: chunk of ${chunk.length} failed to delete`, error);
+    }
+  }
+
+  return deleted;
+}
+
+/**
  * Scheduled function to clean up stale users every 5 minutes
  * Removes users who haven't updated their lastSeen timestamp in 20 minutes
  */
@@ -59,7 +103,8 @@ export const cleanupStaleUsers = onSchedule(
     try {
       logger.info('Starting stale user cleanup process');
 
-      // Get all users with lastSeen older than 20 minutes
+      // Ordered by lastSeen, which `database.rules.json` indexes — without that
+      // index RTDB downloads the whole node and sorts it in memory every 5 minutes.
       const staleUsersSnapshot = await db
         .ref('users')
         .orderByChild('lastSeen')
@@ -71,38 +116,18 @@ export const cleanupStaleUsers = onSchedule(
         return;
       }
 
-      const staleUsers = staleUsersSnapshot.val();
-      const userIds = Object.keys(staleUsers);
-      const userCount = userIds.length;
+      const userIds = Object.keys(staleUsersSnapshot.val());
+      logger.info(`Found ${userIds.length} stale users to clean up`);
 
-      logger.info(`Found ${userCount} stale users to clean up`);
+      const deleted = await deleteStaleUserRows(userIds, 'Stale user cleanup');
 
-      // For large user counts or when atomicity is critical, use transaction
-      if (userCount > 100) {
-        logger.info(`Large user count (${userCount}), using transaction for atomic deletion`);
-
-        await db.ref().transaction((currentData) => {
-          if (currentData && currentData.users) {
-            // Remove stale users from the current data
-            userIds.forEach((userId) => {
-              if (currentData.users[userId]) {
-                delete currentData.users[userId];
-              }
-            });
-          }
-          return currentData;
-        });
+      if (deleted < userIds.length) {
+        logger.warn(
+          `Cleaned up ${deleted} of ${userIds.length} stale users; the rest retry next sweep`
+        );
       } else {
-        // For smaller user counts, use efficient batch update
-        const updates: { [key: string]: null } = {};
-        userIds.forEach((userId) => {
-          updates[`users/${userId}`] = null;
-        });
-
-        await db.ref().update(updates);
+        logger.info(`Successfully cleaned up ${deleted} stale users`);
       }
-
-      logger.info(`Successfully cleaned up ${userCount} stale users`);
       return;
     } catch (error) {
       logger.error('Error cleaning up stale users:', error);
@@ -184,26 +209,17 @@ export const manualCleanupStaleUsers = onCall(
         return { success: true, message: 'No stale users found', cleanedCount: 0 };
       }
 
-      const staleUsers = staleUsersSnapshot.val();
-      const userIds = Object.keys(staleUsers);
-      const userCount = userIds.length;
-
-      // Remove all stale users
-      const updates: { [key: string]: null } = {};
-      userIds.forEach((userId) => {
-        updates[`users/${userId}`] = null;
-      });
-
-      await db.ref().update(updates);
+      const userIds = Object.keys(staleUsersSnapshot.val());
+      const deleted = await deleteStaleUserRows(userIds, 'Manual cleanup');
 
       logger.info(
-        `Manual cleanup: removed ${userCount} stale users (threshold: ${customThresholdMinutes} minutes)`
+        `Manual cleanup: removed ${deleted} of ${userIds.length} stale users (threshold: ${customThresholdMinutes} minutes)`
       );
 
       return {
         success: true,
-        message: `Successfully cleaned up ${userCount} users older than ${customThresholdMinutes} minutes`,
-        cleanedCount: userCount,
+        message: `Successfully cleaned up ${deleted} users older than ${customThresholdMinutes} minutes`,
+        cleanedCount: deleted,
       };
     } catch (error) {
       logger.error('Error in manual cleanup:', error);
