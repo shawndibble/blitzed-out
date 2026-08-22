@@ -675,11 +675,9 @@
     "videoOffButton": "關閉攝影機",
     "endCallButton": "結束通話",
     "startCall": "開始通話",
-    "participantCount": "{{count}} 位參與者",
     "muted": "已靜音",
     "cameraOff": "攝影機已關閉",
     "waitingForOthers": "等待其他人加入...",
-    "peerLimitReached": "已達到最大參與者限制（4人）。對於更大的群組，請使用 Discord、Jitsi、Zoom 或 Telegram。",
     "errors": {
       "permissionDenied": "攝影機和麥克風存取被拒絕。請在瀏覽器設定中允許權限，然後重試。",
       "deviceNotFound": "未偵測到攝影機或麥克風。請連接裝置後重試。",
@@ -697,7 +695,12 @@
       "reconnecting": "重新連線中",
       "disconnected": "已中斷連線"
     },
-    "participant": "參與者"
+    "participant": "參與者",
+    "onCall": "通话中 {{count}} 人",
+    "capacity": {
+      "warning": "通话人数较多，所有人的视频质量可能下降。",
+      "full": "通话已满，其他人无法加入。"
+    }
   },
   "scanToJoin": "扫描加入",
   "hapticFeedback": "触觉反馈",

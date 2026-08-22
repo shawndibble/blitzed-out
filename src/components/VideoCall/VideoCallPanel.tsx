@@ -4,6 +4,7 @@ import { MAX_RETRY_ATTEMPTS, useVideoCallStore } from '@/stores/videoCallStore';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { deriveLocalMedia, type MediaState } from '@/types/videoCall';
 import { LOCAL_PARTICIPANT_ID, resolveTileState } from './tileState';
+import CallCapacityAlert from './CallCapacityAlert';
 import VideoGrid, { type ParticipantData } from './VideoGrid';
 import VideoControls from './VideoControls';
 
@@ -100,8 +101,19 @@ const VideoCallPanel = ({ roomId, showLocalVideo = false, onEndCall }: VideoCall
         p: { xs: 1, sm: 2 },
       }}
     >
-      <Box sx={{ flexGrow: 1, overflow: 'hidden', minHeight: 0 }}>
-        <VideoGrid participants={participants} onRetry={retryPeer} />
+      <Box
+        sx={{
+          flexGrow: 1,
+          overflow: 'hidden',
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <CallCapacityAlert />
+        <Box sx={{ flexGrow: 1, overflow: 'hidden', minHeight: 0 }}>
+          <VideoGrid participants={participants} onRetry={retryPeer} />
+        </Box>
       </Box>
       <VideoControls roomId={roomId} onEndCall={onEndCall} />
     </Box>

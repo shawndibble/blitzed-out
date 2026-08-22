@@ -1,32 +1,27 @@
 import { useEffect } from 'react';
-import { getAuth } from 'firebase/auth';
-import { useVideoCallStore } from '@/stores/videoCallStore';
-import useBreakpoint from '@/hooks/useBreakpoint';
+import { useCallPresenceStore } from '@/stores/callPresenceStore';
 
 interface VideoCallProviderProps {
   roomId: string;
   children: React.ReactNode;
 }
 
+/**
+ * Watches who is on the room's video call, without joining it.
+ *
+ * Read-only by design: the participant badge has to show a number to people who
+ * have not joined, and no other code path can supply one — desktop subscribes to
+ * nothing until the sidebar opens, mobile not until the Call button is tapped.
+ * Claiming a slot here would turn merely entering a room into joining the call.
+ */
 const VideoCallProvider = ({ roomId, children }: VideoCallProviderProps) => {
-  const { initialize, cleanup } = useVideoCallStore();
-  const isMobile = useBreakpoint();
+  const subscribe = useCallPresenceStore((state) => state.subscribe);
+  const unsubscribe = useCallPresenceStore((state) => state.unsubscribe);
 
   useEffect(() => {
-    const auth = getAuth();
-    const userId = auth.currentUser?.uid;
-
-    // Only auto-initialize on desktop, mobile requires explicit call button click
-    if (userId && !isMobile) {
-      initialize(roomId, userId).catch(() => {
-        // Error is already stored in videoCallStore state and will be displayed to user
-      });
-    }
-
-    return () => {
-      cleanup();
-    };
-  }, [roomId, isMobile]);
+    subscribe(roomId);
+    return unsubscribe;
+  }, [roomId, subscribe, unsubscribe]);
 
   return <>{children}</>;
 };

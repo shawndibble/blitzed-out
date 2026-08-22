@@ -1,69 +1,56 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import VideoCallProvider from '../index';
+import { useCallPresenceStore } from '@/stores/callPresenceStore';
 import { useVideoCallStore } from '@/stores/videoCallStore';
-import useBreakpoint from '@/hooks/useBreakpoint';
 
 vi.mock('@/stores/videoCallStore');
-vi.mock('@/hooks/useBreakpoint');
-
-// Mock Firebase auth with a current user
-vi.mock('firebase/auth', async () => {
-  const actual = await vi.importActual('firebase/auth');
-  return {
-    ...actual,
-    getAuth: vi.fn(() => ({
-      currentUser: { uid: 'test-user-id' },
-      onAuthStateChanged: vi.fn(() => vi.fn()),
-    })),
-  };
-});
 
 describe('VideoCallProvider', () => {
-  const mockInitialize = vi.fn().mockResolvedValue(undefined);
-  const mockCleanup = vi.fn();
   const testChildren = <div data-testid="test-children">Test Children</div>;
+  let subscribe: (roomId: string) => void;
+  let unsubscribe: () => void;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockInitialize.mockResolvedValue(undefined);
-    (useBreakpoint as unknown as ReturnType<typeof vi.fn>).mockReturnValue(false);
-    (useVideoCallStore as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
-      localStream: null,
-      peers: new Map(),
-      isInitialized: false,
-      initialize: mockInitialize,
-      cleanup: mockCleanup,
-    });
+    subscribe = vi.fn();
+    unsubscribe = vi.fn();
+    useCallPresenceStore.setState({ subscribe, unsubscribe });
   });
 
-  it('initializes video call on mount', () => {
+  it('watches the room it was given', () => {
     render(<VideoCallProvider roomId="test-room">{testChildren}</VideoCallProvider>);
 
-    expect(mockInitialize).toHaveBeenCalledWith('test-room', 'test-user-id');
+    expect(subscribe).toHaveBeenCalledWith('test-room');
   });
 
-  it('cleans up on unmount', () => {
+  // The badge must be readable by people who have not joined, so entering a room
+  // may never claim a slot or touch the camera. Regression guard: this provider
+  // used to auto-join, and was inert only because of where it was mounted.
+  it('never joins the call', () => {
+    render(<VideoCallProvider roomId="test-room">{testChildren}</VideoCallProvider>);
+
+    expect(vi.mocked(useVideoCallStore)).not.toHaveBeenCalled();
+  });
+
+  it('stops watching on unmount', () => {
     const { unmount } = render(
       <VideoCallProvider roomId="test-room">{testChildren}</VideoCallProvider>
     );
 
     unmount();
 
-    expect(mockCleanup).toHaveBeenCalled();
+    expect(unsubscribe).toHaveBeenCalled();
   });
 
-  it('reinitializes when roomId changes', () => {
+  it('follows a room change', () => {
     const { rerender } = render(
       <VideoCallProvider roomId="room-1">{testChildren}</VideoCallProvider>
     );
 
-    mockInitialize.mockClear();
-
     rerender(<VideoCallProvider roomId="room-2">{testChildren}</VideoCallProvider>);
 
-    expect(mockCleanup).toHaveBeenCalled();
-    expect(mockInitialize).toHaveBeenCalledWith('room-2', 'test-user-id');
+    expect(subscribe).toHaveBeenLastCalledWith('room-2');
   });
 
   it('renders children', () => {

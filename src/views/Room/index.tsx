@@ -308,35 +308,37 @@ export default function Room() {
         isCurrentUser={isTransitionForCurrentUser}
       />
 
-      {isMobile ? (
-        <VideoCallProvider roomId={room}>
+      {/* Wraps both layouts: the participant badge lives on the mobile tab and on
+          the desktop camera icon, and neither is inside the call itself. */}
+      <VideoCallProvider roomId={room}>
+        {isMobile ? (
           <BottomTabs
             tab1={GameBoardComponent}
             tab2={messagesComponent}
             tab3={videoCallComponent}
           />
-        </VideoCallProvider>
-      ) : (
-        <>
-          <VideoSidebar
-            roomId={room}
-            onToggle={setIsVideoSidebarOpen}
-            onWidthChange={setSidebarWidth}
-          />
-          <Box
-            className={clsx('desktop-container', videoAdjust, defaultRoomBackgroundClass)}
-            sx={{
-              marginLeft: isVideoSidebarOpen ? `${sidebarWidth}px` : 0,
-              width: isVideoSidebarOpen ? `calc(100vw - ${sidebarWidth}px)` : '100vw',
-              transition: 'margin-left 0.2s ease, width 0.2s ease',
-              overflowX: 'visible',
-            }}
-          >
-            {GameBoardComponent}
-            {messagesComponent}
-          </Box>
-        </>
-      )}
+        ) : (
+          <>
+            <VideoSidebar
+              roomId={room}
+              onToggle={setIsVideoSidebarOpen}
+              onWidthChange={setSidebarWidth}
+            />
+            <Box
+              className={clsx('desktop-container', videoAdjust, defaultRoomBackgroundClass)}
+              sx={{
+                marginLeft: isVideoSidebarOpen ? `${sidebarWidth}px` : 0,
+                width: isVideoSidebarOpen ? `calc(100vw - ${sidebarWidth}px)` : '100vw',
+                transition: 'margin-left 0.2s ease, width 0.2s ease',
+                overflowX: 'visible',
+              }}
+            >
+              {GameBoardComponent}
+              {messagesComponent}
+            </Box>
+          </>
+        )}
+      </VideoCallProvider>
 
       <PopupMessage />
       <ToastAlert

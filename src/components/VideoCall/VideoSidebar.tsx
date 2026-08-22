@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { IconButton, Drawer, Box } from '@mui/material';
+import { IconButton, Drawer, Box, Badge } from '@mui/material';
 import { Videocam, VideocamOff } from '@mui/icons-material';
 import { getAuth } from 'firebase/auth';
+import { useTranslation } from 'react-i18next';
 import { useVideoCallStore } from '@/stores/videoCallStore';
+import { useCallPresenceStore } from '@/stores/callPresenceStore';
 import VideoCallPanel from './VideoCallPanel';
 
 interface VideoSidebarProps {
@@ -20,6 +22,8 @@ const VideoSidebar = ({ roomId, onToggle, onWidthChange }: VideoSidebarProps) =>
   const [width, setWidth] = useState(DEFAULT_WIDTH);
   const [isResizing, setIsResizing] = useState(false);
   const { initialize, cleanup, isInitialized } = useVideoCallStore();
+  const { t } = useTranslation();
+  const participants = useCallPresenceStore((state) => state.count);
   const resizeStartXRef = useRef(0);
   const resizeStartWidthRef = useRef(DEFAULT_WIDTH);
 
@@ -103,9 +107,18 @@ const VideoSidebar = ({ roomId, onToggle, onWidthChange }: VideoSidebarProps) =>
             bgcolor: 'background.default',
           },
         }}
-        aria-label={isOpen ? 'Close video sidebar' : 'Open video sidebar'}
+        aria-label={[
+          isOpen ? 'Close video sidebar' : 'Open video sidebar',
+          // The count is drawn by the badge, which `aria-label` would otherwise
+          // hide from screen readers entirely.
+          participants > 0 ? t('videoCall.onCall', { count: participants }) : null,
+        ]
+          .filter(Boolean)
+          .join(', ')}
       >
-        {isOpen ? <VideocamOff /> : <Videocam />}
+        <Badge badgeContent={participants} color="primary" overlap="circular">
+          {isOpen ? <VideocamOff /> : <Videocam />}
+        </Badge>
       </IconButton>
 
       {/* Drawer Sidebar */}
