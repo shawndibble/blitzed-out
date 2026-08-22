@@ -1,2 +1,0 @@
-import{a as r}from"./chunk-DOG2APjf.js";import{r as t}from"./chunk-WRSCPLrj.js";import{t as o}from"./chunk-CQYnpWd0.js";var n=r(t(),1);function e(){const r=n.useContext(o);if(!r)throw new Error("ScheduleContext's value is undefined.");return r}export{e as t};
-//# sourceMappingURL=chunk-q25pYUha.js.map

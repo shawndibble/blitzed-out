@@ -1,2 +1,0 @@
-function t(t,e,a){const r=`default-${e}-${a}-${t}`;let $=0;for(let l=0;l<r.length;l++)$=($<<5)-$+r.charCodeAt(l),$&=$;return`default_${e}_${a}_${t}_${Math.abs($).toString(16).padStart(8,"0")}`.slice(0,50)}export{t};
-//# sourceMappingURL=chunk-DGUVSMBk2.js.map
