@@ -151,6 +151,34 @@ describe('Both readers of the call roster node', () => {
     expect(useCallPresenceStore.getState().loaded).toBe(true);
   });
 
+  // The badge's listener keeps the node warm, so a joiner's own `onValue` is
+  // answered from cache instead of a round trip. Signalling binds inside that
+  // first snapshot, which is why `rosterLoaded` is never false at `handleSignal`.
+  test('a joiner behind the badge has its roster before initialize returns', async () => {
+    const { useVideoCallStore } = await import('../videoCallStore');
+    const { useCallPresenceStore } = await import('../callPresenceStore');
+    const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+
+    useCallPresenceStore.getState().watch(ROOM);
+    fakeDatabase.publish(PATH, freshUsers(1));
+
+    await useVideoCallStore.getState().initialize(ROOM, 'me');
+
+    expect(useVideoCallStore.getState().rosterLoaded).toBe(true);
+    expect(firebaseSignaling.listen).toHaveBeenCalledTimes(1);
+  });
+
+  // Without it the path is cold, so nothing is known until the read lands.
+  test('a joiner with no badge listening waits for the first snapshot', async () => {
+    const { useVideoCallStore } = await import('../videoCallStore');
+    const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+
+    await useVideoCallStore.getState().initialize(ROOM, 'me');
+
+    expect(useVideoCallStore.getState().rosterLoaded).toBe(false);
+    expect(firebaseSignaling.listen).not.toHaveBeenCalled();
+  });
+
   test('a read failure leaves the count unknown rather than zero', async () => {
     const { useCallPresenceStore } = await import('../callPresenceStore');
 

@@ -102,6 +102,7 @@ Related existing docs:
 
 - [`CONTEXT.md`](../../CONTEXT.md) — domain glossary (topology, room, game mode, anatomy, role, soloPlay). _This one is in the repo root and authoritative for terminology._
 - [`docs/adr/`](../adr/) — Architecture Decision Records (ADR-0001 PWA/offline, ADR-0002 room assignment by topology).
+- [`docs/plans/`](../plans/) — dated diagnoses and worked-through options, one file per investigation. Point-in-time by design: read them for how a conclusion was reached, and the docs above for what is true now.
 - [`docs/pwa-implementation-plan.md`](../pwa-implementation-plan.md), [`docs/offline-local-multiplayer-plan.md`](../offline-local-multiplayer-plan.md) — implementation plans.
 
 ---

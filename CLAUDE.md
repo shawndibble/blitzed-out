@@ -70,6 +70,7 @@ React 19.x + TypeScript + Vite · MUI v9 · Zustand (`src/stores/`) + Dexie (Ind
 - `docs/engineering/security.md` — auth, Firestore/RTDB/Storage rules, functions, secrets, validation.
 - `CONTEXT.md` (repo root) — authoritative domain glossary (topology, room, game mode, anatomy, role, soloPlay).
 - `docs/adr/` — Architecture Decision Records.
+- `docs/plans/` — dated diagnoses and worked-through options. Point-in-time; the docs above hold what is true now.
 
 ## MCP Servers
 

@@ -424,12 +424,11 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
       if (signal.type !== 'offer') return;
 
       // Signalling rules let any authenticated user push an offer into anyone's
-      // queue, and `from` is client-supplied, so cap peer construction. The
-      // roster check waits for the first snapshot rather than for a non-empty
-      // one: RTDB delivers asynchronously and rejecting during that window
-      // discards a legitimate offer the sender will not resend until its 30s
-      // timeout, but "empty" is a real state a throttled tab can reach, and
-      // keying on it would quietly reopen the gate.
+      // queue, and `from` is client-supplied, so cap peer construction. `roster`
+      // is the allowlist; `rosterLoaded` only keeps an unloaded roster from
+      // reading as an empty allowlist. It is always true here — `listen()` is
+      // bound from inside the first roster snapshot, after that flag is set — so
+      // the conjunct guards a future second call site, not this one.
       const { roster, rosterLoaded } = get();
       if (peers.size >= MAX_PEERS || (rosterLoaded && !roster.includes(data.from))) {
         logger.warn('[videocall] Ignoring unexpected offer', data.from);
