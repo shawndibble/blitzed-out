@@ -17,7 +17,7 @@ no state where some functions silently changed generation.
 ## Run it as a wizard instead
 
 `scripts/gen2-cutover-wizard.sh` walks the whole thing interactively — it checks the
-preflight, gates every irreversible step behind a confirm, and runs the verification
+preflight, gates the one irreversible step behind a confirm, and runs the verification
 below for you (including granting the secret bindings if they're missing):
 
 ```bash
@@ -39,8 +39,12 @@ blitzout-49b39` errors.
 
 ## Sequence
 
-Delete-then-deploy, one function at a time. The docs suggest renaming and running both
-generations side by side; that is wrong for this codebase:
+Delete all 9, then deploy all 9. One gap, taken deliberately — a staged rollout would
+shorten the window for `getTurnCredentials`, but its failure mode is already a graceful
+fallback, so staging buys nothing but elapsed time.
+
+Do **not** follow the docs' advice to rename and run both generations side by side. That
+is wrong for this codebase:
 
 - `onPackReported` sends **email** — two copies means two moderator emails per report.
 - `cleanupStaleUsers`' `userCount > 100` branch runs a transaction on the **RTDB root**.
@@ -48,42 +52,44 @@ generations side by side; that is wrong for this codebase:
   runs are already possible; a second deployed copy doubles that against logic whose whole
   design is about avoiding this race.
 
-All four scheduled jobs tolerate a skipped cycle at zero cost, so there is no gap to bridge.
+### 1. Build and test locally first
 
-### 1. The scheduled jobs and RTDB triggers (no client coupling)
+The deploy runs its own build, but if it fails _after_ the delete, all 9 stay down.
+
+```bash
+npm --prefix functions run type-check && npm --prefix functions run build \
+  && npm --prefix functions test
+```
+
+### 2. Delete all 9
 
 ```bash
 firebase functions:delete cleanupStaleUsers cleanupInactiveAnonymousAccounts \
   cleanupVideoCallSignaling onUserDisconnect validateUserPresence onPackReported \
-  manualCleanupStaleUsers manualCleanupAnonymousAccounts \
-  --project blitzout-49b39 --region us-central1
+  manualCleanupStaleUsers manualCleanupAnonymousAccounts getTurnCredentials \
+  --project blitzout-49b39 --region us-central1 --force
 ```
 
-Then deploy them back as Gen 2. **Scope the deploy** — a bare `--only functions` would
-also try to redeploy the Gen 1 `getTurnCredentials` still in place and fail on the
-same-name generation rule:
+What is broken until step 3 finishes:
+
+- the 4 scheduled cleanups skip cycles — idempotent sweeps, so a missed pass costs nothing
+- the 2 RTDB presence triggers don't fire, pausing the `lastSeen` backfill
+- a pack reported in the gap sends no moderator email
+- the 2 admin callables 404, and nothing in the app calls them
+- webcam calls fall back to the bundled relay. `resolveIceServers`
+  (`src/services/iceServers.ts`) catches any error from the callable, so calls still
+  connect — just on lower-quality relay. **No client change is needed.**
+
+### 3. Deploy all 9 as Gen 2
+
+No Gen 1 function is left in place, so an unscoped deploy cannot collide on the same-name
+generation rule:
 
 ```bash
-firebase deploy --project blitzout-49b39 --only \
-  functions:cleanupStaleUsers,functions:cleanupInactiveAnonymousAccounts,\
-functions:cleanupVideoCallSignaling,functions:onUserDisconnect,\
-functions:validateUserPresence,functions:onPackReported,\
-functions:manualCleanupStaleUsers,functions:manualCleanupAnonymousAccounts
+firebase deploy --only functions --project blitzout-49b39
 ```
 
-### 2. `getTurnCredentials` (the client-coupled one)
-
-Same-name delete-then-deploy needs **no client change**: `resolveIceServers`
-(`src/services/iceServers.ts`) catches any error from the callable and falls back to the
-bundled relay. So the gap degrades relay quality; it does not break calls.
-
-```bash
-firebase functions:delete getTurnCredentials --project blitzout-49b39
-firebase deploy --only functions:getTurnCredentials --project blitzout-49b39
-```
-
-**If the deploy fails after the delete, TURN stays down until it is fixed.** Calls keep
-working on the bundled relay meanwhile.
+**If this fails, all 9 stay down until you fix the error and re-run it.**
 
 ## Verify actively — the failure modes are silent
 
@@ -126,8 +132,9 @@ gcloud functions list --project blitzout-49b39 --format='table(name,environment,
 
 ## Rollback
 
-`git revert` the migration commit, then the same delete-then-deploy in reverse — Gen 2 → Gen 1
-is blocked by the identical name rule, so the delete is required going back too.
+`git revert` the migration commit, then the same delete-all-then-deploy-all in reverse —
+Gen 2 → Gen 1 is blocked by the identical name rule, so the delete is required going back
+too.
 
 ## Afterwards: the nodejs24 question
 

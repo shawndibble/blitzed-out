@@ -185,14 +185,16 @@ finish() {
 # ──────────────────────────────────────────────────────────────────────────
 
 
-TOTAL_STAGES=10
+TOTAL_STAGES=9
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-# Every function that carries no client coupling. These go first, as one batch:
-# each tolerates a skipped cycle, so the gap costs nothing.
-BACKGROUND_FNS=(
+# All 9, deleted and redeployed in one gap. Splitting the batch would shorten the
+# window for getTurnCredentials (the only client-facing one), but its failure mode
+# is already a graceful fallback to the bundled relay, so the extra stages bought
+# nothing but time.
+ALL_FNS=(
   cleanupStaleUsers
   cleanupInactiveAnonymousAccounts
   cleanupVideoCallSignaling
@@ -201,21 +203,12 @@ BACKGROUND_FNS=(
   onPackReported
   manualCleanupStaleUsers
   manualCleanupAnonymousAccounts
+  getTurnCredentials
 )
-# The client calls this one. It moves last and alone, to keep its gap shortest.
 TURN_FN="getTurnCredentials"
 REGION="us-central1"
 STATE_DIR="${TMPDIR:-/tmp}/gen2-cutover"
 mkdir -p "$STATE_DIR"
-
-# only_list fn... -> "functions:a,functions:b" for a scoped firebase deploy.
-# A bare `--only functions` would also try to redeploy the Gen 1 function still
-# in place, which fails the same-name generation rule.
-only_list() {
-  local out="" fn
-  for fn in "$@"; do out+="functions:${fn},"; done
-  printf '%s' "${out%,}"
-}
 
 # gen_of fn -> GEN_1 | GEN_2 | (empty when the function does not exist)
 gen_of() {
@@ -274,7 +267,7 @@ if (( GCLOUD_OK )); then
   say "${GREEN}✓${RESET} gcloud can read functions on ${PROJECT_ID} as $(gcloud auth list --filter=status:ACTIVE --format='value(account)' 2>/dev/null | head -n1)"
 else
   warn "continuing without working gcloud access."
-  note "Stages 2, 6, 8, 9 and 10 are verification-only and will be blank —"
+  note "Stages 2, 6, 7, 8 and 9 are verification-only and will be blank —"
   note "which means you would be deploying with no way to confirm the result."
   confirm "Really continue blind?" || die "stopped — run 'gcloud auth login' and start again"
   SKIPPED+=("all gcloud verification: secret access, generation checks, scheduler orphans")
@@ -326,37 +319,42 @@ say "${GREEN}✓${RESET} tests"
 pause "All green. Press Enter."
 
 # ── 4 ─────────────────────────────────────────────────────────────────────
-stage "Delete the 8 background + admin functions  [IRREVERSIBLE]"
-say "A Gen 1 function cannot be replaced by a same-named Gen 2 one, so each has"
-say "to be deleted first. This is the first change to production."
+stage "Delete all 9 functions  [IRREVERSIBLE]"
+say "A Gen 1 function cannot be replaced by a same-named Gen 2 one, so every one"
+say "has to go first. All 9 at once, in one gap, rather than staging the rollout."
 printf '\n'
-for fn in "${BACKGROUND_FNS[@]}"; do step "$fn"; done
+for fn in "${ALL_FNS[@]}"; do step "$fn"; done
 printf '\n'
-say "While they're gone:"
-note "  - the 4 scheduled cleanups skip cycles (harmless — they're idempotent sweeps)"
+say "Until stage 5 finishes, in production:"
+note "  - the 4 scheduled cleanups skip cycles (idempotent sweeps; a missed pass costs nothing)"
 note "  - the 2 RTDB presence triggers don't fire (lastSeen backfill pauses)"
 note "  - a pack reported in the gap sends no moderator email"
 note "  - the 2 admin callables 404 (nothing in the app calls them)"
+note "  - webcam calls fall back to the bundled relay — resolveIceServers catches the"
+note "    error, so calls still connect, just on lower-quality relay"
 printf '\n'
-confirm "Delete these 8 from ${PROJECT_ID}?" || die "stopped before any change"
-firebase functions:delete "${BACKGROUND_FNS[@]}" --project "$PROJECT_ID" --region "$REGION" --force \
+warn "If the stage 5 deploy fails, all 9 stay down until you fix it and re-run it."
+note "That is why stage 3 built and tested first."
+printf '\n'
+confirm "Delete all 9 from ${PROJECT_ID}?" || die "stopped before any change"
+firebase functions:delete "${ALL_FNS[@]}" --project "$PROJECT_ID" --region "$REGION" --force \
   || warn "delete reported an error — read it above; already-absent functions are fine"
-pause "Press Enter to deploy them back as Gen 2."
+pause "Deleted. Press Enter to deploy them back as Gen 2."
 
 # ── 5 ─────────────────────────────────────────────────────────────────────
-stage "Deploy the 8 as Gen 2"
-say "Scoped deploy — a bare '--only functions' would also try to redeploy the"
-say "Gen 1 ${TURN_FN} that's still in place, and fail on it."
+stage "Deploy all 9 as Gen 2"
+say "No Gen 1 function is left in place now, so an unscoped deploy is safe —"
+say "nothing can collide on the same-name generation rule."
 printf '\n'
-firebase deploy --only "$(only_list "${BACKGROUND_FNS[@]}")" --project "$PROJECT_ID" \
-  || die "deploy failed — the 8 are currently absent. Fix the error and re-run this stage."
+firebase deploy --only functions --project "$PROJECT_ID" \
+  || die "deploy failed and all 9 are absent. Fix the error, then re-run: firebase deploy --only functions --project ${PROJECT_ID}"
 pause "Press Enter to verify."
 
 # ── 6 ─────────────────────────────────────────────────────────────────────
-stage "Verify the 8"
+stage "Verify all 9"
 printf '\n'
 FAILED=()
-for fn in "${BACKGROUND_FNS[@]}"; do
+for fn in "${ALL_FNS[@]}"; do
   g="$(gen_of "$fn")"
   case "$g" in
     GEN_2) printf '  %s✓%s %-34s %s\n' "$GREEN" "$RESET" "$fn" "$g" ;;
@@ -367,32 +365,16 @@ done
 printf '\n'
 if (( ${#FAILED[@]} )); then
   warn "not Gen 2 yet: ${FAILED[*]}"
-  confirm "Continue to the TURN function anyway?" || die "stopped — re-run stage 5 first"
+  note "Re-run stage 5's deploy for those, then come back."
+  SKIPPED+=("get these to Gen 2: ${FAILED[*]}")
+  confirm "Continue to the verification stages anyway?" || die "stopped — fix the deploy first"
 else
-  say "${GREEN}All 8 are Gen 2.${RESET}"
+  say "${GREEN}All 9 are Gen 2.${RESET}"
 fi
 pause "Press Enter."
 
-# ── 7 ─────────────────────────────────────────────────────────────────────
-stage "$TURN_FN — delete and redeploy  [IRREVERSIBLE]"
-say "This is the one the app calls. Same name, so same delete-first rule."
-printf '\n'
-say "During the gap, resolveIceServers (src/services/iceServers.ts) catches the"
-say "error and falls back to the bundled relay — calls keep working on lower-"
-say "quality relay rather than failing. Nothing to change client-side."
-printf '\n'
-warn "If the deploy fails after the delete, TURN stays down until you fix it."
-printf '\n'
-confirm "Delete and redeploy ${TURN_FN}?" || die "stopped — the other 8 are already Gen 2, which is a fine place to pause"
-firebase functions:delete "$TURN_FN" --project "$PROJECT_ID" --region "$REGION" --force \
-  || warn "delete reported an error — read it above"
-firebase deploy --only "$(only_list "$TURN_FN")" --project "$PROJECT_ID" \
-  || die "TURN deploy failed and ${TURN_FN} is now absent. Re-run: firebase deploy --only functions:${TURN_FN} --project ${PROJECT_ID}"
-printf '\n'
-say "$TURN_FN is now: ${BOLD}$(gen_of "$TURN_FN")${RESET}"
-pause "Press Enter."
 
-# ── 8 ─────────────────────────────────────────────────────────────────────
+# ── 7 ─────────────────────────────────────────────────────────────────────
 stage "Secret access — the failure that makes no noise"
 say "Gen 2 runs as a different default service account than Gen 1's"
 say "<project>@appspot.gserviceaccount.com. If the Secret Manager grants didn't"
@@ -433,7 +415,7 @@ else
 fi
 pause "Press Enter."
 
-# ── 9 ─────────────────────────────────────────────────────────────────────
+# ── 8 ─────────────────────────────────────────────────────────────────────
 stage "Scheduler jobs — check for orphans"
 say "The deleted Gen 1 schedules may leave Cloud Scheduler jobs behind. Harmless"
 say "(they fire at nothing) but they clutter the console and the logs."
@@ -447,7 +429,7 @@ say "means the Gen 1 job is an orphan; delete it with:"
 note "  gcloud scheduler jobs delete <JOB_NAME> --project $PROJECT_ID"
 pause "Press Enter."
 
-# ── 10 ────────────────────────────────────────────────────────────────────
+# ── 9 ────────────────────────────────────────────────────────────────────
 stage "Final check"
 printf '\n'
 gcloud functions list --project "$PROJECT_ID" \
