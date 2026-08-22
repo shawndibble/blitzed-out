@@ -91,14 +91,27 @@ async function deleteStaleUserRows(userIds: string[], context: string): Promise<
 }
 
 /**
+ * How long a presence row may go without a heartbeat before the sweep removes it.
+ *
+ * Ten minutes is ten missed beats (the client heartbeats every 60s), which is
+ * tolerant of a brief network stall but not of a tab that has been suspended —
+ * backgrounded mobile Safari throttles timers, so a real user *will* occasionally
+ * be pruned mid-session. That is survivable only because `updatePresenceHeartbeat`
+ * restores its own row when it finds it missing: without that self-heal, a pruned
+ * user stays invisible in every roster until they reload, and this constant must
+ * not be shortened again.
+ */
+const PRESENCE_STALE_AFTER_MS = 10 * 60 * 1000;
+
+/**
  * Scheduled function to clean up stale users every 5 minutes
- * Removes users who haven't updated their lastSeen timestamp in 20 minutes
+ * Removes users who haven't updated their lastSeen timestamp in 10 minutes
  */
 export const cleanupStaleUsers = onSchedule(
   { schedule: 'every 5 minutes', ...RUNTIME_OPTIONS },
   async () => {
     const db = getDatabase();
-    const twentyMinutesAgo = Date.now() - 20 * 60 * 1000; // 20 minutes in milliseconds
+    const staleBefore = Date.now() - PRESENCE_STALE_AFTER_MS;
 
     try {
       logger.info('Starting stale user cleanup process');
@@ -108,7 +121,7 @@ export const cleanupStaleUsers = onSchedule(
       const staleUsersSnapshot = await db
         .ref('users')
         .orderByChild('lastSeen')
-        .endAt(twentyMinutesAgo)
+        .endAt(staleBefore)
         .once('value');
 
       if (!staleUsersSnapshot.exists()) {

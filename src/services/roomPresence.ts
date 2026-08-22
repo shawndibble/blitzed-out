@@ -9,7 +9,8 @@ import { getAuth } from 'firebase/auth';
 // Sole owner of the RTDB `users/{uid}` presence shape: this module is the
 // only code that WRITES it (enter room / heartbeat / leave room) and the
 // only code that READS it (subscribe to who is here). Works with the
-// server-side Cloud Function that cleans up stale users after 20 minutes.
+// server-side Cloud Function that cleans up stale users after 10 minutes
+// (PRESENCE_STALE_AFTER_MS in functions/src/index.ts).
 
 interface UserPresenceData {
   displayName: string;
@@ -118,7 +119,8 @@ export async function setMyPresence({
 /**
  * Update user's lastSeen timestamp to keep them active.
  * Called periodically to prevent server-side cleanup (every 60 seconds).
- * Server cleanup removes users inactive for 20+ minutes.
+ * Server cleanup removes users inactive for 10+ minutes, and this restores the
+ * row if it does so while the session is still live.
  */
 export async function updatePresenceHeartbeat(): Promise<void> {
   const auth = getAuth();
@@ -186,7 +188,7 @@ export async function removeMyPresence(): Promise<void> {
 export function startPresenceHeartbeat(): () => void {
   const heartbeatInterval = setInterval(() => {
     updatePresenceHeartbeat();
-  }, 60000); // 1 minute - well under the 20-minute server cleanup threshold
+  }, 60000); // 1 minute - ten beats inside the 10-minute server cleanup threshold
 
   // Initial heartbeat
   updatePresenceHeartbeat();
