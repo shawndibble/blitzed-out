@@ -6,7 +6,7 @@ import type { FLIPData } from '../TokenController';
 import { useEffect } from 'react';
 
 // Mock Framer Motion
-vi.mock('framer-motion', () => {
+vi.mock('motion/react', () => {
   // Mock component that properly uses React hooks
   const MockMotionDiv = ({ children, onAnimationComplete, transition, ...props }: any) => {
     useEffect(() => {

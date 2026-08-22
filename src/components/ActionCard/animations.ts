@@ -1,4 +1,4 @@
-import type { Variants } from 'framer-motion';
+import type { Variants } from 'motion/react';
 
 const getPrefersReducedMotion = (): boolean => {
   if (typeof window === 'undefined') return false;

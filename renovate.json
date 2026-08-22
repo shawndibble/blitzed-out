@@ -2,5 +2,13 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:best-practices", "group:all"],
   "timezone": "America/Chicago",
-  "schedule": ["* 2 * * *"]
+  "schedule": ["* 2 * * *"],
+  "packageRules": [
+    {
+      "description": "Root only: @typescript-eslint/parser peers typescript \">=4.8.4 <6.1.0\", so TypeScript 7 breaks npm ci with ERESOLVE. functions/ has no eslint and is already on 7. Lift this once the parser widens its peer range.",
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<6.1.0",
+      "matchFileNames": ["package.json"]
+    }
+  ]
 }

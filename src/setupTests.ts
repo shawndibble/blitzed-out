@@ -284,10 +284,10 @@ vi.mock('use-sound', () => ({
 }));
 
 // Mock Framer Motion globally to prevent unknown event handler warnings
-vi.mock('framer-motion', () => ({
+vi.mock('motion/react', () => ({
   motion: {
     div: React.forwardRef<any, any>((props, ref) => {
-      // Filter out framer-motion specific props that React doesn't recognize
+      // Filter out motion specific props that React doesn't recognize
       const {
         onUpdate: _onUpdate,
         onAnimationComplete: _onAnimationComplete,

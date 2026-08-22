@@ -1,7 +1,7 @@
 import { Portal, useMediaQuery, useTheme } from '@mui/material';
 import { ReactNode, useCallback, useEffect, useState, useRef } from 'react';
 import { useSettingsStore } from '@/stores/settingsStore';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface OnboardingWrapperProps {
   children: ReactNode;

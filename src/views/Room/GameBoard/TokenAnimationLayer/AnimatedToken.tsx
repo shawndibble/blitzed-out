@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useTransform } from 'motion/react';
 import TextAvatar from '@/components/TextAvatar';
 import type { FLIPData } from './TokenController';
 

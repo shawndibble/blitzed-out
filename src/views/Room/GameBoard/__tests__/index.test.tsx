@@ -48,7 +48,7 @@ vi.mock('./TokenAnimationLayer', () => ({
   )),
 }));
 
-vi.mock('framer-motion', () => ({
+vi.mock('motion/react', () => ({
   motion: {
     div: React.forwardRef<any, any>((props, ref) => {
       const {

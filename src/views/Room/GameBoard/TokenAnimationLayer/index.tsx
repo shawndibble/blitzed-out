@@ -2,7 +2,7 @@ import './styles.css';
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'motion/react';
 import AnimatedToken from './AnimatedToken';
 import { TokenController } from './TokenController';
 import { useTokenAnimation } from './useTokenAnimation';

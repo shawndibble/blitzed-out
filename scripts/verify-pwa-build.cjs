@@ -34,7 +34,9 @@ const indexHtml = fs.readFileSync(indexPath, 'utf-8');
 const registersInHtml = /navigator\.serviceWorker\.register|registerSW\(/.test(indexHtml);
 const registersInBundle = collectJsFiles(distDir).some((file) => {
   const code = fs.readFileSync(file, 'utf-8');
-  return /serviceWorker/.test(code) && /["'][^"']*\/sw\.js["']/.test(code);
+  // Backticks included: the Oxc minifier normalises string literals to template
+  // literals, so a quote-only pattern silently stops matching the registration.
+  return /serviceWorker/.test(code) && /["'`][^"'`]*\/sw\.js["'`]/.test(code);
 });
 assert(
   registersInHtml || registersInBundle,

@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TokenAnimationLayer, { type TokenAnimationLayerRef } from '../index';
 
-// Note: framer-motion is mocked globally in setupTests.ts
+// Note: motion/react is mocked globally in setupTests.ts
 // The global mock renders AnimatePresence children directly without a wrapper div
 
 // Mock TokenController

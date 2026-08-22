@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { Box, Divider, LinearProgress, Paper, Portal, Typography } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
 import { extractTime } from '@/helpers/strings';
