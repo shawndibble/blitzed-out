@@ -346,8 +346,49 @@ stage "Deploy all 9 as Gen 2"
 say "No Gen 1 function is left in place now, so an unscoped deploy is safe —"
 say "nothing can collide on the same-name generation rule."
 printf '\n'
-firebase deploy --only functions --project "$PROJECT_ID" \
-  || die "deploy failed and all 9 are absent. Fix the error, then re-run: firebase deploy --only functions --project ${PROJECT_ID}"
+warn "On a project's FIRST Gen 2 deploy, expect the 3 event-driven functions to fail:"
+note "  onPackReported, onUserDisconnect, validateUserPresence"
+note "  \"Permission denied while using the Eventarc Service Agent\""
+say ""
+say "That is provisioning lag, not misconfiguration — Gen 2 event triggers run on"
+say "Eventarc, and its service agent needs a few minutes after first use even when"
+say "the API is enabled and the agent already holds roles/eventarc.serviceAgent."
+say "The other 6 (4 scheduled + 2 callables) don't touch Eventarc and land fine."
+printf '\n'
+note "This stage retries those 3 for you if it happens."
+printf '\n'
+if ! firebase deploy --only functions --project "$PROJECT_ID"; then
+  warn "deploy reported failures."
+  printf '\n'
+  MISSING=()
+  for fn in "${ALL_FNS[@]}"; do
+    [[ -z "$(gen_of "$fn")" ]] && MISSING+=("$fn")
+  done
+  if (( ${#MISSING[@]} == 0 )); then
+    say "${GREEN}All 9 exist anyway${RESET} — the errors were non-fatal. Moving on."
+  else
+    say "Absent: ${BOLD}${MISSING[*]}${RESET}"
+    printf '\n'
+    RETRY_ONLY=""
+    for fn in "${MISSING[@]}"; do RETRY_ONLY+="functions:${fn},"; done
+    RETRY_ONLY="${RETRY_ONLY%,}"
+    for attempt in 1 2 3; do
+      say "Waiting 3 minutes for Eventarc to settle, then retry ${attempt}/3..."
+      sleep 180
+      if firebase deploy --only "$RETRY_ONLY" --project "$PROJECT_ID"; then
+        say "${GREEN}✓${RESET} retry ${attempt} succeeded"
+        break
+      fi
+      warn "retry ${attempt} failed."
+      if (( attempt == 3 )); then
+        say ""
+        say "Still failing after 3 retries. Run this by hand once Eventarc catches up:"
+        note "  firebase deploy --only $RETRY_ONLY --project $PROJECT_ID"
+        SKIPPED+=("deploy these: ${MISSING[*]}")
+      fi
+    done
+  fi
+fi
 pause "Press Enter to verify."
 
 # ── 6 ─────────────────────────────────────────────────────────────────────
