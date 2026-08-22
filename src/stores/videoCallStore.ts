@@ -1,15 +1,23 @@
 import { create } from 'zustand';
-import { getDatabase, ref, onValue, off } from 'firebase/database';
+import { getDatabase, ref, onValue } from 'firebase/database';
 import { firebaseSignaling, SignalData } from '@/services/firebaseSignaling';
-import { ICE_SERVERS, IceServer, LINK_GRACE_MS, MAX_PEERS } from '@/config/webrtc';
+import {
+  ICE_SERVERS,
+  IceServer,
+  LINK_GRACE_MS,
+  MAX_CALL_PARTICIPANTS,
+  MAX_PEERS,
+} from '@/config/webrtc';
 import { resolveIceServers } from '@/services/iceServers';
+import { liveRoster, rosterMediaStates } from '@/services/callRoster';
+import { useCallPresenceStore } from '@/stores/callPresenceStore';
 import {
   PeerSignal,
   PeerTransport,
   PeerTransportFactory,
 } from '@/services/ports/PeerTransportPort';
 import { createNativePeerTransport } from '@/services/adapters/NativePeerTransportAdapter';
-import { deriveLocalMedia, MediaState, parseMediaState } from '@/types/videoCall';
+import { deriveLocalMedia, MediaState } from '@/types/videoCall';
 import { logger } from '@/utils/logger';
 
 let peerTransportFactory: PeerTransportFactory = createNativePeerTransport;
@@ -37,12 +45,6 @@ export const CONNECT_TIMEOUT_MS = 30_000;
 export const MAX_RETRY_ATTEMPTS = 5;
 const RETRY_BASE_MS = 4000;
 export const RETRY_MAX_MS = 15_000;
-/**
- * A roster entry older than this is treated as a ghost and never dialled. Well
- * clear of the 30s heartbeat so a throttled background tab is not mistaken for
- * one, and matches the server-side prune threshold.
- */
-export const ROSTER_STALE_MS = 10 * 60 * 1000;
 
 const MEDIA_CONSTRAINTS: MediaStreamConstraints = {
   video: {
@@ -184,6 +186,8 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
   /** Pending "has this `disconnected` lasted long enough to mention?" checks. */
   const reconnectTimers = new Map<string, ReturnType<typeof setTimeout>>();
   let visibilityListener: (() => void) | null = null;
+  /** Detaches the roster listener. Held so cleanup never has to guess at the node. */
+  let rosterDetach: (() => void) | null = null;
   /** Guards the camera re-acquire against a double tap. See `toggleVideo`. */
   let acquiringCamera = false;
 
@@ -192,6 +196,19 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
     if (!timer) return;
     clearTimeout(timer);
     reconnectTimers.delete(targetUserId);
+  }
+
+  /**
+   * Whether the call has no room left. `capacityCount`, not the badge's `count`:
+   * a participant whose heartbeat is throttled still holds a mesh slot, and
+   * admitting past that gives everyone a graph too sparse to complete.
+   *
+   * Fails open before the first snapshot — waiting for it would put an RTDB round
+   * trip between the tap and the camera on every join.
+   */
+  function callIsFull(): boolean {
+    const { capacityCount, loaded } = useCallPresenceStore.getState();
+    return loaded && capacityCount >= MAX_CALL_PARTICIPANTS;
   }
 
   function patchPeer(targetUserId: string, patch: Partial<PeerConnection>): void {
@@ -453,12 +470,22 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
     error: null,
 
     initialize: async (roomId: string, userId: string) => {
-      // Three components can call this (VideoCallProvider, VideoSidebar,
-      // VideoControls) and it awaits twice before `isInitialized` flips, so the
-      // flag alone gates nothing. The generation token also catches a `cleanup()`
+      // Both call sites (VideoSidebar, VideoControls) reach this, and it awaits
+      // twice before `isInitialized` flips, so the flag alone gates nothing. The generation token also catches a `cleanup()`
       // that lands mid-await, which would otherwise leave a listener and two
       // intervals running that nothing holds a handle to.
       if (get().isInitialized || activeGeneration !== null) {
+        return;
+      }
+
+      // Before the camera, not at `claim()`: by then the stream already exists, so
+      // a check there would still have prompted for the camera and lit the device
+      // up for someone who can never be dialled.
+      // No error state — `CallCapacityAlert` already says the call is full, and the
+      // store's error surface would render a second, dismissible alert beside it.
+      // The join control is disabled instead, so this tap should not be reachable.
+      if (callIsFull()) {
+        logger.warn('[videocall] Call is full, not joining');
         return;
       }
 
@@ -544,7 +571,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
       const database = getDatabase();
       const usersRef = ref(database, `video-calls/${roomId}/users`);
 
-      onValue(usersRef, (snapshot) => {
+      rosterDetach = onValue(usersRef, (snapshot) => {
         const { rosterLoaded: alreadyLoaded, roster: previousRoster } = get();
         const users = snapshot.val();
 
@@ -657,7 +684,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
       reconnectTimers.forEach((timer) => clearTimeout(timer));
       reconnectTimers.clear();
 
-      const { localStream, peers, heartbeatInterval, reconcileInterval, roomId } = get();
+      const { localStream, peers, heartbeatInterval, reconcileInterval } = get();
 
       if (localStream) {
         stopTracks(localStream);
@@ -678,10 +705,13 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
         clearInterval(reconcileInterval);
       }
 
-      if (roomId) {
-        const database = getDatabase();
-        off(ref(database, `video-calls/${roomId}/users`));
-      }
+      // The captured unsubscribe, never `off(ref)`. A bare `off` with no event type
+      // or callback is a blanket detach of *every* listener at that location, and
+      // the participant badge keeps its own read-only listener on this same node —
+      // so leaving a call used to silently kill the badge for the rest of the
+      // session, and with it the count the join gate reads.
+      rosterDetach?.();
+      rosterDetach = null;
 
       firebaseSignaling.cleanup();
 
@@ -819,7 +849,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
 
       // Hanging up gives the roster slot back. Signalling stays up so the call can
       // be resumed, but a hung-up participant that kept its slot would occupy one
-      // of everyone else's four connections while sending nothing.
+      // of everyone else's MAX_PEERS connections while sending nothing.
       if (heartbeatInterval) {
         clearInterval(heartbeatInterval);
       }
@@ -841,6 +871,15 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
     reconnectCall: async () => {
       const { isInitialized } = get();
       if (!isInitialized) return;
+
+      // Hanging up gave the slot back, so resuming is a fresh claim and has to
+      // clear the same bar as joining. Without this, anyone who hung up in a busy
+      // call could reclaim past the cap — and would have opened their camera to
+      // find out.
+      if (callIsFull()) {
+        logger.warn('[videocall] Call is full, not reconnecting');
+        return;
+      }
 
       set({ error: null });
 
@@ -897,33 +936,6 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
   };
 });
 
-/**
- * Reduce a presence snapshot to participants worth dialling, freshest first.
- *
- * The roster cannot be taken at face value. Ghosts accumulate whenever a client
- * dies without its socket closing, and a room only needs four of them to consume
- * every mesh slot and lock real participants out entirely — observed in `/PUBLIC`
- * with nine dead entries. Server-side pruning is a backstop that runs every five
- * minutes at best; this makes the client immune in the meantime.
- *
- * Sorting matters as much as filtering: when more participants are present than
- * MAX_PEERS allows, the slots should go to whoever is most likely still there.
- */
-export function liveRoster(users: unknown, now: number = Date.now()): string[] {
-  if (!users || typeof users !== 'object') return [];
-
-  return Object.entries(users as Record<string, { lastSeen?: unknown; joinedAt?: unknown }>)
-    .map(([userId, presence]) => {
-      const seen = presence?.lastSeen ?? presence?.joinedAt;
-      // No usable timestamp means a presence node we cannot reason about; treat
-      // it as expired rather than letting it hold a slot forever.
-      return { userId, seen: typeof seen === 'number' ? seen : 0 };
-    })
-    .filter(({ seen }) => now - seen < ROSTER_STALE_MS)
-    .sort((a, b) => b.seen - a.seen)
-    .map(({ userId }) => userId);
-}
-
 function sameOrder(a: readonly string[], b: readonly string[]): boolean {
   return a.length === b.length && a.every((value, index) => value === b[index]);
 }
@@ -941,20 +953,6 @@ function initialMediaState(hasCamera: boolean): MediaState {
 /** Safe in the store's own tests, which have no document. */
 function pageIsHidden(): boolean {
   return typeof document !== 'undefined' && document.hidden;
-}
-
-/**
- * Read every roster entry's published media flags. Rebuilt per snapshot rather than
- * merged, so a participant who leaves takes their last known state with them.
- */
-export function rosterMediaStates(users: unknown): Map<string, MediaState> {
-  const states = new Map<string, MediaState>();
-  if (!users || typeof users !== 'object') return states;
-
-  for (const [userId, entry] of Object.entries(users as Record<string, unknown>)) {
-    states.set(userId, parseMediaState(entry));
-  }
-  return states;
 }
 
 function startHeartbeat(): number {

@@ -675,11 +675,9 @@
     "videoOffButton": "Désactiver la caméra",
     "endCallButton": "Terminer l'appel",
     "startCall": "Démarrer l'appel",
-    "participantCount": "{{count}} participant",
     "muted": "En sourdine",
     "cameraOff": "Caméra éteinte",
     "waitingForOthers": "En attente que d'autres se joignent...",
-    "peerLimitReached": "Limite maximale de participants atteinte (4). Pour les groupes plus importants, veuillez utiliser Discord, Jitsi, Zoom ou Telegram.",
     "errors": {
       "permissionDenied": "Accès à la caméra et au microphone refusé. Veuillez autoriser les permissions dans les paramètres de votre navigateur et réessayer.",
       "deviceNotFound": "Aucune caméra ou microphone détecté. Veuillez connecter un appareil et réessayer.",
@@ -697,7 +695,12 @@
       "reconnecting": "Reconnexion",
       "disconnected": "Déconnecté"
     },
-    "participant": "Participant"
+    "participant": "Participant",
+    "onCall": "{{count}} dans l'appel",
+    "capacity": {
+      "warning": "Appel nombreux : la qualité vidéo peut baisser pour tout le monde.",
+      "full": "Appel complet : personne d'autre ne peut se connecter."
+    }
   },
   "scanToJoin": "Scanner pour rejoindre",
   "hapticFeedback": "Retour haptique",

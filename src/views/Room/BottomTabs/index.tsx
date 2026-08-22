@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { AppBar } from '@mui/material';
+import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import { ReactNode } from 'react';
 import Tab from '@mui/material/Tab';
@@ -9,6 +10,8 @@ import Tabs from '@mui/material/Tabs';
 import { a11yProps } from '@/helpers/strings';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/stores/settingsStore';
+import { useCallPresenceStore } from '@/stores/callPresenceStore';
+import { withParticipantCount } from '@/components/VideoCall/participantLabel';
 import { vibrate } from '@/utils/haptics';
 
 /**
@@ -33,6 +36,7 @@ export default function BottomTabs({ tab1, tab2, tab3 }: BottomTabsProps): JSX.E
   const [value, setValue] = React.useState<number>(0);
   const { t } = useTranslation();
   const [settings] = useSettings();
+  const participants = useCallPresenceStore((state) => state.count);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number): void => {
     if (settings?.hapticFeedback) {
@@ -50,7 +54,23 @@ export default function BottomTabs({ tab1, tab2, tab3 }: BottomTabsProps): JSX.E
         <Tabs value={value} onChange={handleChange} indicatorColor="secondary" variant="fullWidth">
           <Tab label={t('game')} {...a11yProps(0)} />
           <Tab label={t('messages')} {...a11yProps(1)} />
-          {tab3 && <Tab label={t('videoCall.title')} {...a11yProps(2)} />}
+          {tab3 && (
+            <Tab
+              label={
+                // Badged rather than folded into the label string, which would need
+                // a plural form in all six locales. Reads as the desktop icon does.
+                <Badge
+                  badgeContent={participants}
+                  color="secondary"
+                  sx={{ '& .MuiBadge-badge': { right: -12, top: 2 } }}
+                >
+                  {t('videoCall.title')}
+                </Badge>
+              }
+              aria-label={withParticipantCount(t('videoCall.title'), participants, t)}
+              {...a11yProps(2)}
+            />
+          )}
         </Tabs>
       </AppBar>
 

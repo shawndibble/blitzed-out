@@ -6,9 +6,18 @@ export interface IceServer {
   credential?: string;
 }
 
-// Mesh topology cap — beyond this, per-peer connection count crashes browsers.
-// For larger groups the UI redirects users to an SFU-based service (Discord/Jitsi/Zoom).
-export const MAX_PEERS = 4;
+/**
+ * Mesh cap. Each participant uploads a separate encoded stream to every other, so
+ * six people is five uploads each — the top of the band a serverless mesh holds
+ * before it degrades the call for everyone. Larger groups get pointed at an SFU.
+ */
+export const MAX_CALL_PARTICIPANTS = 6;
+
+/** Connections per participant. Derived, or the two drift — 4 peers meant 5 people. */
+export const MAX_PEERS = MAX_CALL_PARTICIPANTS - 1;
+
+/** Quality degrades gradually, so there is a band worth flagging before the cap. */
+export const CALL_QUALITY_WARNING_PARTICIPANTS = 4;
 
 const METERED_USERNAME = import.meta.env.VITE_METERED_USERNAME;
 const METERED_CREDENTIAL = import.meta.env.VITE_METERED_CREDENTIAL;

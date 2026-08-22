@@ -39,7 +39,7 @@ import { analytics } from '@/services/analytics';
 import BottomTabs from './BottomTabs';
 import MessageList from '@/components/MessageList';
 import GameBoard from '@/views/Room/GameBoard';
-import VideoCallProvider from '@/components/VideoCall';
+import CallPresenceWatcher from '@/components/VideoCall/CallPresenceWatcher';
 import VideoCallPanel from '@/components/VideoCall/VideoCallPanel';
 import VideoSidebar from '@/components/VideoCall/VideoSidebar';
 
@@ -308,35 +308,37 @@ export default function Room() {
         isCurrentUser={isTransitionForCurrentUser}
       />
 
-      {isMobile ? (
-        <VideoCallProvider roomId={room}>
+      {/* Wraps both layouts: the participant badge lives on the mobile tab and on
+          the desktop camera icon, and neither is inside the call itself. */}
+      <CallPresenceWatcher roomId={room}>
+        {isMobile ? (
           <BottomTabs
             tab1={GameBoardComponent}
             tab2={messagesComponent}
             tab3={videoCallComponent}
           />
-        </VideoCallProvider>
-      ) : (
-        <>
-          <VideoSidebar
-            roomId={room}
-            onToggle={setIsVideoSidebarOpen}
-            onWidthChange={setSidebarWidth}
-          />
-          <Box
-            className={clsx('desktop-container', videoAdjust, defaultRoomBackgroundClass)}
-            sx={{
-              marginLeft: isVideoSidebarOpen ? `${sidebarWidth}px` : 0,
-              width: isVideoSidebarOpen ? `calc(100vw - ${sidebarWidth}px)` : '100vw',
-              transition: 'margin-left 0.2s ease, width 0.2s ease',
-              overflowX: 'visible',
-            }}
-          >
-            {GameBoardComponent}
-            {messagesComponent}
-          </Box>
-        </>
-      )}
+        ) : (
+          <>
+            <VideoSidebar
+              roomId={room}
+              onToggle={setIsVideoSidebarOpen}
+              onWidthChange={setSidebarWidth}
+            />
+            <Box
+              className={clsx('desktop-container', videoAdjust, defaultRoomBackgroundClass)}
+              sx={{
+                marginLeft: isVideoSidebarOpen ? `${sidebarWidth}px` : 0,
+                width: isVideoSidebarOpen ? `calc(100vw - ${sidebarWidth}px)` : '100vw',
+                transition: 'margin-left 0.2s ease, width 0.2s ease',
+                overflowX: 'visible',
+              }}
+            >
+              {GameBoardComponent}
+              {messagesComponent}
+            </Box>
+          </>
+        )}
+      </CallPresenceWatcher>
 
       <PopupMessage />
       <ToastAlert
