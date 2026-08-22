@@ -185,7 +185,7 @@ finish() {
 # ──────────────────────────────────────────────────────────────────────────
 
 
-TOTAL_STAGES=9
+TOTAL_STAGES=10
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
@@ -267,7 +267,7 @@ if (( GCLOUD_OK )); then
   say "${GREEN}✓${RESET} gcloud can read functions on ${PROJECT_ID} as $(gcloud auth list --filter=status:ACTIVE --format='value(account)' 2>/dev/null | head -n1)"
 else
   warn "continuing without working gcloud access."
-  note "Stages 2, 6, 7, 8 and 9 are verification-only and will be blank —"
+  note "Stages 2 and 6-10 are verification-only and will be blank —"
   note "which means you would be deploying with no way to confirm the result."
   confirm "Really continue blind?" || die "stopped — run 'gcloud auth login' and start again"
   SKIPPED+=("all gcloud verification: secret access, generation checks, scheduler orphans")
@@ -416,6 +416,58 @@ pause "Press Enter."
 
 
 # ── 7 ─────────────────────────────────────────────────────────────────────
+stage "Runtime identity — the failure that broke the real cutover"
+say "Gen 2 runs as the project's default COMPUTE service account unless the code"
+say "pins one. That account typically holds only eventarc.eventReceiver and"
+say "run.invoker, so every RTDB / Firestore / Auth call fails with:"
+printf '\n'
+note "  Provided authentication credentials for the app named \"[DEFAULT]\" are invalid"
+printf '\n'
+say "Deploys still report success. The functions are simply dead."
+printf '\n'
+SA_NOW="$(gcloud functions describe "$TURN_FN" --gen2 --region "$REGION" --project "$PROJECT_ID" \
+           --format='value(serviceConfig.serviceAccountEmail)' 2>/dev/null || true)"
+APPSPOT="${PROJECT_ID}@appspot.gserviceaccount.com"
+say "Running as: ${BOLD}${SA_NOW:-<unknown>}${RESET}"
+say "Gen 1 ran as: ${BOLD}${APPSPOT}${RESET}"
+printf '\n'
+if [[ "$SA_NOW" == *"-compute@developer.gserviceaccount.com" ]]; then
+  warn "still on the compute account — the functions cannot reach your data."
+  say "Fix in code, not here: spread a RUNTIME_OPTIONS constant carrying"
+  note "  serviceAccount: \`\${projectId}@appspot.gserviceaccount.com\`"
+  say "into every function definition, then redeploy."
+  note "setGlobalOptions does NOT work for this — ES imports evaluate before the"
+  note "importing module's body, so functions defined in other files keep the"
+  note "defaults and deploy under the wrong account while reporting success."
+  SKIPPED+=("pin the runtime service account and redeploy")
+elif [[ "$SA_NOW" == "$APPSPOT" ]]; then
+  say "${GREEN}✓${RESET} pinned to the Gen 1 identity"
+  for role in roles/eventarc.eventReceiver roles/firebase.sdkAdminServiceAgent roles/firebaseauth.admin; do
+    if gcloud projects get-iam-policy "$PROJECT_ID" --flatten="bindings[].members" \
+         --format='value(bindings.role)' --filter="bindings.members:${APPSPOT}" 2>/dev/null | grep -qx "$role"; then
+      printf '  %s✓%s %s\n' "$GREEN" "$RESET" "$role"
+    else
+      printf '  %s✗%s %s missing\n' "$RED" "$RESET" "$role"
+      if confirm "Grant ${role} to ${APPSPOT}?"; then
+        gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+          --member="serviceAccount:${APPSPOT}" --role="$role" --condition=None >/dev/null 2>&1 \
+          && say "  ${GREEN}✓${RESET} granted" || SKIPPED+=("grant $role to $APPSPOT")
+      else
+        SKIPPED+=("grant $role to $APPSPOT")
+      fi
+    fi
+  done
+  note "eventarc.eventReceiver is required for the RTDB and Firestore triggers to deploy."
+else
+  warn "unrecognised identity — check it by hand."
+fi
+printf '\n'
+say "${BOLD}Then read the logs.${RESET} Config checks cannot see this; logs can:"
+note "  gcloud logging read 'resource.type=\"cloud_run_revision\" AND severity>=ERROR' \\"
+note "    --project $PROJECT_ID --limit 20 --freshness=15m"
+pause "Press Enter."
+
+# ── 7b ────────────────────────────────────────────────────────────────────
 stage "Secret access — the failure that makes no noise"
 say "Gen 2 runs as a different default service account than Gen 1's"
 say "<project>@appspot.gserviceaccount.com. If the Secret Manager grants didn't"

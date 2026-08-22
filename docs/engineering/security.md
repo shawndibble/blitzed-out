@@ -92,7 +92,11 @@ Solid. `images/{id}`: public read; write requires auth **and** `size < 5 MB` **a
 
 ## Cloud Functions (`functions/src/index.ts`)
 
-All 9 are **2nd gen** (`firebase-functions/v2`), pinned to `us-central1` via `setGlobalOptions` so they cannot drift from the client's region-less `getFunctions(app)`. The Cloud Functions runtime stays **node 22**: nodejs24 is 2nd-gen-only _and_ not yet a decision taken here. Handlers read a single `request` (`request.auth`, `request.data`) rather than `(data, context)`, and Firestore triggers read `event.data`, which v2 types as optional.
+All 9 are **2nd gen** (`firebase-functions/v2`) on **nodejs24** — that runtime is 2nd-gen only, which is why the migration happened. Handlers read a single `request` (`request.auth`, `request.data`) rather than `(data, context)`, and Firestore triggers read `event.data`, which v2 types as optional.
+
+**Runtime identity is pinned, and it is a security boundary.** `RUNTIME_OPTIONS` (`functions/src/runtime.ts`) is spread into all 9 definitions and sets both `region: us-central1` (the client calls `getFunctions(app)` with no region) and `serviceAccount: <project>@appspot.gserviceaccount.com`. Gen 2 otherwise runs as the project's default **compute** account, which held only `eventarc.eventReceiver` and `run.invoker` — every admin-SDK call then fails with "Provided authentication credentials for the app named [DEFAULT] are invalid", which is exactly what happened on cutover. Pinning to the App Engine account inherits the roles these functions were written against: `firebase.sdkAdminServiceAgent` (RTDB + Firestore) and `firebaseauth.admin` (listUsers/deleteUsers), plus `roles/eventarc.eventReceiver`, which had to be granted before the RTDB and Firestore triggers would deploy at all.
+
+**Do not swap that for `setGlobalOptions`.** It was tried and failed silently: the call sits in `index.ts`'s body, but ES imports are evaluated first, so `getTurnCredentials` and `onPackReported` were already constructed and kept the SDK defaults — they deployed under the _wrong service account_ while the CLI reported success. Spreading an explicit constant is order-independent.
 
 9 exported functions: scheduled cleanups (stale users ~5 min, inactive anonymous accounts daily, video-call signaling + stale roster entries ~5 min), RTDB presence triggers (`onUserDisconnect`, presence validation), a pack-report notification, two **callable** admin helpers, and `getTurnCredentials`.
 

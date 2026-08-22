@@ -1,5 +1,32 @@
 # Cloud Functions Gen 1 → Gen 2 cutover
 
+> **DONE — executed 2026-08-22.** All 9 functions are Gen 2 on **nodejs24**, running as
+> `blitzout-49b39@appspot.gserviceaccount.com`. Kept as the record of what the cutover
+> actually required, and as the procedure for any future project. What this doc did **not**
+> anticipate, and what cost the most time:
+>
+> - **Eventarc provisioning lag.** On a project's first Gen 2 deploy the 3 event-driven
+>   functions fail with "Permission denied while using the Eventarc Service Agent" even
+>   though the API is enabled and the agent holds `roles/eventarc.serviceAgent`. Waiting a
+>   few minutes and redeploying just those 3 is the whole fix.
+> - **The runtime identity changes, and it breaks everything quietly.** Gen 2 runs as the
+>   default _compute_ service account, which had only `eventarc.eventReceiver` and
+>   `run.invoker` — so every RTDB, Firestore and Auth call failed. The deploy _does_ carry
+>   Secret Manager bindings across, which is why checking only secrets (as the section
+>   below says to) reports success while the functions are dead. Pinned back to Gen 1's
+>   App Engine account via `RUNTIME_OPTIONS`, which also needed a
+>   `roles/eventarc.eventReceiver` grant it did not have.
+> - **`setGlobalOptions` cannot do that pin.** ES imports evaluate before the importing
+>   module's body, so functions defined in other files are already constructed. Two of them
+>   deployed under the wrong service account while reporting success.
+> - **Check the function logs, not just the config.** Every one of the above was invisible
+>   in `gcloud functions describe` and obvious in the logs.
+>
+> Still open, and **pre-existing** rather than caused by this: `cleanupStaleUsers` fails
+> with `too_many_triggers`. It deletes every stale user in one root `update()`, and each
+> deletion fans out to both `/users/{userId}` triggers, exceeding RTDB's per-write trigger
+> cap. Visible under Gen 1 too; it only became the _top_ error once credentials worked.
+
 The code migration is committed. **Nothing is deployed** — the code on `develop` is Gen 2,
 production is still running Gen 1. Deploying is the step only you can do.
 
