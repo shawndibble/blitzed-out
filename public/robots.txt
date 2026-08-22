@@ -3,4 +3,4 @@ User-agent: *
 Disallow:
 
 # Sitemap
-Sitemap: https://blitzed-out.com/sitemap.xml
+Sitemap: https://blitzedout.com/sitemap.xml

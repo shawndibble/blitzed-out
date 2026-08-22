@@ -5,7 +5,6 @@ import react from '@vitejs/plugin-react-swc';
 import { VitePWA } from 'vite-plugin-pwa';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { sitemapPlugin } from './scripts/sitemap-plugin.ts';
 import { execSync } from 'child_process';
 
 const shouldUploadSentrySourcemaps = process.env.SENTRY_UPLOAD_SOURCEMAPS === 'true';
@@ -47,7 +46,6 @@ export default defineConfig({
           }),
         ]
       : []),
-    sitemapPlugin(),
     VitePWA({
       registerType: 'prompt',
       injectRegister: 'auto',
