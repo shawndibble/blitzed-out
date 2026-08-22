@@ -8,7 +8,7 @@ Companion to [README.md](README.md). This is the "how the system is built" view.
 
 | Layer              | Technology                                                                                                         |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| UI                 | React 19, TypeScript, MUI v9 (dark mode), Emotion, framer-motion                                                   |
+| UI                 | React 19, TypeScript, MUI v9 (dark mode), Emotion, `motion` 13 (imported as `motion/react`)                        |
 | Build/dev          | Vite 8, `@vitejs/plugin-react-swc`, Terser, `vite-plugin-pwa`, `vite-plugin-compression2`                          |
 | Client state       | Zustand 5 (`src/stores/`)                                                                                          |
 | Local persistence  | Dexie 4 over IndexedDB (`src/stores/store.ts`) + `dexie-react-hooks`                                               |
@@ -172,6 +172,9 @@ Routing config: `src/components/RouterSetup`.
 - Suggested pre-push: `npm run type-check && npx eslint src/ && npm run test:failures`.
 - `npm run cleanup:debug` fails on stray `console.log`/`debugger`.
 - Tests: Vitest + React Testing Library; mocks in `src/__mocks__/`. Use `npm run test:failures` (memory-safe, bails at 10).
+- CI (`.github/workflows/ci.yml`) runs three jobs: **lint** (`npm run lint` + `npm run validate:placeholders`), **test** (`npm run test:ci`), **build** (`npm run build` + `npm run verify:pwa-build`). Both guards were added to CI after each had been failing unnoticed for months — `verify:pwa-build` asserted a service-worker snippet in `dist/index.html` that `injectRegister: 'auto'` stopped emitting once the app imported `virtual:pwa-register/react`, and `validate:placeholders` predated the anatomy placeholders entirely. Neither the Firestore/RTDB rules suites nor the `functions/` build run in CI — those stay local (`npm run test:rules`, `npm run test:rules:db`).
+- `functions/` is a separate manifest with its own lockfile, so root `npm audit` never covers it. Audit it on its own (`cd functions && npm audit`). It runs its own TypeScript (currently 7.x) because nothing there peers it down; the root is capped at `<6.1.0` by `@typescript-eslint/parser`, which `renovate.json` encodes.
+- `overrides` in both manifests force `uuid` to `^11.1.1` (GHSA-w5hq-g745-h8pq); `@capacitor/cli` and `firebase-admin` otherwise pull versions below the fix.
 
 ---
 
