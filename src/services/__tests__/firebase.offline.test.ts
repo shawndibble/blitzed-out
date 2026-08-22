@@ -4,17 +4,17 @@ vi.mock('firebase/app', () => ({
   initializeApp: vi.fn(() => ({ type: 'firebase-app-mock' })),
 }));
 
-const { mockInitializeFirestore, mockPersistentLocalCache, mockPersistentMultipleTabManager } =
+const { mockInitializeFirestore, mockPersistentLocalCache, mockPersistentSingleTabManager } =
   vi.hoisted(() => ({
     mockInitializeFirestore: vi.fn(() => ({ type: 'firestore-mock' })),
     mockPersistentLocalCache: vi.fn(() => ({ type: 'persistent-local-cache' })),
-    mockPersistentMultipleTabManager: vi.fn(() => ({ type: 'multi-tab-manager' })),
+    mockPersistentSingleTabManager: vi.fn(() => ({ type: 'single-tab-manager' })),
   }));
 
 vi.mock('firebase/firestore', () => ({
   initializeFirestore: mockInitializeFirestore,
   persistentLocalCache: mockPersistentLocalCache,
-  persistentMultipleTabManager: mockPersistentMultipleTabManager,
+  persistentSingleTabManager: mockPersistentSingleTabManager,
   getFirestore: vi.fn(() => ({})),
   collection: vi.fn(),
   doc: vi.fn(),
@@ -75,7 +75,7 @@ vi.mock('firebase/storage', () => ({
 describe('firebase offline persistence', () => {
   beforeEach(() => {
     vi.resetModules();
-    mockPersistentMultipleTabManager.mockReturnValue({ type: 'multi-tab-manager' });
+    mockPersistentSingleTabManager.mockReturnValue({ type: 'single-tab-manager' });
     mockPersistentLocalCache.mockReturnValue({ type: 'persistent-local-cache' });
     mockInitializeFirestore.mockReturnValue({ type: 'firestore-mock' });
   });
@@ -85,7 +85,16 @@ describe('firebase offline persistence', () => {
 
     expect(mockInitializeFirestore).toHaveBeenCalledOnce();
     expect(mockPersistentLocalCache).toHaveBeenCalledOnce();
-    expect(mockPersistentMultipleTabManager).toHaveBeenCalledOnce();
+    expect(mockPersistentSingleTabManager).toHaveBeenCalledOnce();
+  });
+
+  // Multi-tab target sync trips Firestore INTERNAL ASSERTION b815 and bricks the
+  // client for the session, so the tab manager must stay single-tab and must not
+  // evict a tab that already holds the persistence lease.
+  it('uses a single-tab manager that does not force ownership', async () => {
+    await import('@/services/firebase/app');
+
+    expect(mockPersistentSingleTabManager).toHaveBeenCalledWith({ forceOwnership: false });
   });
 
   it('passes persistentLocalCache result to initializeFirestore', async () => {

@@ -10,7 +10,7 @@ import { getFunctions } from 'firebase/functions';
 import {
   initializeFirestore,
   persistentLocalCache,
-  persistentMultipleTabManager,
+  persistentSingleTabManager,
 } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 
@@ -44,9 +44,9 @@ if (missingVars.length > 0) {
   logger.error('Please check your .env file and ensure all VITE_FIREBASE_* variables are set');
 }
 
-// `persistentMultipleTabManager` writes to `localStorage` lazily, after this
-// module's own try/catch below has returned, so probe with a real write here —
-// Firestore's own fallback logic doesn't trust a raw `DOMException` from there.
+// `persistentLocalCache` touches `localStorage` lazily, after this module's own
+// try/catch below has returned, so probe with a real write here — Firestore's own
+// fallback logic doesn't trust a raw `DOMException` from there.
 function isStorageBlocked(): boolean {
   const probeKey = '__firestore_storage_probe__';
   try {
@@ -69,7 +69,16 @@ function initializeFirestoreWithFallback(): ReturnType<typeof initializeFirestor
   try {
     return initializeFirestore(app, {
       localCache: persistentLocalCache({
-        tabManager: persistentMultipleTabManager(),
+        // Single-tab, not multi-tab: `persistentMultipleTabManager` enables
+        // Firestore's cross-tab target sync, whose `syncEngineApplyActiveTargetsChange`
+        // feeds a cache miss (`null`) straight into `localStoreAllocateTarget`. That
+        // throws inside the async queue and trips INTERNAL ASSERTION b815, which bricks
+        // the client for the rest of the session. The null is manufactured inside the
+        // SDK, so no app-side seam can catch it; dropping the tab manager removes the
+        // code path. A second tab falls back to an in-memory cache (its persistence
+        // start() rejects FAILED_PRECONDITION, which Firestore handles) — it still works,
+        // it just re-reads from the server. See docs/adr/0001-pwa-offline-support.md.
+        tabManager: persistentSingleTabManager({ forceOwnership: false }),
       }),
     });
   } catch (e) {

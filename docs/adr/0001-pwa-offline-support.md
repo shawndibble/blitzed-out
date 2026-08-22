@@ -46,7 +46,9 @@ Use `registerType: 'prompt'` (plugin default) with no custom update UI. This mea
 
 ### 2. Enable Firestore offline persistence via `persistentLocalCache`
 
-Replace `getFirestore(app)` with `initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) })`. Firestore reads are served from local cache when offline; writes queue and replay automatically on reconnection. This makes sync operations more resilient on flaky connections.
+Replace `getFirestore(app)` with `initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentSingleTabManager({ forceOwnership: false }) }) })`. Firestore reads are served from local cache when offline; writes queue and replay automatically on reconnection. This makes sync operations more resilient on flaky connections.
+
+The tab manager is **single-tab** — see the amendment below; the original decision used `persistentMultipleTabManager()`.
 
 ### 3. Keep existing `site.webmanifest` — configure plugin with `manifest: false`
 
@@ -91,8 +93,11 @@ required functionality (precaching + SPA navigation fallback) with zero custom S
 
 ### `persistentSingleTabManager` instead of `persistentMultipleTabManager`
 
-Rejected. Users can have the app open in multiple tabs (one playing, one configuring). Single
-tab manager does not share the cache across tabs, causing redundant Firestore reads.
+Originally rejected: users can have the app open in multiple tabs (one playing, one
+configuring), and a single-tab manager does not share the cache across tabs, causing
+redundant Firestore reads.
+
+**Reversed 2026-08-22 — see "Amendment: multi-tab sync bricks the client" below.**
 
 ## Known Issues and Mitigations
 
@@ -100,7 +105,7 @@ tab manager does not share the cache across tabs, causing redundant Firestore re
 
 **Secondary tab metadata bug** (firebase-js-sdk issue #8314): Secondary tabs do not correctly report `metadata.fromCache=false` when using `persistentMultipleTabManager`. Mitigation: the app does not use `metadata.fromCache` to drive UI logic, so this bug has no user-visible impact.
 
-**`persistentMultipleTabManager` is the app's only unguarded `localStorage` dependency.** It brings in Firestore's `SharedClientState`, which coordinates tabs through `localStorage` and clears its keys from a `pagehide` handler. Firefox with storage blocked throws `NS_ERROR_FAILURE` there, inside the SDK, on a tab that is already closing — no app-side seam can catch it. Mitigation: suppressed in Sentry (see `docs/engineering/security.md` § Sentry). A cost of the choice above, not a reason to revisit it.
+**Historical (pre-2026-08-22, while multi-tab was in use): `persistentMultipleTabManager` was the app's only unguarded `localStorage` dependency.** It brings in Firestore's `SharedClientState`, which coordinates tabs through `localStorage` and clears its keys from a `pagehide` handler. Firefox with storage blocked throws `NS_ERROR_FAILURE` there, inside the SDK, on a tab that is already closing — no app-side seam can catch it. Mitigation: suppressed in Sentry (see `docs/engineering/security.md` § Sentry). The single-tab move removes `SharedClientState` and with it this source; the Sentry pattern stays because Dexie's own cross-tab polling throws the same messageless nsresult.
 
 **Maskable icon cropping risk:** Marking an existing square icon as `maskable` can produce poor
 cropping on install surfaces if the artwork is too close to the edge. Mitigation: inspect the
@@ -126,3 +131,31 @@ does not meet maskable safe-area expectations.
   needed.
 - Developers must be aware that `npm run dev` does not register the SW by default
   (`devOptions.enabled: false`). Test SW behavior against a production build with `vite preview`.
+
+## Amendment: multi-tab sync bricks the client (2026-08-22)
+
+`persistentMultipleTabManager()` is replaced by `persistentSingleTabManager({ forceOwnership: false })`.
+
+**Why.** Multi-tab is the only thing that wires `syncEngineApplyActiveTargetsChange`, and that
+function reads a target out of the local target cache and passes the result straight to
+`localStoreAllocateTarget` with no guard. `localStoreGetCachedTarget` returns `null` on a cache
+miss, `canonifyTargetOrPipeline(null)` then reads `null.isCorePipeline`, and the `TypeError`
+escapes inside the async queue. Once the queue records a failure, every later `enqueue` rethrows
+via `hardAssert` — `FIRESTORE INTERNAL ASSERTION FAILED: Unexpected state (ID: b815)` — so the
+Firestore client is dead for the rest of the session: no chat, no board sync, no presence.
+
+Seen in production on Android/Chrome (Sentry `JAVASCRIPT-REACT-31` / `JAVASCRIPT-REACT-34`,
+2026-08-22). The `null` is manufactured inside the SDK, so no app-side seam can catch it, and
+12.18.0 — the newest release — still ships the unguarded call site. Removing the tab manager
+removes the code path; it is the only available lever.
+
+**Cost, accepted.** A second tab's `IndexedDbPersistence.start()` rejects with
+`FAILED_PRECONDITION` when it cannot take the primary lease. Firestore's
+`canFallbackFromIndexedDbError` accepts that code, so the tab silently falls back to an in-memory
+cache: it still works, it just re-reads from the server instead of sharing the first tab's cache.
+`forceOwnership: false` keeps it that way — `true` would evict the tab that is actually playing.
+Since Dexie, not Firestore, holds all gameplay data, the lost sharing is a background-read
+optimization, and most sessions are a single mobile tab anyway.
+
+**Revisit when** firebase-js-sdk guards the `localStoreGetCachedTarget` → `localStoreAllocateTarget`
+hand-off (currently unguarded as of `@firebase/firestore` 4.17.1 / `firebase` 12.18.0).
