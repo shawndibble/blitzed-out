@@ -39,7 +39,7 @@ import { analytics } from '@/services/analytics';
 import BottomTabs from './BottomTabs';
 import MessageList from '@/components/MessageList';
 import GameBoard from '@/views/Room/GameBoard';
-import VideoCallProvider from '@/components/VideoCall';
+import CallPresenceWatcher from '@/components/VideoCall/CallPresenceWatcher';
 import VideoCallPanel from '@/components/VideoCall/VideoCallPanel';
 import VideoSidebar from '@/components/VideoCall/VideoSidebar';
 
@@ -310,7 +310,7 @@ export default function Room() {
 
       {/* Wraps both layouts: the participant badge lives on the mobile tab and on
           the desktop camera icon, and neither is inside the call itself. */}
-      <VideoCallProvider roomId={room}>
+      <CallPresenceWatcher roomId={room}>
         {isMobile ? (
           <BottomTabs
             tab1={GameBoardComponent}
@@ -338,7 +338,7 @@ export default function Room() {
             </Box>
           </>
         )}
-      </VideoCallProvider>
+      </CallPresenceWatcher>
 
       <PopupMessage />
       <ToastAlert

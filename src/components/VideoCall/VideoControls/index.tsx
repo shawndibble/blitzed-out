@@ -3,6 +3,8 @@ import { Mic, MicOff, Videocam, VideocamOff, CallEnd, Call } from '@mui/icons-ma
 import { useTranslation } from 'react-i18next';
 import { getAuth } from 'firebase/auth';
 import { useVideoCallStore } from '@/stores/videoCallStore';
+import { useCallPresenceStore } from '@/stores/callPresenceStore';
+import { MAX_CALL_PARTICIPANTS } from '@/config/webrtc';
 import useBreakpoint from '@/hooks/useBreakpoint';
 
 interface VideoControlsProps {
@@ -26,6 +28,10 @@ const VideoControls = ({ roomId, onEndCall }: VideoControlsProps) => {
     initialize,
     clearError,
   } = useVideoCallStore();
+  // Same window the join gate enforces, so the button cannot look available while
+  // `initialize` would refuse it.
+  const capacityCount = useCallPresenceStore((state) => state.capacityCount);
+  const isFull = capacityCount >= MAX_CALL_PARTICIPANTS;
 
   const handleCallToggle = async () => {
     if (isMobile) {
@@ -115,6 +121,9 @@ const VideoControls = ({ roomId, onEndCall }: VideoControlsProps) => {
         <IconButton
           size={isMobile ? 'small' : 'medium'}
           onClick={handleCallToggle}
+          // Joining a full call is refused before the camera is touched, which would
+          // otherwise make this a button that does nothing at all.
+          disabled={isMobile && !isCallActive && isFull}
           aria-label={
             isMobile && !isCallActive ? t('videoCall.startCall') : t('videoCall.endCallButton')
           }

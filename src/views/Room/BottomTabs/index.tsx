@@ -11,6 +11,7 @@ import { a11yProps } from '@/helpers/strings';
 import { useTranslation } from 'react-i18next';
 import { useSettings } from '@/stores/settingsStore';
 import { useCallPresenceStore } from '@/stores/callPresenceStore';
+import { withParticipantCount } from '@/components/VideoCall/participantLabel';
 import { vibrate } from '@/utils/haptics';
 
 /**
@@ -56,8 +57,8 @@ export default function BottomTabs({ tab1, tab2, tab3 }: BottomTabsProps): JSX.E
           {tab3 && (
             <Tab
               label={
-                // Badged rather than folded into the string, so the count needs no
-                // per-locale plural form and reads the same as the desktop icon.
+                // Badged rather than folded into the label string, which would need
+                // a plural form in all six locales. Reads as the desktop icon does.
                 <Badge
                   badgeContent={participants}
                   color="secondary"
@@ -66,12 +67,7 @@ export default function BottomTabs({ tab1, tab2, tab3 }: BottomTabsProps): JSX.E
                   {t('videoCall.title')}
                 </Badge>
               }
-              aria-label={[
-                t('videoCall.title'),
-                participants > 0 ? t('videoCall.onCall', { count: participants }) : null,
-              ]
-                .filter(Boolean)
-                .join(', ')}
+              aria-label={withParticipantCount(t('videoCall.title'), participants, t)}
               {...a11yProps(2)}
             />
           )}

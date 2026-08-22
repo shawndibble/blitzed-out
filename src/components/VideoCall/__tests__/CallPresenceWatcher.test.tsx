@@ -1,61 +1,61 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
-import VideoCallProvider from '../index';
+import CallPresenceWatcher from '../CallPresenceWatcher';
 import { useCallPresenceStore } from '@/stores/callPresenceStore';
 import { useVideoCallStore } from '@/stores/videoCallStore';
 
 vi.mock('@/stores/videoCallStore');
 
-describe('VideoCallProvider', () => {
+describe('CallPresenceWatcher', () => {
   const testChildren = <div data-testid="test-children">Test Children</div>;
-  let subscribe: (roomId: string) => void;
-  let unsubscribe: () => void;
+  let watch: (roomId: string) => void;
+  let stopWatching: () => void;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    subscribe = vi.fn();
-    unsubscribe = vi.fn();
-    useCallPresenceStore.setState({ subscribe, unsubscribe });
+    watch = vi.fn();
+    stopWatching = vi.fn();
+    useCallPresenceStore.setState({ watch, stopWatching });
   });
 
   it('watches the room it was given', () => {
-    render(<VideoCallProvider roomId="test-room">{testChildren}</VideoCallProvider>);
+    render(<CallPresenceWatcher roomId="test-room">{testChildren}</CallPresenceWatcher>);
 
-    expect(subscribe).toHaveBeenCalledWith('test-room');
+    expect(watch).toHaveBeenCalledWith('test-room');
   });
 
   // The badge must be readable by people who have not joined, so entering a room
   // may never claim a slot or touch the camera. Regression guard: this provider
   // used to auto-join, and was inert only because of where it was mounted.
   it('never joins the call', () => {
-    render(<VideoCallProvider roomId="test-room">{testChildren}</VideoCallProvider>);
+    render(<CallPresenceWatcher roomId="test-room">{testChildren}</CallPresenceWatcher>);
 
     expect(vi.mocked(useVideoCallStore)).not.toHaveBeenCalled();
   });
 
   it('stops watching on unmount', () => {
     const { unmount } = render(
-      <VideoCallProvider roomId="test-room">{testChildren}</VideoCallProvider>
+      <CallPresenceWatcher roomId="test-room">{testChildren}</CallPresenceWatcher>
     );
 
     unmount();
 
-    expect(unsubscribe).toHaveBeenCalled();
+    expect(stopWatching).toHaveBeenCalled();
   });
 
   it('follows a room change', () => {
     const { rerender } = render(
-      <VideoCallProvider roomId="room-1">{testChildren}</VideoCallProvider>
+      <CallPresenceWatcher roomId="room-1">{testChildren}</CallPresenceWatcher>
     );
 
-    rerender(<VideoCallProvider roomId="room-2">{testChildren}</VideoCallProvider>);
+    rerender(<CallPresenceWatcher roomId="room-2">{testChildren}</CallPresenceWatcher>);
 
-    expect(subscribe).toHaveBeenLastCalledWith('room-2');
+    expect(watch).toHaveBeenLastCalledWith('room-2');
   });
 
   it('renders children', () => {
     const { getByTestId } = render(
-      <VideoCallProvider roomId="test-room">{testChildren}</VideoCallProvider>
+      <CallPresenceWatcher roomId="test-room">{testChildren}</CallPresenceWatcher>
     );
 
     expect(getByTestId('test-children')).toBeInTheDocument();

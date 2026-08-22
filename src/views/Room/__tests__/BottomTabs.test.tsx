@@ -21,13 +21,13 @@ function renderTabs() {
 }
 
 function presenceAt(count: number) {
-  useCallPresenceStore.setState({ count, loaded: true });
+  useCallPresenceStore.setState({ count, capacityCount: count, loaded: true });
 }
 
 describe('BottomTabs video badge', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useCallPresenceStore.setState({ count: 0, loaded: false });
+    useCallPresenceStore.setState({ count: 0, capacityCount: 0, loaded: false });
   });
 
   test('shows no number when the call is empty', () => {

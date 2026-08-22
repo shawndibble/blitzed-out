@@ -18,17 +18,12 @@ export const PRESENCE_STALE_MS = 2 * 60 * 1000;
 /**
  * Reduce a presence snapshot to participants worth dialling, freshest first.
  *
- * The roster cannot be taken at face value. Ghosts accumulate whenever a client
- * dies without its socket closing, and a room only needs four of them to consume
- * every mesh slot and lock real participants out entirely — observed in `/PUBLIC`
- * with nine dead entries. Server-side pruning is a backstop that runs every five
- * minutes at best; this makes the client immune in the meantime.
- *
- * Sorting matters as much as filtering: when more participants are present than
- * MAX_PEERS allows, the slots should go to whoever is most likely still there.
- *
- * `staleMs` is a parameter because the badge judges freshness far more tightly
- * than dialling does — same rule, different tolerance.
+ * Ghosts accumulate whenever a client dies without its socket closing, and four of
+ * them consume every mesh slot — `/PUBLIC` was found holding nine. Server-side
+ * pruning is a five-minute backstop; this makes the client immune meanwhile.
+ * Sorting matters as much as filtering: over MAX_PEERS, slots should go to whoever
+ * is most likely still there. `staleMs` is a parameter because the badge judges
+ * freshness far more tightly than dialling — same rule, different tolerance.
  */
 export function liveRoster(
   users: unknown,
@@ -50,13 +45,17 @@ export function liveRoster(
 }
 
 /**
- * How many people the badge should report: every live participant, including
- * yourself once you hold a slot. Camera state is ignored — someone listening
- * with their camera off is still in the call, and counting only `cam: 'on'`
- * would make the number twitch every time a peer backgrounds their tab.
+ * How many people are in the call, including yourself once you hold a slot. Camera
+ * state is ignored — someone listening with their camera off is still there, and
+ * counting only `cam: 'on'` would make the number twitch every time a peer
+ * backgrounds their tab.
  */
-export function liveParticipantCount(users: unknown, now: number = Date.now()): number {
-  return liveRoster(users, now, PRESENCE_STALE_MS).length;
+export function liveParticipantCount(
+  users: unknown,
+  now: number = Date.now(),
+  staleMs: number = PRESENCE_STALE_MS
+): number {
+  return liveRoster(users, now, staleMs).length;
 }
 
 /**

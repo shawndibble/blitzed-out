@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getDatabase, ref, onValue, off } from 'firebase/database';
+import { getDatabase, ref, onValue } from 'firebase/database';
 import { firebaseSignaling, SignalData } from '@/services/firebaseSignaling';
 import {
   ICE_SERVERS,
@@ -186,6 +186,8 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
   /** Pending "has this `disconnected` lasted long enough to mention?" checks. */
   const reconnectTimers = new Map<string, ReturnType<typeof setTimeout>>();
   let visibilityListener: (() => void) | null = null;
+  /** Detaches the roster listener. Held so cleanup never has to guess at the node. */
+  let rosterDetach: (() => void) | null = null;
   /** Guards the camera re-acquire against a double tap. See `toggleVideo`. */
   let acquiringCamera = false;
 
@@ -455,24 +457,27 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
     error: null,
 
     initialize: async (roomId: string, userId: string) => {
-      // Three components can call this (VideoCallProvider, VideoSidebar,
-      // VideoControls) and it awaits twice before `isInitialized` flips, so the
-      // flag alone gates nothing. The generation token also catches a `cleanup()`
+      // Both call sites (VideoSidebar, VideoControls) reach this, and it awaits
+      // twice before `isInitialized` flips, so the flag alone gates nothing. The generation token also catches a `cleanup()`
       // that lands mid-await, which would otherwise leave a listener and two
       // intervals running that nothing holds a handle to.
       if (get().isInitialized || activeGeneration !== null) {
         return;
       }
 
-      // Refuse over-cap joins before touching the camera. `claim()` further down
-      // is unconditional and the stream already exists by the time it runs, so a
-      // check at the claim site would still have prompted for the camera and lit
-      // the device up for someone who can never be dialled. Both call sites
-      // (VideoSidebar, VideoControls) come through here, so this covers each once.
-      // Reads the same count the badge shows, so the two never disagree.
-      const { count: participants, loaded: participantsLoaded } = useCallPresenceStore.getState();
-      if (participantsLoaded && participants >= MAX_CALL_PARTICIPANTS) {
-        logger.warn('[videocall] Call is full, not joining', participants);
+      // Refuse over-cap joins before touching the camera: by `claim()` the stream
+      // already exists, so checking there would still have prompted for the camera
+      // and lit the device up for someone who can never be dialled.
+      // `capacityCount`, not the badge's `count` — a participant whose heartbeat is
+      // throttled still holds a mesh slot, and admitting past that gives everyone a
+      // graph too sparse to complete.
+      const { capacityCount, loaded: rosterKnown } = useCallPresenceStore.getState();
+      if (rosterKnown && capacityCount >= MAX_CALL_PARTICIPANTS) {
+        // No error state: `CallCapacityAlert` is already on screen saying the call
+        // is full, and the store's error surface renders a second, dismissible
+        // alert beside it. The join control is disabled instead, so the tap this
+        // would report on cannot happen.
+        logger.warn('[videocall] Call is full, not joining', capacityCount);
         return;
       }
 
@@ -558,7 +563,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
       const database = getDatabase();
       const usersRef = ref(database, `video-calls/${roomId}/users`);
 
-      onValue(usersRef, (snapshot) => {
+      rosterDetach = onValue(usersRef, (snapshot) => {
         const { rosterLoaded: alreadyLoaded, roster: previousRoster } = get();
         const users = snapshot.val();
 
@@ -671,7 +676,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
       reconnectTimers.forEach((timer) => clearTimeout(timer));
       reconnectTimers.clear();
 
-      const { localStream, peers, heartbeatInterval, reconcileInterval, roomId } = get();
+      const { localStream, peers, heartbeatInterval, reconcileInterval } = get();
 
       if (localStream) {
         stopTracks(localStream);
@@ -692,10 +697,13 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
         clearInterval(reconcileInterval);
       }
 
-      if (roomId) {
-        const database = getDatabase();
-        off(ref(database, `video-calls/${roomId}/users`));
-      }
+      // The captured unsubscribe, never `off(ref)`. A bare `off` with no event type
+      // or callback is a blanket detach of *every* listener at that location, and
+      // the participant badge keeps its own read-only listener on this same node —
+      // so leaving a call used to silently kill the badge for the rest of the
+      // session, and with it the count the join gate reads.
+      rosterDetach?.();
+      rosterDetach = null;
 
       firebaseSignaling.cleanup();
 

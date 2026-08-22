@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useVideoCallStore } from '@/stores/videoCallStore';
 import { useCallPresenceStore } from '@/stores/callPresenceStore';
 import VideoCallPanel from './VideoCallPanel';
+import { withParticipantCount } from './participantLabel';
 
 interface VideoSidebarProps {
   roomId: string;
@@ -107,16 +108,13 @@ const VideoSidebar = ({ roomId, onToggle, onWidthChange }: VideoSidebarProps) =>
             bgcolor: 'background.default',
           },
         }}
-        aria-label={[
+        aria-label={withParticipantCount(
           isOpen ? 'Close video sidebar' : 'Open video sidebar',
-          // The count is drawn by the badge, which `aria-label` would otherwise
-          // hide from screen readers entirely.
-          participants > 0 ? t('videoCall.onCall', { count: participants }) : null,
-        ]
-          .filter(Boolean)
-          .join(', ')}
+          participants,
+          t
+        )}
       >
-        <Badge badgeContent={participants} color="primary" overlap="circular">
+        <Badge badgeContent={participants} color="primary">
           {isOpen ? <VideocamOff /> : <Videocam />}
         </Badge>
       </IconButton>

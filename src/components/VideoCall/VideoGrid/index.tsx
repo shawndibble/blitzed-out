@@ -15,17 +15,24 @@ export interface ParticipantData {
 interface VideoGridProps {
   participants: Map<string, ParticipantData>;
   onRetry?: (participantId: string) => void;
+  /**
+   * Whether an empty grid means "waiting". False for someone the call refused, who
+   * would otherwise be told the call is full and empty in the same breath.
+   */
+  isWaiting?: boolean;
 }
 
 /** The roll button is `position: fixed` over every tab, reserving no space itself. */
 const ROLL_BUTTON_CLEARANCE = 80;
 
-const VideoGrid = ({ participants, onRetry }: VideoGridProps) => {
+const VideoGrid = ({ participants, onRetry, isWaiting = true }: VideoGridProps) => {
   const { t } = useTranslation();
   const isMobile = useBreakpoint();
   const participantCount = participants.size;
 
   if (participantCount === 0) {
+    if (!isWaiting) return null;
+
     return (
       <Box
         sx={{

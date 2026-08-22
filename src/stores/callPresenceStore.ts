@@ -1,53 +1,65 @@
 import { create } from 'zustand';
-import { getDatabase, onValue, ref } from 'firebase/database';
-import { PRESENCE_STALE_MS, liveParticipantCount } from '@/services/callRoster';
+import { subscribeToCallRoster } from '@/services/callPresence';
+import { PRESENCE_STALE_MS, ROSTER_STALE_MS, liveParticipantCount } from '@/services/callRoster';
 
 /**
- * How often the count is re-derived from the last snapshot. `onValue` only fires
+ * How often the counts are re-derived from the last snapshot. `onValue` only fires
  * when the node changes, but staleness is judged against the clock — without a
- * tick, a participant whose client died would stay advertised until somebody
- * else joined or left.
+ * tick, a participant whose client died would stay advertised until somebody else
+ * joined or left.
  */
 export const PRESENCE_RECOUNT_INTERVAL_MS = 30_000;
 
 export interface CallPresenceState {
-  /** Live participants in the call, including yourself once you hold a slot. */
+  /** Live participants for the badge, including yourself once you hold a slot. */
   count: number;
-  /** Whether the first snapshot has arrived. Zero is a real answer. */
-  loaded: boolean;
-  /** The room currently being observed, or null. */
-  roomId: string | null;
   /**
-   * Start watching a room's call roster. Read-only: no presence slot is claimed
-   * and no camera is opened, which is the whole point — the count has to be
-   * visible to people who have not joined, and on desktop opening the panel is
-   * itself joining.
+   * The same roster counted by the window the mesh dials on. Higher than `count`
+   * whenever someone's heartbeat is throttled — a backgrounded tab still holds a
+   * `MAX_PEERS` slot in everyone's mesh, so the join gate has to respect it or it
+   * would wave a seventh person into a call that cannot connect them.
    */
-  subscribe: (roomId: string) => void;
-  unsubscribe: () => void;
+  capacityCount: number;
+  /** Whether a snapshot has arrived. Zero is a real answer; unknown is not. */
+  loaded: boolean;
+  roomId: string | null;
+  /** Start watching a room's call roster. Read-only — claims no slot. */
+  watch: (roomId: string) => void;
+  stopWatching: () => void;
 }
 
 /**
  * Passive view of who is on a room's video call.
  *
- * Deliberately separate from `videoCallStore`: that store owns media capture,
- * peer retries and the mesh cap, and none of that should be entangled with a
- * badge. This one only ever reads.
+ * Deliberately separate from `videoCallStore`: that store owns media capture, peer
+ * retries and the mesh cap, and none of that should be entangled with a badge.
+ * This one only ever reads.
  */
 export const useCallPresenceStore = create<CallPresenceState>((set, get) => {
   let detach: (() => void) | null = null;
   let recount: ReturnType<typeof setInterval> | null = null;
   /** Last snapshot, kept so the timer can re-judge freshness without a re-read. */
   let lastSnapshot: unknown = null;
+  /**
+   * Incremented on every teardown. The `onValue` callback can fire synchronously
+   * during subscription — RTDB replays a cached view immediately when another
+   * listener already holds one — so a marker assigned from the return value would
+   * still be null on the first call, and truthy again for a stale callback after a
+   * room switch. A counter captured in the closure is right in both directions.
+   */
+  let generation = 0;
 
-  /** Publish a count, but only when it actually moved — see the timer's comment. */
-  const applyCount = (next: number): void => {
-    const { count, loaded } = get();
-    if (count === next && loaded) return;
-    set({ count: next, loaded: true });
+  /** Publish counts, but only when one actually moved — see the timer's comment. */
+  const applyCounts = (users: unknown): void => {
+    const next = liveParticipantCount(users, Date.now(), PRESENCE_STALE_MS);
+    const nextCapacity = liveParticipantCount(users, Date.now(), ROSTER_STALE_MS);
+    const { count, capacityCount, loaded } = get();
+    if (count === next && capacityCount === nextCapacity && loaded) return;
+    set({ count: next, capacityCount: nextCapacity, loaded: true });
   };
 
   const teardown = (): void => {
+    generation += 1;
     detach?.();
     detach = null;
     if (recount !== null) clearInterval(recount);
@@ -57,36 +69,36 @@ export const useCallPresenceStore = create<CallPresenceState>((set, get) => {
 
   return {
     count: 0,
+    capacityCount: 0,
     loaded: false,
     roomId: null,
 
-    subscribe: (roomId: string) => {
+    watch: (roomId: string) => {
       if (get().roomId === roomId && detach) return;
 
       teardown();
-      set({ count: 0, loaded: false, roomId });
+      set({ count: 0, capacityCount: 0, loaded: false, roomId });
 
-      const usersRef = ref(getDatabase(), `video-calls/${roomId}/users`);
-
-      detach = onValue(usersRef, (snapshot) => {
-        // A snapshot can land after teardown; `detach` is the generation marker.
-        if (!detach) return;
-        lastSnapshot = snapshot.val();
-        applyCount(liveParticipantCount(lastSnapshot));
+      const mine = generation;
+      const unsubscribe = subscribeToCallRoster(roomId, (users) => {
+        if (generation !== mine) return;
+        lastSnapshot = users;
+        applyCounts(users);
       });
+      if (!unsubscribe) return;
+      detach = unsubscribe;
 
       recount = setInterval(() => {
-        if (!detach) return;
-        applyCount(liveParticipantCount(lastSnapshot));
+        // No snapshot yet means the read has not landed, not that nobody is here —
+        // counting now would publish a fabricated zero as though it were known.
+        if (generation !== mine || lastSnapshot === null) return;
+        applyCounts(lastSnapshot);
       }, PRESENCE_RECOUNT_INTERVAL_MS);
     },
 
-    unsubscribe: () => {
+    stopWatching: () => {
       teardown();
-      set({ count: 0, loaded: false, roomId: null });
+      set({ count: 0, capacityCount: 0, loaded: false, roomId: null });
     },
   };
 });
-
-/** Re-exported so callers reason about one freshness window, not two. */
-export { PRESENCE_STALE_MS };

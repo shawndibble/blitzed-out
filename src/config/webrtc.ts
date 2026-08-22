@@ -7,26 +7,16 @@ export interface IceServer {
 }
 
 /**
- * Mesh topology cap. Every participant uploads a separately encoded stream to
- * every other one, so a six-person call is five uploads each — roughly the top
- * of the band a serverless mesh sustains before uplink and encoder count start
- * degrading the call for everybody, not just the weakest client. For larger
- * groups the UI redirects users to an SFU-based service (Discord/Jitsi/Zoom).
+ * Mesh cap. Each participant uploads a separate encoded stream to every other, so
+ * six people is five uploads each — the top of the band a serverless mesh holds
+ * before it degrades the call for everyone. Larger groups get pointed at an SFU.
  */
 export const MAX_CALL_PARTICIPANTS = 6;
 
-/**
- * Connections one participant holds, which is everyone else in the call. Derived
- * rather than written out: the two were independently maintained before, so a
- * cap of 4 peers quietly meant a 5-person call.
- */
+/** Connections per participant. Derived, or the two drift — 4 peers meant 5 people. */
 export const MAX_PEERS = MAX_CALL_PARTICIPANTS - 1;
 
-/**
- * Where the call warns that quality may suffer. Below the hard cap on purpose —
- * degradation is gradual, so there is a band worth flagging before the point
- * nobody else can join at all.
- */
+/** Quality degrades gradually, so there is a band worth flagging before the cap. */
 export const CALL_QUALITY_WARNING_PARTICIPANTS = 4;
 
 const METERED_USERNAME = import.meta.env.VITE_METERED_USERNAME;

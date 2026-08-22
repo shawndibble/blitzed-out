@@ -10,12 +10,12 @@ vi.mock('react-i18next', () => ({
 
 /** Put the passive presence store at a given count, as a live snapshot would. */
 function presenceAt(count: number) {
-  useCallPresenceStore.setState({ count, loaded: true });
+  useCallPresenceStore.setState({ count, capacityCount: count, loaded: true });
 }
 
 describe('CallCapacityAlert', () => {
   beforeEach(() => {
-    useCallPresenceStore.setState({ count: 0, loaded: false });
+    useCallPresenceStore.setState({ count: 0, capacityCount: 0, loaded: false });
   });
 
   test('says nothing below the warning threshold', () => {

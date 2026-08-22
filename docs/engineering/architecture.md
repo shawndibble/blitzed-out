@@ -98,19 +98,20 @@ Two persistence tiers:
 
 ### Zustand stores (`src/stores/`)
 
-| Store                   | Responsibility                                                                                                                                            |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `settingsStore.ts`      | Game/app settings: gameMode, role, gender, room, selectedActions, finishRange, background, locale, theme, audio, haptics, etc. Persisted to localStorage. |
-| `gameBoard.ts`          | Saved game boards in Dexie (CRUD, activate/deactivate).                                                                                                   |
-| `customTiles.ts`        | Custom + default action tiles in Dexie (query, import, count, delete).                                                                                    |
-| `customGroups.ts`       | Custom + default groups in Dexie (CRUD, cascade-delete protection).                                                                                       |
-| `localPlayerStore.ts`   | Active Shared-Device session (players, current turn index).                                                                                               |
-| `messagesStore.ts`      | Chat + action + settings messages (mirrors Firestore; dedupes; 24h TTL).                                                                                  |
-| `userListStore.ts`      | Online users / presence in the current room.                                                                                                              |
-| `videoCallStore.ts`     | WebRTC peers, roster reconciliation (ghost filtering + retry budgets), ICE servers, local/remote streams, mute/camera toggles.                            |
-| `diceAnimationStore.ts` | Debounce flag so dice-roll sound doesn't double-play.                                                                                                     |
-| `scheduleStore.ts`      | Scheduled game sessions (batched updates, cached).                                                                                                        |
-| `store.ts`              | Dexie database definition + sync middleware wiring (not a Zustand store).                                                                                 |
+| Store                   | Responsibility                                                                                                                                                                    |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `settingsStore.ts`      | Game/app settings: gameMode, role, gender, room, selectedActions, finishRange, background, locale, theme, audio, haptics, etc. Persisted to localStorage.                         |
+| `gameBoard.ts`          | Saved game boards in Dexie (CRUD, activate/deactivate).                                                                                                                           |
+| `customTiles.ts`        | Custom + default action tiles in Dexie (query, import, count, delete).                                                                                                            |
+| `customGroups.ts`       | Custom + default groups in Dexie (CRUD, cascade-delete protection).                                                                                                               |
+| `localPlayerStore.ts`   | Active Shared-Device session (players, current turn index).                                                                                                                       |
+| `messagesStore.ts`      | Chat + action + settings messages (mirrors Firestore; dedupes; 24h TTL).                                                                                                          |
+| `userListStore.ts`      | Online users / presence in the current room.                                                                                                                                      |
+| `videoCallStore.ts`     | WebRTC peers, roster reconciliation (retry budgets, mesh cap), ICE servers, local/remote streams, mute/camera toggles. Snapshot interpretation lives in `services/callRoster.ts`. |
+| `callPresenceStore.ts`  | Read-only participant count for a room's video call (badge + join gate). State only; `services/callPresence.ts` owns the RTDB listener.                                           |
+| `diceAnimationStore.ts` | Debounce flag so dice-roll sound doesn't double-play.                                                                                                                             |
+| `scheduleStore.ts`      | Scheduled game sessions (batched updates, cached).                                                                                                                                |
+| `store.ts`              | Dexie database definition + sync middleware wiring (not a Zustand store).                                                                                                         |
 
 Full Dexie schema is documented in [data-and-sync.md](data-and-sync.md#local-database-dexieindexeddb).
 

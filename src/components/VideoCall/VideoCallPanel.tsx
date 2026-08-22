@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { Box } from '@mui/material';
 import { MAX_RETRY_ATTEMPTS, useVideoCallStore } from '@/stores/videoCallStore';
+import { useCallPresenceStore } from '@/stores/callPresenceStore';
+import { MAX_CALL_PARTICIPANTS } from '@/config/webrtc';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import { deriveLocalMedia, type MediaState } from '@/types/videoCall';
 import { LOCAL_PARTICIPANT_ID, resolveTileState } from './tileState';
@@ -28,6 +30,8 @@ const VideoCallPanel = ({ roomId, showLocalVideo = false, onEndCall }: VideoCall
   const hasCamera = useVideoCallStore((state) => state.hasCamera);
   const isPageHidden = useVideoCallStore((state) => state.isPageHidden);
   const retryPeer = useVideoCallStore((state) => state.retryPeer);
+  const isCallActive = useVideoCallStore((state) => state.isCallActive);
+  const capacityCount = useCallPresenceStore((state) => state.capacityCount);
 
   const remoteParticipants = useMemo(() => {
     const entries: Array<[string, ParticipantData]> = [];
@@ -112,7 +116,11 @@ const VideoCallPanel = ({ roomId, showLocalVideo = false, onEndCall }: VideoCall
       >
         <CallCapacityAlert />
         <Box sx={{ flexGrow: 1, overflow: 'hidden', minHeight: 0 }}>
-          <VideoGrid participants={participants} onRetry={retryPeer} />
+          <VideoGrid
+            participants={participants}
+            onRetry={retryPeer}
+            isWaiting={isCallActive || capacityCount < MAX_CALL_PARTICIPANTS}
+          />
         </Box>
       </Box>
       <VideoControls roomId={roomId} onEndCall={onEndCall} />

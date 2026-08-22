@@ -18,6 +18,7 @@ import { useCallPresenceStore } from '../callPresenceStore';
 
 const harness = vi.hoisted(() => ({
   rosterListeners: [] as Array<(snapshot: { val: () => unknown }) => void>,
+  rosterUnsubscribes: [] as Array<() => void>,
   peers: [] as any[],
 }));
 
@@ -68,9 +69,10 @@ vi.mock('firebase/database', () => ({
   ref: vi.fn(() => ({})),
   onValue: vi.fn((_ref, callback) => {
     harness.rosterListeners.push(callback);
-    return vi.fn(); // Return unsubscribe function
+    const unsubscribe = vi.fn();
+    harness.rosterUnsubscribes.push(unsubscribe);
+    return unsubscribe;
   }),
-  off: vi.fn(),
 }));
 
 const MINTED_ICE_SERVERS = [
@@ -119,10 +121,11 @@ describe('VideoCallStore', () => {
     vi.clearAllMocks();
     vi.useFakeTimers();
     harness.rosterListeners.length = 0;
+    harness.rosterUnsubscribes.length = 0;
     harness.peers.length = 0;
     // Shared module state: a full-call test leaking its count would silently
     // block every later join.
-    useCallPresenceStore.setState({ count: 0, loaded: false, roomId: null });
+    useCallPresenceStore.setState({ count: 0, capacityCount: 0, loaded: false, roomId: null });
     restoreTransport = setPeerTransportFactory((options) => new FakeTransport(options) as never);
 
     // Re-arm after clearAllMocks: the store awaits these, so a bare vi.fn()
@@ -542,8 +545,8 @@ describe('VideoCallStore', () => {
   // site would already have prompted for the camera and lit the device up for
   // someone who can never be dialled.
   describe('Full call', () => {
-    function presenceAt(count: number, loaded = true) {
-      useCallPresenceStore.setState({ count, loaded });
+    function presenceAt(capacityCount: number, loaded = true) {
+      useCallPresenceStore.setState({ count: capacityCount, capacityCount, loaded });
     }
 
     test('does not open the camera or claim a slot when the call is full', async () => {
@@ -571,6 +574,24 @@ describe('VideoCallStore', () => {
       expect(result.current.isInitialized).toBe(true);
     });
 
+    // A backgrounded tab drops off the badge two minutes in but still holds a mesh
+    // slot. Gating on the badge's number would wave in a seventh person and leave
+    // everyone with a graph too sparse to complete.
+    test('respects a slot the badge has already stopped showing', async () => {
+      useCallPresenceStore.setState({
+        count: MAX_CALL_PARTICIPANTS - 2,
+        capacityCount: MAX_CALL_PARTICIPANTS,
+        loaded: true,
+      });
+      const { result } = renderHook(() => useVideoCallStore());
+
+      await act(async () => {
+        await result.current.initialize('test-room', 'seventh');
+      });
+
+      expect(result.current.isInitialized).toBe(false);
+    });
+
     // Fail open: waiting for the first snapshot would put an RTDB round trip
     // between the tap and the camera on every single join.
     test('joins when the count has not loaded yet', async () => {
@@ -582,6 +603,39 @@ describe('VideoCallStore', () => {
       });
 
       expect(result.current.isInitialized).toBe(true);
+    });
+  });
+
+  // `off(ref)` with no event type or callback is a blanket detach of every listener
+  // at that location, and the participant badge keeps its own read-only listener on
+  // this very node. Leaving a call used to silently kill the badge for the rest of
+  // the session — and with it the count the full-call gate reads.
+  describe('Roster listener teardown', () => {
+    test('detaches only its own listener', async () => {
+      const { result } = renderHook(() => useVideoCallStore());
+      await act(async () => {
+        await result.current.initialize('test-room', 'self');
+      });
+
+      act(() => {
+        result.current.cleanup();
+      });
+
+      expect(harness.rosterUnsubscribes[0]).toHaveBeenCalled();
+    });
+
+    test('does not leave the handle behind for a second cleanup', async () => {
+      const { result } = renderHook(() => useVideoCallStore());
+      await act(async () => {
+        await result.current.initialize('test-room', 'self');
+      });
+
+      act(() => {
+        result.current.cleanup();
+        result.current.cleanup();
+      });
+
+      expect(harness.rosterUnsubscribes[0]).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -903,24 +957,6 @@ describe('VideoCallStore', () => {
       });
 
       expect(result.current.peers.size).toBe(0);
-    });
-
-    // A roster listener surviving cleanup would keep reconciling into a torn-down
-    // store, and the sidebar can be closed and reopened repeatedly.
-    test('detaches the roster listener on cleanup', async () => {
-      const { off } = await import('firebase/database');
-      const result = await joinRoom();
-
-      act(() => {
-        publishRoster(['self', 'zed']);
-      });
-      vi.mocked(off).mockClear();
-
-      act(() => {
-        result.current.cleanup();
-      });
-
-      expect(off).toHaveBeenCalled();
     });
 
     test('stops reconciling after cleanup', async () => {
