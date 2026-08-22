@@ -592,6 +592,51 @@ describe('VideoCallStore', () => {
       expect(result.current.isInitialized).toBe(false);
     });
 
+    // Hanging up releases the slot, so resuming is a fresh claim. Without the same
+    // gate, anyone who hung up in a busy call could reclaim past the cap — and
+    // would have opened their camera to find out.
+    test('refuses to reconnect into a call that filled up', async () => {
+      const { firebaseSignaling } = await import('@/services/firebaseSignaling');
+      const { result } = renderHook(() => useVideoCallStore());
+      await act(async () => {
+        await result.current.initialize('test-room', 'self');
+      });
+
+      act(() => {
+        result.current.disconnectCall();
+      });
+
+      presenceAt(MAX_CALL_PARTICIPANTS);
+      vi.mocked(navigator.mediaDevices.getUserMedia).mockClear();
+      vi.mocked(firebaseSignaling.setPresent).mockClear();
+
+      await act(async () => {
+        await result.current.reconnectCall();
+      });
+
+      expect(navigator.mediaDevices.getUserMedia).not.toHaveBeenCalled();
+      expect(firebaseSignaling.setPresent).not.toHaveBeenCalled();
+      expect(result.current.isCallActive).toBe(false);
+    });
+
+    test('reconnects when a slot has come free', async () => {
+      const { result } = renderHook(() => useVideoCallStore());
+      await act(async () => {
+        await result.current.initialize('test-room', 'self');
+      });
+
+      act(() => {
+        result.current.disconnectCall();
+      });
+
+      presenceAt(MAX_CALL_PARTICIPANTS - 1);
+      await act(async () => {
+        await result.current.reconnectCall();
+      });
+
+      expect(result.current.isCallActive).toBe(true);
+    });
+
     // Fail open: waiting for the first snapshot would put an RTDB round trip
     // between the tap and the camera on every single join.
     test('joins when the count has not loaded yet', async () => {

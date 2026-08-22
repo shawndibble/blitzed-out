@@ -198,6 +198,19 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
     reconnectTimers.delete(targetUserId);
   }
 
+  /**
+   * Whether the call has no room left. `capacityCount`, not the badge's `count`:
+   * a participant whose heartbeat is throttled still holds a mesh slot, and
+   * admitting past that gives everyone a graph too sparse to complete.
+   *
+   * Fails open before the first snapshot — waiting for it would put an RTDB round
+   * trip between the tap and the camera on every join.
+   */
+  function callIsFull(): boolean {
+    const { capacityCount, loaded } = useCallPresenceStore.getState();
+    return loaded && capacityCount >= MAX_CALL_PARTICIPANTS;
+  }
+
   function patchPeer(targetUserId: string, patch: Partial<PeerConnection>): void {
     const { peers } = get();
     const existing = peers.get(targetUserId);
@@ -465,19 +478,14 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
         return;
       }
 
-      // Refuse over-cap joins before touching the camera: by `claim()` the stream
-      // already exists, so checking there would still have prompted for the camera
-      // and lit the device up for someone who can never be dialled.
-      // `capacityCount`, not the badge's `count` — a participant whose heartbeat is
-      // throttled still holds a mesh slot, and admitting past that gives everyone a
-      // graph too sparse to complete.
-      const { capacityCount, loaded: rosterKnown } = useCallPresenceStore.getState();
-      if (rosterKnown && capacityCount >= MAX_CALL_PARTICIPANTS) {
-        // No error state: `CallCapacityAlert` is already on screen saying the call
-        // is full, and the store's error surface renders a second, dismissible
-        // alert beside it. The join control is disabled instead, so the tap this
-        // would report on cannot happen.
-        logger.warn('[videocall] Call is full, not joining', capacityCount);
+      // Before the camera, not at `claim()`: by then the stream already exists, so
+      // a check there would still have prompted for the camera and lit the device
+      // up for someone who can never be dialled.
+      // No error state — `CallCapacityAlert` already says the call is full, and the
+      // store's error surface would render a second, dismissible alert beside it.
+      // The join control is disabled instead, so this tap should not be reachable.
+      if (callIsFull()) {
+        logger.warn('[videocall] Call is full, not joining');
         return;
       }
 
@@ -841,7 +849,7 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
 
       // Hanging up gives the roster slot back. Signalling stays up so the call can
       // be resumed, but a hung-up participant that kept its slot would occupy one
-      // of everyone else's four connections while sending nothing.
+      // of everyone else's MAX_PEERS connections while sending nothing.
       if (heartbeatInterval) {
         clearInterval(heartbeatInterval);
       }
@@ -863,6 +871,15 @@ export const useVideoCallStore = create<VideoCallState>((set, get) => {
     reconnectCall: async () => {
       const { isInitialized } = get();
       if (!isInitialized) return;
+
+      // Hanging up gave the slot back, so resuming is a fresh claim and has to
+      // clear the same bar as joining. Without this, anyone who hung up in a busy
+      // call could reclaim past the cap — and would have opened their camera to
+      // find out.
+      if (callIsFull()) {
+        logger.warn('[videocall] Call is full, not reconnecting');
+        return;
+      }
 
       set({ error: null });
 

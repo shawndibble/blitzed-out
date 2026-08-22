@@ -59,6 +59,43 @@ beforeEach(() => {
 mockGetUserMediaError(createNotAllowedError());
 ```
 
+### realtimeDatabase.ts
+
+Fake Realtime Database that models **registrations per path**, for tests where
+more than one module listens on the same node.
+
+The usual per-file `vi.mock('firebase/database')` factory returns a bare
+`onValue: vi.fn()` and `off: vi.fn()`, so nothing can observe what the SDK does
+when listeners share a path. Two real behaviours are invisible to those stubs,
+and both have bitten:
+
+- `off(query)` with no event type and no callback detaches **every** listener at
+  that location, not just the caller's.
+- `onValue` replays the last value **synchronously** when the path is already
+  cached — which it is whenever another listener is up.
+
+**Exports**:
+
+- `fakeDatabase` — the shared instance: `publish(path, value)`, `fail(path, err)`,
+  `listenerCount(path)`, `reset()`
+- `realtimeDatabaseModule()` — the `firebase/database` module shape, backed by it
+
+**Usage** (call inside the factory — `vi.mock` is hoisted above imports):
+
+```typescript
+import { fakeDatabase, realtimeDatabaseModule } from '@/__mocks__/realtimeDatabase';
+
+vi.mock('firebase/database', () => realtimeDatabaseModule());
+
+beforeEach(() => fakeDatabase.reset());
+
+fakeDatabase.publish('video-calls/PUBLIC/users', { alice: { lastSeen: Date.now() } });
+expect(fakeDatabase.listenerCount('video-calls/PUBLIC/users')).toBe(2);
+```
+
+Reach for this only when a test needs two readers on one node. A single-module
+test is better served by the inline factory the rest of the suite uses.
+
 ## See Also
 
 - `/src/__tests__/fixtures/videoCall.fixtures.ts` - Test data factories
