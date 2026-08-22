@@ -14,12 +14,28 @@ name:
 So a deploy without the delete step below fails loudly rather than half-migrating. There is
 no state where some functions silently changed generation.
 
+## Run it as a wizard instead
+
+`scripts/gen2-cutover-wizard.sh` walks the whole thing interactively — it checks the
+preflight, gates every irreversible step behind a confirm, and runs the verification
+below for you (including granting the secret bindings if they're missing):
+
+```bash
+./scripts/gen2-cutover-wizard.sh
+```
+
+The rest of this doc is the same procedure by hand.
+
 ## Prerequisites
 
 - `firebase-tools` 14.15.0 or newer. Gen 2 has been supported since 11.x, so **no CLI
   upgrade is needed for this cutover.** (15.x is only required if you later want the
   nodejs24 runtime — see the last section.)
 - Logged in as a principal that can delete and create functions on `blitzout-49b39`.
+- A working `gcloud` credential for that project. `firebase deploy` does not need it, but
+  every verification step here does — including the secret-access check, which is the one
+  whose failure is silent. `gcloud auth login` if `gcloud functions list --project
+blitzout-49b39` errors.
 
 ## Sequence
 
@@ -39,13 +55,20 @@ All four scheduled jobs tolerate a skipped cycle at zero cost, so there is no ga
 ```bash
 firebase functions:delete cleanupStaleUsers cleanupInactiveAnonymousAccounts \
   cleanupVideoCallSignaling onUserDisconnect validateUserPresence onPackReported \
-  manualCleanupStaleUsers manualCleanupAnonymousAccounts --project blitzout-49b39
+  manualCleanupStaleUsers manualCleanupAnonymousAccounts \
+  --project blitzout-49b39 --region us-central1
 ```
 
-Then deploy them back as Gen 2:
+Then deploy them back as Gen 2. **Scope the deploy** — a bare `--only functions` would
+also try to redeploy the Gen 1 `getTurnCredentials` still in place and fail on the
+same-name generation rule:
 
 ```bash
-firebase deploy --only functions --project blitzout-49b39
+firebase deploy --project blitzout-49b39 --only \
+  functions:cleanupStaleUsers,functions:cleanupInactiveAnonymousAccounts,\
+functions:cleanupVideoCallSignaling,functions:onUserDisconnect,\
+functions:validateUserPresence,functions:onPackReported,\
+functions:manualCleanupStaleUsers,functions:manualCleanupAnonymousAccounts
 ```
 
 ### 2. `getTurnCredentials` (the client-coupled one)
