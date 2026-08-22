@@ -3,6 +3,7 @@ import { CallableRequest, HttpsError, onCall } from 'firebase-functions/v2/https
 import { getDatabase } from 'firebase-admin/database';
 import { APP_CHECK_ENFORCED, observeAppCheck } from './appCheck';
 import { enforceRateLimit, RateLimitPolicy } from './rateLimit';
+import { RUNTIME_OPTIONS } from './runtime';
 
 /**
  * Mints short-lived Cloudflare TURN credentials.
@@ -58,6 +59,7 @@ export const getTurnCredentials = onCall(
   // Bounded well under the 60s default: every path here is either a fast RTDB
   // read or a time-boxed upstream call, and the client is blocked meanwhile.
   {
+    ...RUNTIME_OPTIONS,
     enforceAppCheck: APP_CHECK_ENFORCED,
     secrets: ['CLOUDFLARE_TURN_TOKEN'],
     timeoutSeconds: 30,

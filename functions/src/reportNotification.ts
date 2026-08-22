@@ -3,6 +3,8 @@ import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { getFirestore } from 'firebase-admin/firestore';
 import sgMail from '@sendgrid/mail';
 
+import { RUNTIME_OPTIONS } from './runtime';
+
 interface ReportDoc {
   packId?: string;
   reporterUid?: string;
@@ -22,7 +24,7 @@ interface ReportDoc {
  * sender; the destination is MODERATION_TO.
  */
 export const onPackReported = onDocumentCreated(
-  { document: 'reports/{reportId}', secrets: ['SENDGRID_API_KEY'] },
+  { document: 'reports/{reportId}', secrets: ['SENDGRID_API_KEY'], ...RUNTIME_OPTIONS },
   async (event) => {
     // v2 hands the snapshot in `event.data`, and types it optional: a retried
     // delivery for an already-deleted document arrives with nothing to read.
