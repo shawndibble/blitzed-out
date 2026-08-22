@@ -104,8 +104,8 @@ export default [
       'preserve-caught-error': 'warn',
       // Application code logs through `utils/logger`, which is silent in
       // production by design. Direct console calls only appeared to be
-      // production-safe because terser's drop_console erased them at build time
-      // — the rule lived in the bundler config, not in the source.
+      // production-safe because the minifier's console stripping erased them at
+      // build time — the rule lived in the bundler config, not in the source.
       'no-console': 'error',
     },
   },

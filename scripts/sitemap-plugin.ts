@@ -10,7 +10,7 @@ export function sitemapPlugin(): Plugin {
       const currentDate = new Date().toISOString().split('T')[0];
 
       // Path to the sitemap file
-      const sitemapPath = path.resolve(__dirname, '../public/sitemap.xml');
+      const sitemapPath = path.resolve(import.meta.dirname, '../public/sitemap.xml');
 
       try {
         // Read the current sitemap

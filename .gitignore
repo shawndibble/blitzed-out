@@ -61,3 +61,4 @@ bundle-stats.html
 
 # Multi-agent coordination scratch file (never committed)
 COMMS.md
+*.tsbuildinfo
