@@ -9,6 +9,11 @@
       "matchPackageNames": ["typescript"],
       "allowedVersions": "<6.1.0",
       "matchFileNames": ["package.json"]
+    },
+    {
+      "description": "uuid is not a dependency of this app - it appears nowhere in src/, functions/src/ or scripts/. Both entries are overrides that only force someone else's transitive uuid past advisory GHSA-w5hq-g745-h8pq, whose range is \"<11.1.1\", so ^11.1.1 already clears it and a major bump buys no security. Holding at 11.x also keeps the functions override off an ESM-only uuid inside gaxios/firebase-admin in production. Drop this rule if the app ever imports uuid directly.",
+      "matchPackageNames": ["uuid"],
+      "allowedVersions": "<12.0.0"
     }
   ]
 }
