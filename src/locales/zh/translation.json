@@ -559,8 +559,7 @@
     "light": "淺色主題",
     "dark": "深色主題",
     "system": "系統預設",
-    "switchToLight": "切換到淺色主題",
-    "switchToDark": "切換到深色主題"
+    "label": "主題"
   },
   "tts": {
     "sampleText": "喝一杯，享受遊戲。"

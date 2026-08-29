@@ -560,8 +560,7 @@
     "light": "Tema claro",
     "dark": "Tema oscuro",
     "system": "Predeterminado del sistema",
-    "switchToLight": "Cambiar a tema claro",
-    "switchToDark": "Cambiar a tema oscuro"
+    "label": "Tema"
   },
   "tts": {
     "sampleText": "Toma un trago y disfruta del juego."

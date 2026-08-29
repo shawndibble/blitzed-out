@@ -560,8 +560,7 @@
     "light": "Light theme",
     "dark": "Dark theme",
     "system": "System default",
-    "switchToLight": "Switch to light theme",
-    "switchToDark": "Switch to dark theme"
+    "label": "Theme"
   },
   "tts": {
     "sampleText": "Take a drink and enjoy the game."

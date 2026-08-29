@@ -1,12 +1,11 @@
 import { Suspense, useState, useRef } from 'react';
-import { CalendarMonth } from '@mui/icons-material';
+import CalendarMonth from '@mui/icons-material/CalendarMonth';
 import { AppBar, Badge, Box, IconButton, Portal, Toolbar } from '@mui/material';
 import useSchedule from '@/context/hooks/useSchedule';
 import useBreakpoint from '@/hooks/useBreakpoint';
 import Logo from '@/images/blitzed-out-optimized.png';
 import { useTranslation } from 'react-i18next';
 import CastButton from '@/components/CastButton';
-import ThemeToggle from '@/components/ThemeToggle';
 import './styles.css';
 import { isPublicRoom } from '@/helpers/strings';
 import { Player } from '@/types/player';
@@ -51,6 +50,10 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
     setUserPresenceAnchor(null);
   };
 
+  // Deleting the last game from inside the dialog empties the live snapshot, so
+  // stay mounted while it is open or focus has nowhere to return to on close.
+  const showScheduleButton = schedule.length > 0 || openSchedule;
+
   return (
     <AppBar position="fixed" sx={{ paddingTop: 'env(safe-area-inset-top)' }}>
       <Toolbar disableGutters variant="dense" component="nav" className="nav">
@@ -77,11 +80,13 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
               aria-expanded={openUserPresence}
               aria-haspopup="dialog"
             />
-            <IconButton onClick={handleScheduleClick} aria-label="schedule game" sx={{ ml: 2 }}>
-              <Badge color="primary" badgeContent={!seen ? schedule.length : null}>
-                <CalendarMonth />
-              </Badge>
-            </IconButton>
+            {showScheduleButton && (
+              <IconButton onClick={handleScheduleClick} aria-label="schedule game" sx={{ ml: 2 }}>
+                <Badge color="primary" badgeContent={!seen ? schedule.length : null}>
+                  <CalendarMonth />
+                </Badge>
+              </IconButton>
+            )}
             {openSchedule && (
               <Portal>
                 <Suspense fallback={null}>
@@ -105,7 +110,6 @@ export default function Navigation({ room, playerList = [] }: NavigationProps): 
         </div>
 
         <div className="menu-drawer">
-          <ThemeToggle size="medium" aria-label="Toggle between light and dark theme" />
           <CastButton />
           <MenuDrawer />
         </div>
