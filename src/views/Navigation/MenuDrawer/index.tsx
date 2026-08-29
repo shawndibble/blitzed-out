@@ -353,10 +353,12 @@ export default function MenuDrawer(): JSX.Element {
               display: 'flex',
               flexDirection: 'column',
               gap: 2,
+              // One cap for every footer control so they line up as a column.
+              '& > *': { maxWidth: 200 },
             }}
           >
             <ThemeModeToggle />
-            <FormControl fullWidth size="small" sx={{ maxWidth: 200 }}>
+            <FormControl fullWidth size="small">
               <InputLabel
                 id="drawer-language-label"
                 sx={{
