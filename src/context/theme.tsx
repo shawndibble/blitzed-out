@@ -15,8 +15,6 @@ interface ThemeContextValue {
   prefersDarkMode: boolean;
   /** Function to change theme mode */
   setThemeMode: (mode: ThemeMode) => void;
-  /** Function to toggle between light and dark (ignores system preference) */
-  toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
@@ -56,12 +54,6 @@ export function ThemeProvider({ children, defaultMode = 'system' }: ThemeProvide
     updateSettings({ themeMode: mode });
   };
 
-  // Function to toggle between light and dark (ignores system)
-  const toggleTheme = () => {
-    const newMode = resolvedThemeMode === 'light' ? 'dark' : 'light';
-    setThemeMode(newMode);
-  };
-
   // Provide smooth transition classes to body
   useEffect(() => {
     const body = document.body;
@@ -85,7 +77,6 @@ export function ThemeProvider({ children, defaultMode = 'system' }: ThemeProvide
     resolvedThemeMode,
     prefersDarkMode,
     setThemeMode,
-    toggleTheme,
   };
 
   return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;

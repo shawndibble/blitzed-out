@@ -560,8 +560,7 @@
     "light": "Helles Design",
     "dark": "Dunkles Design",
     "system": "Systemstandard",
-    "switchToLight": "Zum hellen Design wechseln",
-    "switchToDark": "Zum dunklen Design wechseln"
+    "label": "Design"
   },
   "tts": {
     "sampleText": "Nimm einen Schluck und genieße das Spiel."

@@ -31,6 +31,7 @@ import LinkIcon from '@mui/icons-material/Link';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
+import ThemeModeToggle from '@/components/ThemeModeToggle';
 import TuneIcon from '@mui/icons-material/Tune';
 import TvIcon from '@mui/icons-material/Tv';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
@@ -299,8 +300,17 @@ export default function MenuDrawer(): JSX.Element {
     navigate,
   ]);
 
+  // Closing belongs to the item, not to a container click handler: the footer
+  // holds settings controls that must survive being clicked.
   const menuList = menuItems.map(({ key, title, icon, onClick }) => (
-    <ListItem key={key} disablePadding onClick={onClick}>
+    <ListItem
+      key={key}
+      disablePadding
+      onClick={() => {
+        onClick();
+        toggleDrawer(false);
+      }}
+    >
       <ListItemButton>
         <ListItemIcon>{icon}</ListItemIcon>
         <ListItemText primary={title} />
@@ -328,8 +338,6 @@ export default function MenuDrawer(): JSX.Element {
       </IconButton>
       <Drawer anchor="right" open={menuOpen} onClose={() => toggleDrawer(false)}>
         <Box
-          role="presentation"
-          onClick={() => toggleDrawer(false)}
           sx={{
             width: 250,
             display: 'flex',
@@ -342,8 +350,12 @@ export default function MenuDrawer(): JSX.Element {
             sx={{
               borderTop: (theme) => `1px solid ${theme.palette.divider}`,
               p: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
             }}
           >
+            <ThemeModeToggle />
             <FormControl fullWidth size="small" sx={{ maxWidth: 200 }}>
               <InputLabel
                 id="drawer-language-label"

@@ -7,6 +7,7 @@
   color: var(--color-cyan-400, #22d3ee);
   display: inline-block;
   margin: 0;
+  white-space: nowrap;
 }
 
 body.theme-light .site-title {
