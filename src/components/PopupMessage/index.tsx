@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ActionCard from '@/components/ActionCard';
 import useSoundAndDialog, { DialogResult } from '@/hooks/useSoundAndDialog';
 import useTurnIndicator from '@/hooks/useTurnIndicator';
@@ -42,28 +42,11 @@ const PopupMessage = (): JSX.Element | null => {
     }
   }, [message, t, isMyMessage, isGameOverShowing]);
 
-  // handle timeout of ActionCard
-  const timeoutIdRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  useEffect(() => {
-    if (message) {
-      timeoutIdRef.current = setTimeout(() => setMessage(false), 21000);
-    }
-    return () => {
-      if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current);
-    };
-  }, [message, setMessage]);
-
   const closeActionCard = useCallback(() => {
-    if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current);
     setIsOpen(false);
     // Delay clearing the message to allow exit animation
     setTimeout(() => setMessage(false), 500);
   }, [setMessage]);
-
-  const stopAutoClose = useCallback(() => {
-    if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current);
-  }, []);
 
   // Don't render if we never had a valid message
   if (!lastMessage) {
@@ -77,7 +60,6 @@ const PopupMessage = (): JSX.Element | null => {
       displayName={lastMessage.displayName}
       open={isOpen}
       handleClose={closeActionCard}
-      stopAutoClose={stopAutoClose}
       nextPlayer={nextPlayer}
       isMyMessage={lastIsMyMessage}
       isLocalRoom={isLocalRoom}

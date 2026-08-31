@@ -41,7 +41,7 @@ export default function CountDownButtonModal({
 
   const handleClose = () => setOpen(false);
 
-  const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(
+  const { timeLeft, setTimeLeft, togglePause, restart, isPaused } = useCountdown(
     totalSeconds,
     true,
     handleClose
@@ -60,9 +60,8 @@ export default function CountDownButtonModal({
   const clickedButton = () => {
     preventParentClose();
     setOpen(true);
-    setTimeLeft(totalSeconds);
+    restart();
     warningFiredRef.current = false;
-    if (isPaused) togglePause();
   };
 
   return (

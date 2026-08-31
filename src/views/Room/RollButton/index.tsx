@@ -82,7 +82,7 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
   const [rollText, setRollText] = useState<string>(() => t('roll'));
   const handsFreeActive = Boolean(settings.handsFree) && isHandsFreeAvailable(settings.gameMode);
   // Hands-free waits for the spoken action to finish before the next countdown ticks.
-  const { timeLeft, setTimeLeft, togglePause, isPaused } = useCountdown(
+  const { timeLeft, setTimeLeft, togglePause, pause, isPaused } = useCountdown(
     autoTime,
     true,
     undefined,
@@ -103,10 +103,6 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
   // The screen must not sleep while hands-free is driving the game.
   useWakeLock(handsFreeActive && !isPaused);
 
-  const isPausedRef = useRef(isPaused);
-  useEffect(() => {
-    isPausedRef.current = isPaused;
-  }, [isPaused]);
   const selectedRollRef = useRef(selectedRoll);
   useEffect(() => {
     selectedRollRef.current = selectedRoll;
@@ -121,12 +117,12 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
       setTimerSettings({ isRange: true, min: range.min, max: range.max });
       setAutoTime(initial);
       setTimeLeft(initial);
-      if (!isPausedRef.current) togglePause();
+      pause();
     } else if (selectedRollRef.current === 'handsFree') {
-      if (!isPausedRef.current) togglePause();
+      pause();
       setSelectedRoll('manual');
     }
-  }, [handsFreeActive, settings.handsFreePreset, setTimeLeft, togglePause]);
+  }, [handsFreeActive, settings.handsFreePreset, setTimeLeft, pause]);
 
   const componentMountTimeRef = useRef<number>(0);
   const interactionCountRef = useRef<number>(0);
@@ -241,7 +237,7 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
       setSelectedRoll(String(key));
 
       if (isNumeric(key)) {
-        if (!isPaused) togglePause();
+        pause();
         const numericKey = Number(key);
         setAutoTime(numericKey);
         setTimeLeft(numericKey);
@@ -249,14 +245,14 @@ const RollButton = forwardRef<RollButtonHandle, RollButtonProps>(function RollBu
         setTimerSettings({ isRange: false, min: numericKey, max: numericKey });
       }
     },
-    [isPaused, setTimeLeft, togglePause, setRollValue, settings.handsFree, disableHandsFree]
+    [pause, setTimeLeft, setRollValue, settings.handsFree, disableHandsFree]
   );
 
   const handleAutoRollCustom = (time: number, custom: Partial<TimerSettings>): void => {
     if (settings.handsFree) {
       disableHandsFree();
     }
-    if (!isPaused) togglePause();
+    pause();
     setAutoTime(time);
     setTimeLeft(time);
     setTimerSettings({ ...timerSettings, ...custom });
