@@ -100,13 +100,6 @@ export interface ToastAlertProps {
 }
 
 // Hook return types
-export interface CountdownHookReturn {
-  timeLeft: number;
-  isPaused: boolean;
-  togglePause: () => void;
-  resetTimer: (newTime?: number) => void;
-}
-
 export interface FullscreenHookReturn {
   isSupported: boolean;
   isFullscreen: boolean;

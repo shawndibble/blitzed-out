@@ -4,6 +4,8 @@ interface CountdownResult {
   timeLeft: number;
   setTimeLeft: React.Dispatch<React.SetStateAction<number>>;
   togglePause: () => void;
+  pause: () => void;
+  restart: () => void;
   isPaused: boolean;
 }
 
@@ -20,16 +22,34 @@ export default function useCountdown(
   useEffect(() => {
     holdWhileRef.current = holdWhile;
   }, [holdWhile]);
+  // Held in a ref so an unmemoized callback cannot re-run the effect below and
+  // rebuild the interval mid-second, which would stretch the countdown.
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+  const completedRef = useRef(false);
 
   const togglePause = useCallback((): void => setIsPaused((prev) => !prev), []);
+  const pause = useCallback((): void => setIsPaused(true), []);
+  const restart = useCallback((): void => {
+    completedRef.current = false;
+    setTimeLeft(normalizedStartSeconds);
+    setIsPaused(false);
+  }, [normalizedStartSeconds]);
 
   useEffect(() => {
-    if (timeLeft === 0 && onComplete) {
-      onComplete();
+    if (timeLeft <= 0) {
+      // Once per run: a second call would close something already closed.
+      if (!completedRef.current) {
+        completedRef.current = true;
+        onCompleteRef.current?.();
+      }
       return;
     }
 
-    if (timeLeft <= 0 || isPaused) return;
+    completedRef.current = false;
+    if (isPaused) return;
 
     const intervalId = setInterval(() => {
       // Hold (without pausing) while an external condition is active — e.g.
@@ -44,12 +64,14 @@ export default function useCountdown(
     }, 1000);
 
     return () => clearInterval(intervalId);
-  }, [timeLeft, isPaused, onComplete]);
+  }, [timeLeft, isPaused]);
 
   return {
     timeLeft,
     setTimeLeft,
     togglePause,
+    pause,
+    restart,
     isPaused,
   };
 }

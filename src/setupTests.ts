@@ -353,12 +353,18 @@ vi.mock('@mui/icons-material', () => {
     {},
     {
       get(_target, prop) {
+        // `await import(...)` must not treat the namespace as a thenable.
+        if (prop === 'then') return undefined;
         if (typeof prop === 'string') {
           // Return a mock React component for any icon
           return () =>
             React.createElement('div', { 'data-testid': `mui-icon-${prop.toLowerCase()}` });
         }
         return undefined;
+      },
+      // Vitest checks named exports exist on the mock before wiring them up.
+      has(_target, prop) {
+        return prop !== 'then';
       },
     }
   );

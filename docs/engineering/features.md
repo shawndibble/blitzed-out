@@ -33,7 +33,7 @@ A board is an ordered list of tiles with three kinds:
 
 ### Action display & game over
 
-- **PopupMessage** shows the rolled action card with a timeout.
+- **PopupMessage** picks which rolled action to show; **ActionCard** owns the 20s auto-close, which its own visible countdown drives. Using an inline timer button pauses it for that card only.
 - **GameOverDialog** offers: restart same board, rebuild a fresh board, or change settings.
 
 ---

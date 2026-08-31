@@ -62,4 +62,48 @@ describe('useCountdown', () => {
 
     expect(result.current.timeLeft).toBe(0);
   });
+
+  it('fires onComplete once, even when the callback identity changes', () => {
+    const onComplete = vi.fn();
+    const { result, rerender } = renderHook(() => useCountdown(2, false, () => onComplete()));
+
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+    rerender();
+    rerender();
+
+    expect(onComplete).toHaveBeenCalledTimes(1);
+    expect(result.current.timeLeft).toBe(0);
+  });
+
+  it('runs again after restart', () => {
+    const onComplete = vi.fn();
+    const { result } = renderHook(() => useCountdown(2, false, onComplete));
+
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+    act(() => result.current.restart());
+
+    expect(result.current.timeLeft).toBe(2);
+
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+
+    expect(onComplete).toHaveBeenCalledTimes(2);
+  });
+
+  it('pause is idempotent where togglePause is not', () => {
+    const { result } = renderHook(() => useCountdown(5, false));
+
+    act(() => result.current.pause());
+    act(() => result.current.pause());
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+
+    expect(result.current.timeLeft).toBe(5);
+  });
 });

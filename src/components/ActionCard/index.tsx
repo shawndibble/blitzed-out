@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Box, Divider, LinearProgress, Paper, Portal, Typography } from '@mui/material';
 import { Trans, useTranslation } from 'react-i18next';
@@ -20,7 +20,6 @@ interface ActionCardProps {
   turn?: TurnFields;
   displayName?: string;
   handleClose: () => void;
-  stopAutoClose?: () => void;
   nextPlayer: Player | null;
   isMyMessage?: boolean;
   isLocalRoom?: boolean;
@@ -34,41 +33,43 @@ export default function ActionCard({
   turn,
   displayName = '',
   handleClose,
-  stopAutoClose = () => null,
   nextPlayer = null,
   isMyMessage = false,
   isLocalRoom = false,
 }: ActionCardProps): JSX.Element {
   const { t } = useTranslation();
   const isMobile = useBreakpoint();
-  const [showAutoCloseText, setShowAutoCloseText] = useState<boolean>(true);
   const playCardSound = useCardSound();
 
   const title = turn ? `#${turn.location + 1}: ${turn.title}` : '';
   const description = turn?.description ?? '';
   const numbers = extractTime(text, t('seconds'));
-  const { timeLeft, togglePause } = useCountdown(AUTO_CLOSE_SECONDS, false);
   const player = nextPlayer?.displayName;
 
   const isGameOver = !!isMyMessage && !!turn?.finished;
+
+  const { timeLeft, isPaused, pause, restart } = useCountdown(
+    AUTO_CLOSE_SECONDS,
+    true,
+    handleClose
+  );
+
+  // Before paint, so a reused card never shows the previous card's leftover
+  // seconds. `text` covers a new roll over an open card, `open` a repeat roll
+  // that reads identically. A finish card waits for an explicit choice.
+  useLayoutEffect(() => {
+    if (!open || isGameOver) {
+      pause();
+      return;
+    }
+    restart();
+  }, [open, text, isGameOver, pause, restart]);
 
   useEffect(() => {
     if (open) {
       playCardSound();
     }
   }, [open, playCardSound]);
-
-  useEffect(() => {
-    if (open && isGameOver) {
-      stopAutoClose();
-    }
-  }, [open, isGameOver, stopAutoClose]);
-
-  const preventClose = useCallback(() => {
-    togglePause();
-    stopAutoClose();
-    setShowAutoCloseText(false);
-  }, [togglePause, stopAutoClose]);
 
   const cardVariants = getCardVariants();
 
@@ -198,10 +199,10 @@ export default function ActionCard({
                             color: 'text.secondary',
                           }}
                         >
-                          {showAutoCloseText ? (
-                            <Trans i18nKey="autoCloseModal" values={{ timeLeft }} />
-                          ) : (
+                          {isPaused ? (
                             <Trans i18nKey="autoCloseStopped" />
+                          ) : (
+                            <Trans i18nKey="autoCloseModal" values={{ timeLeft }} />
                           )}
                         </Typography>
                       </Box>
@@ -224,7 +225,7 @@ export default function ActionCard({
                             <CountDownButtonModal
                               key={textString}
                               textString={textString}
-                              preventParentClose={preventClose}
+                              preventParentClose={pause}
                             />
                           ))}
                         </Box>
