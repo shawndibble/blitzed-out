@@ -1,7 +1,11 @@
 import * as Sentry from '@sentry/react';
 import React from 'react';
 import { AUDIO_DEVICE_START_ERROR } from '@/constants/errorPatterns';
-import { isInjectedScriptStackOverflow, isOpaqueStacklessError } from '@/services/sentryFilters';
+import {
+  isInjectedScriptStackOverflow,
+  isOpaqueStacklessError,
+  isProxyRewrittenHostCall,
+} from '@/services/sentryFilters';
 import {
   useLocation,
   useNavigationType,
@@ -102,9 +106,14 @@ function beforeSendHandler(event: Sentry.ErrorEvent): Sentry.ErrorEvent | null {
     return null;
   }
 
-  // Errors raised outside our own bundle. Both need the stack frames, so neither can be
-  // expressed as an `ignoreErrors` pattern.
-  if (isOpaqueStacklessError(event) || isInjectedScriptStackOverflow(event)) {
+  // Raised by code that is not ours — though not always from outside our bundle, since
+  // `isProxyRewrittenHostCall` fires on events that also carry one of our chunks. All three read
+  // the stack frames, so none can be expressed as an `ignoreErrors` pattern.
+  if (
+    isOpaqueStacklessError(event) ||
+    isInjectedScriptStackOverflow(event) ||
+    isProxyRewrittenHostCall(event)
+  ) {
     return null;
   }
 

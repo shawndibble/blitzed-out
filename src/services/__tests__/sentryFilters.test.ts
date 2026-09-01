@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { isInjectedScriptStackOverflow, isOpaqueStacklessError } from '@/services/sentryFilters';
+import {
+  isInjectedScriptStackOverflow,
+  isOpaqueStacklessError,
+  isProxyRewrittenHostCall,
+} from '@/services/sentryFilters';
 
 /** Minimal stand-in for the slice of Sentry.ErrorEvent these predicates read. */
 function event(type: string, value: string, filenames?: (string | undefined)[]) {
@@ -115,5 +119,66 @@ describe('isInjectedScriptStackOverflow', () => {
 
   it('ignores an event with no exception', () => {
     expect(isInjectedScriptStackOverflow({})).toBe(false);
+  });
+});
+
+/** Both came from one session, so they share a prefix; the base64 tail is the original URL. */
+const PROXIED_GAPI = '/__av/AWqXWKQcJqVqwPNOxJUudo-oW0k8aHR0cHM6Ly9hcGlzLmdvb2dsZS5jb20';
+const PROXIED_GTAG = '/__av/AWqXWKSd9nMtGSRMocrda35FI9UoaHR0cHM6Ly93d3cuZ29vZ2xldGFn';
+
+describe('isProxyRewrittenHostCall', () => {
+  // Firebase Auth's gapi iframe loader.
+  it('drops a Window.setTimeout call with a proxy frame beside one of ours', () => {
+    expect(
+      isProxyRewrittenHostCall(
+        event('TypeError', 'Can only call Window.setTimeout on instances of Window', [
+          undefined,
+          PROXIED_GAPI,
+          '/js/chunk-C9D6FGur.js',
+        ])
+      )
+    ).toBe(true);
+  });
+
+  it('drops a Window.setInterval call raised entirely inside the proxy', () => {
+    expect(
+      isProxyRewrittenHostCall(
+        event('TypeError', 'Can only call Window.setInterval on instances of Window', [
+          PROXIED_GTAG,
+        ])
+      )
+    ).toBe(true);
+  });
+
+  it('keeps the identical message when no proxy rewrote the script', () => {
+    expect(
+      isProxyRewrittenHostCall(
+        event('TypeError', 'Can only call Window.matchMedia on instances of Window', [
+          '/js/chunk-C9D6FGur.js',
+        ])
+      )
+    ).toBe(false);
+  });
+
+  it('keeps the same wording on another interface, where a detached `this` could be ours', () => {
+    expect(
+      isProxyRewrittenHostCall(
+        event('TypeError', 'Can only call IDBDatabase.transaction on instances of IDBDatabase', [
+          PROXIED_GTAG,
+        ])
+      )
+    ).toBe(false);
+  });
+
+  it('keeps the message when there are no frames to attribute it to', () => {
+    expect(
+      isProxyRewrittenHostCall(
+        event('TypeError', 'Can only call Window.setTimeout on instances of Window')
+      )
+    ).toBe(false);
+  });
+
+  it('ignores an event with no exception', () => {
+    expect(isProxyRewrittenHostCall({})).toBe(false);
   });
 });

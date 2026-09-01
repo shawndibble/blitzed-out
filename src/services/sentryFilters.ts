@@ -25,6 +25,15 @@ export interface FilterableEvent {
  */
 const OWN_BUNDLE_DIRECTORIES = ['/assets/', '/js/'];
 
+/**
+ * Where a content-filter proxy serves the third-party scripts it rewrote, `/__av/<base64 of the
+ * original URL>`. Another proxy would use another prefix; it joins this list.
+ */
+const PROXY_REWRITE_DIRECTORIES = ['/__av/'];
+
+/** WebKit's illegal-invocation message, scoped to `window`'s own methods. */
+const DETACHED_WINDOW_CALL = /^Can only call Window\.\w+ on instances of Window$/;
+
 /** A minified identifier with nothing else in it — no spaces, no punctuation. */
 const OPAQUE_TOKEN = /^[A-Za-z][A-Za-z0-9]{0,2}$/;
 
@@ -32,10 +41,10 @@ function firstException(event: FilterableEvent): FilterableException | undefined
   return event.exception?.values?.[0];
 }
 
-function isFromOwnBundle(frame: FilterableFrame): boolean {
-  const filename = frame.filename;
-  if (!filename) return false;
-  return OWN_BUNDLE_DIRECTORIES.some((directory) => filename.includes(directory));
+function hasFrameIn(frames: FilterableFrame[] | undefined, directories: string[]): boolean {
+  return !!frames?.some((frame) =>
+    directories.some((directory) => frame.filename?.includes(directory))
+  );
 }
 
 /**
@@ -75,5 +84,28 @@ export function isInjectedScriptStackOverflow(event: FilterableEvent): boolean {
   const frames = exception.stacktrace?.frames;
   if (!frames?.length) return false;
 
-  return !frames.some(isFromOwnBundle);
+  return !hasFrameIn(frames, OWN_BUNDLE_DIRECTORIES);
+}
+
+/**
+ * A `window` method called with the wrong receiver, from a script a content-filter proxy
+ * rewrote and re-served from our own origin.
+ *
+ * The proxy runs those scripts against a wrapped `window`, so every host method they forward
+ * throws. Observed as `Window.setTimeout` from Firebase Auth's gapi iframe loader and
+ * `Window.setInterval` from gtag. No app change can fix it, and the same session's Firestore
+ * transport is failing anyway.
+ *
+ * Frame-scoped rather than message-scoped because app code detaching a window method
+ * (`const { matchMedia } = window`) produces a byte-identical message, and the gapi event
+ * carries a frame from our own bundle — so neither the message nor own-bundle absence can tell
+ * the two apart. Only the proxy's own frame can. WebKit's separate attribute-getter wording
+ * (`The Window.localStorage getter can only be used on…`) is not covered; it has not been seen.
+ */
+export function isProxyRewrittenHostCall(event: FilterableEvent): boolean {
+  const exception = firstException(event);
+  if (!exception || exception.type !== 'TypeError') return false;
+  if (!DETACHED_WINDOW_CALL.test(exception.value ?? '')) return false;
+
+  return hasFrameIn(exception.stacktrace?.frames, PROXY_REWRITE_DIRECTORIES);
 }
