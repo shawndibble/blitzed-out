@@ -8,7 +8,7 @@
     "node": ">=24"
   },
   "scripts": {
-    "predeploy": "npm run build",
+    "predeploy": "SENTRY_UPLOAD_SOURCEMAPS=true npm run build",
     "deploy": "gh-pages -b master -d dist",
     "lint": "eslint --format=compact --ext .js,.jsx,.ts,.tsx .",
     "format": "prettier --write .",

@@ -37,8 +37,8 @@ export default defineConfig({
     ...(shouldUploadSentrySourcemaps
       ? [
           sentryVitePlugin({
-            org: 'blitzedout',
-            project: 'javascript-react',
+            org: 'krishmero',
+            project: 'blitzed-out',
             // Only needed if thirdPartyErrorFilterIntegration is reinstated in
             // services/sentry.ts — see the note there. This plugin is opt-in, so
             // that filter must not depend on it.
