@@ -47,6 +47,13 @@ const IGNORED_ERROR_PATTERNS = [
   // Anchored on the condition, not the `Failed to execute 'x' on 'y'` prefix naming the caller.
   // Origin, and the Dexie false positive accepted with it: security.md § Sentry.
   /the database connection is closing/i,
+  // Browser extension's own `chrome.runtime.sendMessage` call outliving the tab it targeted —
+  // no `sendMessage` in our own code takes a tab id. Not ours to fix.
+  /Invalid call to runtime\.sendMessage\(\)\. Tab not found\./i,
+  // Sentry's stand-in message for a non-Error rejection value. Anchored on the exact `id, url`
+  // key pair (observed trailing a blocked/failed GA beacon `fetch`) rather than the bare prefix,
+  // so an app-thrown rejection with a different shape still reaches Sentry.
+  /^Object captured as promise rejection with keys: id, url$/,
   // Storage (IndexedDB/localStorage) entirely blocked — iOS Lockdown Mode, aggressive
   // tracking prevention, or similarly locked-down private browsing. Thrown from Dexie's
   // internal cross-tab polling (`indexedDB.databases()`) and Firestore's `SharedClientState`

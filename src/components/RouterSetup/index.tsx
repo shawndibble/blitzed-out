@@ -52,7 +52,15 @@ function AppRoutes() {
         <Route path="/" element={<Navigate replace to="/PUBLIC" />} />
         <Route
           path="/packs/create"
-          element={auth.user ? <PackCreator /> : <UnauthenticatedApp />}
+          element={
+            auth.user ? (
+              <PackCreator />
+            ) : (
+              <MessagesProvider>
+                <UnauthenticatedApp />
+              </MessagesProvider>
+            )
+          }
         />
         <Route
           path="/:id/cast"
