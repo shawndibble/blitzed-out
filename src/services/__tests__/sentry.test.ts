@@ -130,4 +130,41 @@ describe('the ignored error patterns Sentry is initialized with', () => {
       ).toBe(false);
     });
   });
+
+  describe('a browser extension calling runtime.sendMessage after its tab closed', () => {
+    it('drops it', () => {
+      expect(
+        sentryWouldIgnore(
+          errorEvent({
+            type: 'Error',
+            value: 'Invalid call to runtime.sendMessage(). Tab not found.',
+          })
+        )
+      ).toBe(true);
+    });
+  });
+
+  describe('a non-Error promise rejection', () => {
+    it('drops the `id, url` shape seen trailing a blocked/failed GA beacon', () => {
+      expect(
+        sentryWouldIgnore(
+          errorEvent({
+            type: 'UnhandledRejection',
+            value: 'Object captured as promise rejection with keys: id, url',
+          })
+        )
+      ).toBe(true);
+    });
+
+    it('keeps a differently-shaped non-Error rejection', () => {
+      expect(
+        sentryWouldIgnore(
+          errorEvent({
+            type: 'UnhandledRejection',
+            value: 'Object captured as promise rejection with keys: code, message',
+          })
+        )
+      ).toBe(false);
+    });
+  });
 });
