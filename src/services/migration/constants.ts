@@ -26,8 +26,10 @@ export const SUPPORTED_LANGUAGES = ['en', 'es', 'fr', 'zh', 'hi', 'de'] as const
 //          stale default-tile pruning
 // - 2.8.0: Clit Training ladder rework — Oral merged away, Penetration added,
 //          Endurance Challenge replaced by Overstimulation
+// - 2.9.0: Solo (online) content made solo-safe — alcohol lines that gave
+//          drinks to others, and group-dependent confession/WYR prompts
 //
-export const MIGRATION_VERSION = '2.8.0';
+export const MIGRATION_VERSION = '2.9.0';
 // ============================================================================
 
 // Configuration keys for localStorage

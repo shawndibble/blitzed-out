@@ -6,14 +6,14 @@
       "Dale un sorbo a tu bebida.",
       "Tómate un trago.",
       "Toma 2 sorbos.",
-      "Haz que otro jugador dé un sorbo a su bebida.",
+      "Dale un sorbo a tu bebida.",
       "Tómate un trago."
     ],
     "Shots": [
       "1 shot.",
       "Tómate 2 tragos.",
-      "Haz que otro jugador se tome 1 shot.",
-      "Todos beben.",
+      "Tómate un shot misterioso.",
+      "Tómate un shot sin usar las manos.",
       "Tómate un trago."
     ],
     "Beber de un trago": [
@@ -21,8 +21,8 @@
       "Bebe tu copa de un trago.",
       "Tómate un trago",
       "2 shots.",
-      "Haz que otro jugador se beba su copa de un trago.",
-      "Haz que otro jugador se tome un trago"
+      "Bebe tu copa de un trago sin respirar.",
+      "Bebe tu copa de un trago."
     ]
   }
 }
