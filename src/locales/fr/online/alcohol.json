@@ -6,14 +6,14 @@
       "Prends une gorgée de ta boisson.",
       "Bois une gorgée.",
       "Prends 2 gorgées.",
-      "Fais boire une gorgée.",
+      "Bois un petit coup de ton verre.",
       "Bois une gorgée."
     ],
     "Shots": [
       "1 shot.",
       "Prends 2 shots.",
-      "Fais boire 1 shot.",
-      "Tout le monde boit.",
+      "Bois un shot mystère.",
+      "Bois un shot sans utiliser tes mains.",
       "Bois une gorgée."
     ],
     "Cul sec": [
@@ -21,8 +21,8 @@
       "Bois cul sec.",
       "Prends une gorgée",
       "Prends 2 shots.",
-      "Fais boire quelqu'un cul sec.",
-      "Fais boire une gorgée."
+      "Bois cul sec sans respirer.",
+      "Bois cul sec."
     ]
   }
 }

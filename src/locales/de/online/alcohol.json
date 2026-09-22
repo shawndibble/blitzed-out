@@ -6,14 +6,14 @@
       "Nimm einen Schluck von deinem Getränk.",
       "Trink einen Schluck.",
       "Nimm 2 Schlucke.",
-      "Gib einen Schluck aus.",
+      "Nimm einen Schluck von deinem Getränk.",
       "Trink einen Schluck."
     ],
     "Shots": [
       "1 Shot.",
       "Trink 2 Schlucke.",
-      "Gib 1 Shot aus.",
-      "Alle trinken.",
+      "Nimm einen Mystery-Shot.",
+      "Nimm einen Shot ohne deine Hände zu benutzen.",
       "Trink einen Schluck."
     ],
     "Runterkippen": [
@@ -21,8 +21,8 @@
       "Kipp dein Getränk runter.",
       "Trink einen Schluck.",
       "Trink 2 Shots.",
-      "Lass jemanden sein Getränk runterkippen.",
-      "Gib ein Getränk aus."
+      "Stürz dein Getränk herunter, ohne Luft zu holen.",
+      "Kipp dein Getränk runter."
     ]
   }
 }
