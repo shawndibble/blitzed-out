@@ -48,22 +48,16 @@ function hasFrameIn(frames: FilterableFrame[] | undefined, directories: string[]
 }
 
 /**
- * A bare `Error` carrying a short minified token and no frames at all.
- *
- * Nothing in `src/` can produce one: every `new Error()` we write takes an English string
- * literal, and the coercion sites all pass `String(err)`. Third-party scripts compiled with
- * Closure do produce them — an `Error` subclass built via `Error.call(this, code)` keeps
- * `name === 'Error'`, carries a short code as its message, and has no usable stack.
- *
- * Deliberately narrow: a named exception type (`FirebaseError`, `DatabaseClosedError`) is
- * already identifiable, and any frame at all makes the event worth keeping.
+ * A bare `Error` with a short minified token and no frame in our own bundle — nothing in `src/`
+ * throws one, and a frame alone doesn't prove it's ours: injected script (e.g. translation
+ * re-evaluating the page) puts frames on the current route, not a chunk file.
  */
-export function isOpaqueStacklessError(event: FilterableEvent): boolean {
+export function isOpaqueInjectedScriptError(event: FilterableEvent): boolean {
   const exception = firstException(event);
   if (!exception || exception.type !== 'Error') return false;
   if (!OPAQUE_TOKEN.test(exception.value ?? '')) return false;
 
-  return !exception.stacktrace?.frames?.length;
+  return !hasFrameIn(exception.stacktrace?.frames, OWN_BUNDLE_DIRECTORIES);
 }
 
 /**

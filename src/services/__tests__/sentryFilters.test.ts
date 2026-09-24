@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   isInjectedScriptStackOverflow,
-  isOpaqueStacklessError,
+  isOpaqueInjectedScriptError,
   isProxyRewrittenHostCall,
 } from '@/services/sentryFilters';
 
@@ -23,46 +23,65 @@ function event(type: string, value: string, filenames?: (string | undefined)[]) 
   };
 }
 
-describe('isOpaqueStacklessError', () => {
+describe('isOpaqueInjectedScriptError', () => {
   // Every `new Error()` in src/ takes an English string literal, so a stackless two-character
   // message cannot have come from our code.
   it('drops a two-character message with no frames', () => {
-    expect(isOpaqueStacklessError(event('Error', 'Ba'))).toBe(true);
+    expect(isOpaqueInjectedScriptError(event('Error', 'Ba'))).toBe(true);
   });
 
   it.each(['A', 'Ba', 'Gk1'])('drops the short token %s', (value) => {
-    expect(isOpaqueStacklessError(event('Error', value))).toBe(true);
+    expect(isOpaqueInjectedScriptError(event('Error', value))).toBe(true);
   });
 
   it('keeps a token longer than three characters', () => {
-    expect(isOpaqueStacklessError(event('Error', 'Boom'))).toBe(false);
+    expect(isOpaqueInjectedScriptError(event('Error', 'Boom'))).toBe(false);
   });
 
-  it('keeps a short message that has frames to investigate', () => {
-    expect(isOpaqueStacklessError(event('Error', 'Ba', ['/js/index.tsx-abc.js']))).toBe(false);
+  it.each(['/js/index.tsx-abc.js', '/assets/index-C4WnDTlG.js'])(
+    'keeps a short message with a frame in our own bundle (%s)',
+    (filename) => {
+      expect(isOpaqueInjectedScriptError(event('Error', 'Ba', [filename]))).toBe(false);
+    }
+  );
+
+  it('keeps a short message with a mix of foreign and own-bundle frames', () => {
+    // The realistic shape of a genuine app error that also picked up an injected-script frame.
+    expect(
+      isOpaqueInjectedScriptError(event('Error', 'Ba', ['/3MA91/settings', '/js/chunk-abc.js']))
+    ).toBe(false);
   });
 
   it('drops a short message whose frame list is empty', () => {
     // An empty `frames` array carries no more information than no stacktrace at all.
-    expect(isOpaqueStacklessError(event('Error', 'Ba', []))).toBe(true);
+    expect(isOpaqueInjectedScriptError(event('Error', 'Ba', []))).toBe(true);
+  });
+
+  // `La`/`/3MA91/settings` x3 is the live-observed shape (Google's in-app browser, 2026-09).
+  it('drops a short message whose frames are attributed to the current route', () => {
+    expect(
+      isOpaqueInjectedScriptError(
+        event('Error', 'La', ['/3MA91/settings', '/3MA91/settings', '/3MA91/settings'])
+      )
+    ).toBe(true);
   });
 
   it('keeps a named exception type, which is already identifiable', () => {
-    expect(isOpaqueStacklessError(event('FirebaseError', 'Ba'))).toBe(false);
+    expect(isOpaqueInjectedScriptError(event('FirebaseError', 'Ba'))).toBe(false);
   });
 
   it("keeps the minified 'bb' error the boundary tags for context", () => {
     // errorPatterns tags 'bb' for debugging context rather than suppressing it. That decision
     // survives: the boundary reports through captureException, so those events carry frames.
-    expect(isOpaqueStacklessError(event('Error', 'bb', ['/js/index.tsx-abc.js']))).toBe(false);
+    expect(isOpaqueInjectedScriptError(event('Error', 'bb', ['/js/index.tsx-abc.js']))).toBe(false);
   });
 
   it.each(['', 'Ba ', 'B a', 'B.', '4xx'])('keeps the non-token value %j', (value) => {
-    expect(isOpaqueStacklessError(event('Error', value))).toBe(false);
+    expect(isOpaqueInjectedScriptError(event('Error', value))).toBe(false);
   });
 
   it('ignores an event with no exception', () => {
-    expect(isOpaqueStacklessError({})).toBe(false);
+    expect(isOpaqueInjectedScriptError({})).toBe(false);
   });
 });
 

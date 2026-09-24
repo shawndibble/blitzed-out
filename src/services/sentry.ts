@@ -3,7 +3,7 @@ import React from 'react';
 import { AUDIO_DEVICE_START_ERROR } from '@/constants/errorPatterns';
 import {
   isInjectedScriptStackOverflow,
-  isOpaqueStacklessError,
+  isOpaqueInjectedScriptError,
   isProxyRewrittenHostCall,
 } from '@/services/sentryFilters';
 import {
@@ -117,7 +117,7 @@ function beforeSendHandler(event: Sentry.ErrorEvent): Sentry.ErrorEvent | null {
   // `isProxyRewrittenHostCall` fires on events that also carry one of our chunks. All three read
   // the stack frames, so none can be expressed as an `ignoreErrors` pattern.
   if (
-    isOpaqueStacklessError(event) ||
+    isOpaqueInjectedScriptError(event) ||
     isInjectedScriptStackOverflow(event) ||
     isProxyRewrittenHostCall(event)
   ) {
