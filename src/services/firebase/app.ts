@@ -7,11 +7,7 @@
 import { logger } from '@/utils/logger';
 import { getDatabase } from 'firebase/database';
 import { getFunctions } from 'firebase/functions';
-import {
-  initializeFirestore,
-  persistentLocalCache,
-  persistentSingleTabManager,
-} from 'firebase/firestore';
+import { initializeFirestore, memoryLocalCache } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 
 interface FirebaseConfig {
@@ -44,54 +40,25 @@ if (missingVars.length > 0) {
   logger.error('Please check your .env file and ensure all VITE_FIREBASE_* variables are set');
 }
 
-// `persistentLocalCache` touches `localStorage` lazily, after this module's own
-// try/catch below has returned, so probe with a real write here — Firestore's own
-// fallback logic doesn't trust a raw `DOMException` from there.
-function isStorageBlocked(): boolean {
-  const probeKey = '__firestore_storage_probe__';
-  try {
-    window.localStorage.setItem(probeKey, '1');
-    window.localStorage.removeItem(probeKey);
-    return false;
-  } catch {
-    return true;
-  }
-}
-
 const app = initializeApp(firebaseConfig);
 
-function initializeFirestoreWithFallback(): ReturnType<typeof initializeFirestore> {
-  if (isStorageBlocked()) {
-    if (import.meta.env.DEV) logger.error('Storage blocked, using in-memory Firestore cache');
-    return initializeFirestore(app, {});
-  }
+// Memory, not IndexedDB: both tab managers can wedge Firestore's queue (b815) for the session.
+// Dexie holds gameplay data, so a disk cache buys little. See docs/adr/0001-pwa-offline-support.md.
+export const db = initializeFirestore(app, { localCache: memoryLocalCache() });
 
+// Old builds left chat/user data in this DB; nothing reads it and the data wipe misses it. Raw
+// deleteDatabase, not clearIndexedDbPersistence: that runs on Firestore's queue and stalls every
+// query while an old-build tab holds the DB open. Drop once old builds age out (~2027).
+function deleteLegacyFirestoreCache(): void {
+  if (!firebaseConfig.projectId) return;
   try {
-    return initializeFirestore(app, {
-      localCache: persistentLocalCache({
-        // Single-tab, not multi-tab: `persistentMultipleTabManager` enables
-        // Firestore's cross-tab target sync, whose `syncEngineApplyActiveTargetsChange`
-        // feeds a cache miss (`null`) straight into `localStoreAllocateTarget`. That
-        // throws inside the async queue and trips INTERNAL ASSERTION b815, which bricks
-        // the client for the rest of the session. The null is manufactured inside the
-        // SDK, so no app-side seam can catch it; dropping the tab manager removes the
-        // code path. A second tab falls back to an in-memory cache (its persistence
-        // start() rejects FAILED_PRECONDITION, which Firestore handles) — it still works,
-        // it just re-reads from the server. See docs/adr/0001-pwa-offline-support.md.
-        tabManager: persistentSingleTabManager({ forceOwnership: false }),
-      }),
-    });
-  } catch (e) {
-    // IndexedDB unavailable (private browsing, quota exceeded, etc.) — fall back to in-memory
-    if (import.meta.env.DEV)
-      logger.error('Firestore persistence unavailable, using in-memory cache:', e);
-    return initializeFirestore(app, {});
+    window.indexedDB?.deleteDatabase(`firestore/${app.name}/${firebaseConfig.projectId}/main`);
+  } catch (error) {
+    logger.warn('Could not delete legacy Firestore cache', error);
   }
 }
 
-export const db = initializeFirestoreWithFallback();
-
-// Firestore database initialized
+deleteLegacyFirestoreCache();
 
 // Realtime Database accessor for modules (e.g. roomPresence.ts) that need it
 // but don't have access to the module-private `app` instance.

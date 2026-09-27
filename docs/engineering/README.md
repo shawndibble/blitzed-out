@@ -57,7 +57,7 @@ These are the questions a user is likely to grill you on. Short answers here; de
 
 ### Does it work offline?
 
-**Yes, with caveats.** It's an installable PWA with a service worker that precaches the app shell. **Solo** and **Shared Device** play work fully offline after the first visit, because all action content lives in local IndexedDB (Dexie) after a one-time migration. **Individual Devices (online)** mode degrades offline: the app loads, but rooms, chat, presence, and video require the network. Firestore writes queue locally and replay on reconnect. Sounds and videos are _not_ precached (too large) and need the network the first time. → [data-and-sync.md → Offline](data-and-sync.md#offline-support) and [ADR-0001](../adr/0001-pwa-offline-support.md)
+**Yes, with caveats.** It's an installable PWA with a service worker that precaches the app shell. **Solo** and **Shared Device** play work fully offline after the first visit, because all action content lives in local IndexedDB (Dexie) after a one-time migration. **Individual Devices (online)** mode degrades offline: the app loads, but rooms, chat, presence, and video require the network. Firestore writes queue in memory and replay on reconnect (lost if the page reloads first). Sounds and videos are _not_ precached (too large) and need the network the first time. → [data-and-sync.md → Offline](data-and-sync.md#offline-support) and [ADR-0001](../adr/0001-pwa-offline-support.md)
 
 ### Can I share the game at a party? How?
 

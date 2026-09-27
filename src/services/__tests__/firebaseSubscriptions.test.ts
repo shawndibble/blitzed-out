@@ -44,8 +44,7 @@ const h = vi.hoisted(() => ({
 
 vi.mock('firebase/firestore', () => ({
   initializeFirestore: vi.fn(() => ({})),
-  persistentLocalCache: vi.fn(() => ({})),
-  persistentSingleTabManager: vi.fn(() => ({})),
+  memoryLocalCache: vi.fn(() => ({})),
   collection: h.collection,
   doc: vi.fn(),
   addDoc: vi.fn(),

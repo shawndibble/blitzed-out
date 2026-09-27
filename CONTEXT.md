@@ -197,13 +197,13 @@ preferences and are excluded from board export/import (`gameSettingsMessage.ts`)
 
 `navigator.onLine === false` at setup time. Individual Devices option is disabled. Solo and
 Shared Device generate room codes client-side when needed and play from cached data. Firestore
-writes queue via `persistentLocalCache` and sync on reconnect. Realtime Database features such
+writes queue in memory and sync on reconnect (a reload drops them). Realtime Database features such
 as presence are separate from Firestore persistence and must degrade gracefully when offline.
 
 ### Temporarily Offline
 
-Network lost mid-session. Firestore `persistentLocalCache` queues Firestore writes locally and
-syncs on reconnect. Realtime Database features such as presence may be unavailable until network
+Network lost mid-session. Firestore queues writes in memory and syncs on reconnect, as long as
+the page is not reloaded first. Realtime Database features such as presence may be unavailable until network
 returns.
 
 ---

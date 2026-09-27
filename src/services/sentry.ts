@@ -54,12 +54,9 @@ const IGNORED_ERROR_PATTERNS = [
   // key pair (observed trailing a blocked/failed GA beacon `fetch`) rather than the bare prefix,
   // so an app-thrown rejection with a different shape still reaches Sentry.
   /^Object captured as promise rejection with keys: id, url$/,
-  // Storage (IndexedDB/localStorage) entirely blocked — iOS Lockdown Mode, aggressive
-  // tracking prevention, or similarly locked-down private browsing. Thrown from Dexie's
-  // internal cross-tab polling (`indexedDB.databases()`) and Firestore's `SharedClientState`
-  // localStorage check, both vendor code the app cannot wrap in a try/catch. Anchored on the
-  // exact `type: value` wording rather than a bare substring — WebKit reuses "SecurityError"
-  // for unrelated tainted-canvas access, which this must not swallow. Origin: security.md § Sentry.
+  // Storage fully blocked (iOS Lockdown, strict tracking prevention), thrown by Dexie's cross-tab
+  // `indexedDB.databases()` polling — vendor code, can't wrap. Exact `type: value` anchor: WebKit
+  // reuses "SecurityError" for tainted-canvas access, which must still report. See security.md § Sentry.
   /^SecurityError: The operation is insecure\.$/,
 ];
 

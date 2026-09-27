@@ -110,8 +110,7 @@ vi.mock('firebase/auth', () => ({
 vi.mock('firebase/firestore', () => ({
   getFirestore: vi.fn(() => ({})),
   initializeFirestore: vi.fn(() => ({})),
-  persistentLocalCache: vi.fn(() => ({})),
-  persistentSingleTabManager: vi.fn(() => ({})),
+  memoryLocalCache: vi.fn(() => ({})),
   collection: vi.fn(),
   doc: vi.fn(),
   addDoc: vi.fn(),

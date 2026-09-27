@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted — 2026-05-23
+Accepted — 2026-05-23. Amended 2026-08-22 (single-tab) and 2026-09-27 (Firestore persistence removed — see the amendments at the end).
 
 ## Context
 
@@ -44,11 +44,11 @@ Use `registerType: 'prompt'` (plugin default) with no custom update UI. This mea
 - Once all old clients are gone, the new SW activates on the next navigation.
 - No banner, no forced reload, no disruption to active game sessions.
 
-### 2. Enable Firestore offline persistence via `persistentLocalCache`
+### 2. Enable Firestore offline persistence via `persistentLocalCache` (superseded 2026-09-27)
 
 Replace `getFirestore(app)` with `initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentSingleTabManager({ forceOwnership: false }) }) })`. Firestore reads are served from local cache when offline; writes queue and replay automatically on reconnection. This makes sync operations more resilient on flaky connections.
 
-The tab manager is **single-tab** — see the amendment below; the original decision used `persistentMultipleTabManager()`.
+**Superseded 2026-09-27:** Firestore now uses the default in-memory cache (`initializeFirestore(app, { localCache: memoryLocalCache() })`). Both tab managers brick the client — see the two amendments below.
 
 ### 3. Keep existing `site.webmanifest` — configure plugin with `manifest: false`
 
@@ -101,9 +101,9 @@ redundant Firestore reads.
 
 ## Known Issues and Mitigations
 
-**Firestore `persistentLocalCache` is ~20x slower than the deprecated `enableIndexedDbPersistence` API** (firebase-js-sdk issue #7347). Mitigation: Firestore is not the primary data store — Dexie/IndexedDB holds all gameplay data. Firestore is only used for sync operations, so the performance hit is for sync reads only, which happen in the background and are not on the critical path.
+**Historical (moot since 2026-09-27 — no `persistentLocalCache`).** **Firestore `persistentLocalCache` is ~20x slower than the deprecated `enableIndexedDbPersistence` API** (firebase-js-sdk issue #7347). Mitigation: Firestore is not the primary data store — Dexie/IndexedDB holds all gameplay data. Firestore is only used for sync operations, so the performance hit is for sync reads only, which happen in the background and are not on the critical path.
 
-**Secondary tab metadata bug** (firebase-js-sdk issue #8314): Secondary tabs do not correctly report `metadata.fromCache=false` when using `persistentMultipleTabManager`. Mitigation: the app does not use `metadata.fromCache` to drive UI logic, so this bug has no user-visible impact.
+**Historical (moot since 2026-08-22 — no multi-tab).** **Secondary tab metadata bug** (firebase-js-sdk issue #8314): Secondary tabs do not correctly report `metadata.fromCache=false` when using `persistentMultipleTabManager`. Mitigation: the app does not use `metadata.fromCache` to drive UI logic, so this bug has no user-visible impact.
 
 **Historical (pre-2026-08-22, while multi-tab was in use): `persistentMultipleTabManager` was the app's only unguarded `localStorage` dependency.** It brings in Firestore's `SharedClientState`, which coordinates tabs through `localStorage` and clears its keys from a `pagehide` handler. Firefox with storage blocked throws `NS_ERROR_FAILURE` there, inside the SDK, on a tab that is already closing — no app-side seam can catch it. Mitigation: suppressed in Sentry (see `docs/engineering/security.md` § Sentry). The single-tab move removes `SharedClientState` and with it this source; the Sentry pattern stays because Dexie's own cross-tab polling throws the same messageless nsresult.
 
@@ -118,7 +118,7 @@ does not meet maskable safe-area expectations.
 
 - Solo and local game modes work offline after first visit.
 - App shell loads from cache instantly on repeat visits (no network round-trip).
-- Firestore sync is resilient to flaky connections.
+- Firestore sync is resilient to flaky connections (within a page session since 2026-09-27).
 - No user-visible complexity added.
 
 **Negative:**
@@ -157,5 +157,43 @@ cache: it still works, it just re-reads from the server instead of sharing the f
 Since Dexie, not Firestore, holds all gameplay data, the lost sharing is a background-read
 optimization, and most sessions are a single mobile tab anyway.
 
-**Revisit when** firebase-js-sdk guards the `localStoreGetCachedTarget` → `localStoreAllocateTarget`
-hand-off (currently unguarded as of `@firebase/firestore` 4.17.1 / `firebase` 12.18.0).
+**Superseded 2026-09-27** — single-tab bricks the client too; see the next amendment.
+
+## Amendment: single-tab lease refresh bricks the client too (2026-09-27)
+
+`persistentLocalCache` is removed. Firestore uses its default in-memory cache.
+
+**Why.** The single-tab manager fails the same async queue from the other side. Tab A holds the
+primary lease and goes to the background; Chrome throttles its timers, so it misses the lease
+refresh (4 s interval, 5 s validity). Tab B opens — or the installed PWA opens beside a browser
+tab — sees the stale lease and takes it with `allowTabSynchronization: false`. When A next runs
+`updateClientMetadataAndTryBecomePrimary` (throttled timer or `visibilitychange`),
+`canActAsPrimary` finds B's live lease and throws `FAILED_PRECONDITION` ("Failed to obtain
+exclusive access to the persistence layer…"). With tab sync off, the refresh's catch rethrows it
+inside the queue — the SDK comment calls this out: "If this fails during a lease refresh, we will
+instead block the AsyncQueue". Every later enqueue (A's own `visibilitychange` and `pagehide`
+handlers) then hits b815. Same result as the multi-tab bug: tab A is dead for the session.
+
+Seen in production on Chrome/Windows (Sentry 7757678332 / 7757678526 / 7683393470, release
+`59a41efeb`, 2026-09-27). The 2026-08-22 amendment only accounted for the second tab failing
+`start()`, which the SDK does handle; it missed the first tab losing the lease on refresh.
+
+**Options weighed.** `forceOwnership: true` makes the newest tab evict the older one, which is
+the same brick aimed at the other tab. Multi-tab brings back the original b815. App-level tab
+coordination (Web Locks) needs an async answer before `db` exists, but `db` is created
+synchronously at module load, and top-level await is out under the `es2018` build target — a
+large refactor for a cache this ADR already calls non-critical. Only a memory cache holds no
+lease, so it removes the whole class of bug.
+
+**Cost, accepted.** Firestore writes made while offline still queue and replay on reconnect, but
+only for the life of the page — a reload drops them. Firestore reads are no longer served from
+disk across reloads. Dexie holds all gameplay data, so Solo and Shared Device play are unaffected.
+Old `firestore/[DEFAULT]/<projectId>/main` IndexedDB databases hold cached chat and user data
+that nothing reads and the data wipe doesn't cover, so `app.ts` deletes them at startup with a raw
+`indexedDB.deleteDatabase`. Not the SDK's `clearIndexedDbPersistence`: it runs on Firestore's async
+queue with no `onblocked` handler, so an old-release tab holding the database open would stall
+every Firestore call in the new one.
+
+**Revisit when** firebase-js-sdk handles a lost lease during refresh without failing the queue
+_and_ guards the multi-tab `localStoreGetCachedTarget` → `localStoreAllocateTarget` hand-off —
+or when `db` initialization can become async and tabs can coordinate through Web Locks.

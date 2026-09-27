@@ -32,7 +32,7 @@ A **sync middleware** (`src/services/syncMiddleware.ts`) wraps Dexie writes: aft
 Initialized in `src/services/firebase/app.ts`, the only module that touches the SDK's app/handle APIs; every other module takes `db` from it.
 
 - **Auth** — anonymous, email/password, and Google. Anonymous accounts can be upgraded in place (`linkWithCredential`) keeping the same UID.
-- **Firestore** — with **offline persistence** (`persistentLocalCache` + `persistentMultipleTabManager`), falling back to in-memory cache if IndexedDB is unavailable (e.g. private browsing). Collections:
+- **Firestore** — default **in-memory cache**, no IndexedDB persistence: both tab managers can permanently fail the SDK's async queue (INTERNAL ASSERTION b815). See ADR-0001's amendments. Collections:
   - `user-data/{uid}` — per-user cloud copy of custom tiles, groups, disabled defaults, boards, settings. **Owner-only** access.
   - `custom-actions/{id}` — crowdsourced shared actions (public read, auth create, TTL cleanup, no update/delete).
   - `game-boards/{id}` — shareable boards (public read, auth create, TTL; updates limited to the `ttl` field).
@@ -174,7 +174,7 @@ Architecture decided in [ADR-0001](../adr/0001-pwa-offline-support.md).
 
 - **Service worker:** `vite-plugin-pwa` (`generateSW`, `registerType: 'prompt'`) precaches the app shell (JS/CSS/HTML + small assets, 3 MB/file cap). New SW installs silently and activates once old tabs close — no forced reloads.
 - **Not precached:** sounds (~12 MB) and videos (~1.9 MB) — they fetch from network on demand.
-- **Firestore offline:** reads served from local cache; writes queue and replay on reconnect (multi-tab aware).
+- **Firestore offline:** writes queue in memory and replay on reconnect, for the life of the page only (a reload drops them); reads come from the in-memory cache of the current session.
 
 **By mode:**
 

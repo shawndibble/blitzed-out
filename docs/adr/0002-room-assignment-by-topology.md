@@ -31,6 +31,8 @@ drives anatomy/role collection in the Game Mode step.
 
 Always auto-generate a private room code (client-side nanoid, no Firebase call required).
 Firebase `persistentLocalCache` queues any writes when offline and syncs on reconnect.
+(Since 2026-09-27 Firestore uses an in-memory cache: writes still queue, but a reload drops them —
+see ADR-0001's last amendment.)
 
 ### Individual Devices
 
@@ -53,8 +55,8 @@ view.
 ## Consequences
 
 - No `LOCAL` or `SOLO` reserved room IDs needed.
-- Firestore offline persistence from ADR-0001 covers Firestore reads/writes for generated rooms.
-  It does not cover Realtime Database features such as presence or `onDisconnect`; those features
+- Firestore's offline write queue covers Firestore writes for generated rooms (in memory since
+  2026-09-27, so a reload drops them — see ADR-0001's last amendment). It does not cover Realtime Database features such as presence or `onDisconnect`; those features
   must no-op or degrade gracefully when the browser is offline.
 - Individual Devices remains the only topology that requires network at setup time.
 - A shared-device session started offline will sync its room to Firebase once connection
