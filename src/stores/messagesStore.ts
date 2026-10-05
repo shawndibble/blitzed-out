@@ -1,6 +1,7 @@
 import { logger } from '@/utils/logger';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { persistStorage } from './safeStorage';
 import { Message, MessageType } from '@/types/Message';
 import {
   filterMessages,
@@ -175,6 +176,7 @@ export const useMessagesStore = create<MessagesStore>()(
     }),
     {
       name: 'messages-storage', // localStorage key
+      storage: persistStorage,
       partialize: (state) => ({
         messages: state.messages,
         room: state.room,

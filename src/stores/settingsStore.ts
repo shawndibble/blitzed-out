@@ -2,6 +2,7 @@ import { ActionEntry } from '@/types';
 import { ContentGameMode, GameMode, Settings } from '@/types/Settings';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { persistStorage } from './safeStorage';
 import { analyticsTracking } from '@/services/analyticsTracking';
 import { isPublicRoom } from '@/helpers/strings';
 
@@ -153,6 +154,7 @@ export const useSettingsStore = create<SettingsStore>()(
     }),
     {
       name: 'gameSettings', // localStorage key
+      storage: persistStorage,
       partialize: (state) => ({ settings: state.settings }),
       // Clean up wizard fields on rehydration from localStorage
       onRehydrateStorage: () => (state) => {

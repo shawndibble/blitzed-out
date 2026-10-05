@@ -8,6 +8,7 @@ import type {
 import { create } from 'zustand';
 import { localPlayerService } from '@/services/localPlayerService';
 import { persist } from 'zustand/middleware';
+import { persistStorage } from './safeStorage';
 import db from '@/stores/store';
 import { useSettingsStore } from '@/stores/settingsStore';
 
@@ -280,6 +281,7 @@ export const useLocalPlayerStore = create<LocalPlayerState>()(
     }),
     {
       name: 'local-player-store',
+      storage: persistStorage,
       // Only persist session data, not loading/error states
       partialize: (state) => ({
         session: state.session,
