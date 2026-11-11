@@ -1,10 +1,12 @@
 import { logger } from '@/utils/logger';
 import { useState, useCallback, useEffect } from 'react';
 import { tts } from '@/services/tts';
+import type { SpeechStage } from '@/services/neuralTts';
 
 interface TTSOptions {
   voice?: string;
   pitch?: number;
+  onStage?: (stage: SpeechStage) => void;
 }
 
 interface UseTTSReturn {
@@ -37,7 +39,7 @@ export const useTTS = (): UseTTSReturn => {
 
         // Synthesize speech
         setIsPlaying(true);
-        await tts.speak(text, options.voice, options.pitch);
+        await tts.speak(text, options.voice, options.pitch, options.onStage);
 
         setIsLoading(false);
         setIsPlaying(false);
