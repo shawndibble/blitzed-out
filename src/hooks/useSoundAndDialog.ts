@@ -5,6 +5,8 @@ import messageSound from '@/sounds/message.mp3';
 import dayjs from 'dayjs';
 import useSound from 'use-sound';
 import speak from '@/services/textToSpeech';
+import { preloadNeural } from '@/services/neuralTts';
+import { isNeuralVoice } from '@/services/neuralVoices';
 import { getTurnFields } from '@/helpers/actionTurn';
 import useAuth from '@/hooks/useAuth';
 import useMessages from '@/context/hooks/useMessages';
@@ -43,6 +45,12 @@ export default function useSoundAndDialog(): DialogResult {
     voicePitch,
     hapticFeedback,
   } = settings || {};
+
+  // Load the model as soon as the voice is known so the first spoken roll
+  // doesn't wait on a multi-second download.
+  useEffect(() => {
+    if (readRoll && isNeuralVoice(voicePreference)) preloadNeural(voicePreference);
+  }, [readRoll, voicePreference]);
 
   const latestMessage = useMemo(() => [...messages].pop(), [messages]);
 

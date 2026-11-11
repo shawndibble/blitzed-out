@@ -36,6 +36,8 @@ interface SettingRowProps {
   children?: ReactNode;
   /** Indents the row to read as a sub-question of the row above it. */
   nested?: boolean;
+  /** Lets several controls wrap onto extra lines instead of overflowing a narrow row. */
+  wrapControls?: boolean;
 }
 
 /**
@@ -47,6 +49,7 @@ export function SettingRow({
   description,
   children,
   nested = false,
+  wrapControls = false,
 }: SettingRowProps): JSX.Element {
   return (
     <Box
@@ -81,7 +84,8 @@ export function SettingRow({
           display: 'flex',
           alignItems: 'center',
           gap: 1,
-          flexShrink: 0,
+          flexShrink: wrapControls ? 1 : 0,
+          ...(wrapControls && { flexWrap: 'wrap', minWidth: 0 }),
           justifyContent: 'flex-end',
           // Row controls stay compact like the approved design, regardless of
           // each control's MUI default sizing.

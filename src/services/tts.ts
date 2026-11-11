@@ -1,5 +1,8 @@
 // Simple Text-to-Speech service using browser voices only
+import { logger } from '@/utils/logger';
 import { languages } from './i18nHelpers';
+import { type SpeechStage, speakNeural, stopNeural } from './neuralTts';
+import { isNeuralVoice } from './neuralVoices';
 
 export interface VoiceOption {
   name: string;
@@ -81,8 +84,23 @@ export class TTSService {
   }
 
   // Speak text with specified voice
-  async speak(text: string, voiceName?: string, pitch: number = 0): Promise<void> {
+  async speak(
+    text: string,
+    voiceName?: string,
+    pitch: number = 0,
+    onStage?: (stage: SpeechStage) => void
+  ): Promise<void> {
+    if (isNeuralVoice(voiceName)) {
+      try {
+        return await speakNeural(text, voiceName, pitch, onStage);
+      } catch (error) {
+        logger.error('Neural TTS failed, using browser voice:', error);
+        return this.speak(text, undefined, pitch);
+      }
+    }
+
     return new Promise((resolve, reject) => {
+      onStage?.('playing');
       if (!('speechSynthesis' in window)) {
         reject(new Error('Speech synthesis not supported'));
         return;
@@ -107,6 +125,7 @@ export class TTSService {
 
   // Stop current speech
   stop(): void {
+    stopNeural();
     if (window.speechSynthesis?.speaking) {
       window.speechSynthesis.cancel();
     }

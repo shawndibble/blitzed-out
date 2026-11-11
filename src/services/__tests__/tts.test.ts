@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TTSService } from '../tts';
 
 function mockVoice(name: string, lang: string): SpeechSynthesisVoice {
@@ -57,4 +57,27 @@ describe('TTSService.getPreferredVoiceAsync', () => {
     mockSpeechSynthesis([mockVoice('English Voice', 'en-US')]);
     expect(await tts.getPreferredVoiceAsync('ja')).toBe('English Voice');
   });
+});
+
+describe('TTSService neural voices', () => {
+  it.each(['kokoro:am_michael', 'piper:en_US-ryan-medium'])(
+    'routes %s to the neural engine instead of speechSynthesis',
+    async (voice) => {
+      vi.resetModules();
+      const speakNeural = vi.fn().mockResolvedValue(undefined);
+      vi.doMock('../neuralTts', async (importOriginal) => ({
+        ...(await importOriginal<typeof import('../neuralTts')>()),
+        speakNeural,
+      }));
+      const { TTSService: Service } = await import('../tts');
+      const speakSpy = vi.fn();
+      (window as unknown as { speechSynthesis: unknown }).speechSynthesis = { speak: speakSpy };
+
+      await new Service().speak('hello', voice);
+
+      expect(speakNeural).toHaveBeenCalledWith('hello', voice, 0, undefined);
+      expect(speakSpy).not.toHaveBeenCalled();
+      vi.doUnmock('../neuralTts');
+    }
+  );
 });
