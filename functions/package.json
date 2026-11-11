@@ -12,7 +12,7 @@
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "24"
+    "node": "26"
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -21,9 +21,10 @@
     "firebase-functions": "^7.0.0"
   },
   "devDependencies": {
-    "@types/node": "24.13.3",
+    "@types/node": "26.6.6",
     "typescript": "7.0.2",
-    "vitest": "4.1.11"
+    "vite": "8.3.6",
+    "vitest": "5.1.0"
   },
   "private": true,
   "overrides": {
