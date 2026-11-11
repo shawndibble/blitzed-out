@@ -286,10 +286,13 @@ describe('DirectMediaHandler', () => {
       await waitFor(() => {
         const imageBackground = document.querySelector('.image-background');
         expect(imageBackground).toBeInTheDocument();
+        // jsdom no longer reports background-* longhands via getComputedStyle,
+        // so check the inline style the component sets.
+        const inline = (imageBackground as HTMLElement).style;
+        expect(inline.backgroundSize).toBe('cover');
+        expect(inline.backgroundPosition).toMatch(/^center/);
+        expect(inline.backgroundRepeat).toBe('no-repeat');
         expect(imageBackground).toHaveStyle({
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
           width: '100%',
           height: '100%',
           position: 'absolute',
@@ -331,7 +334,9 @@ describe('DirectMediaHandler', () => {
         const imageBackground = document.querySelector('.image-background');
         expect(imageBackground).toBeInTheDocument();
         // Should fallback to generic .jpg extension
-        expect(imageBackground).toHaveStyle('background-image: url(not-a-valid-url.jpg)');
+        expect(imageBackground).toHaveStyle(
+          'background-image: url(http://localhost:3000/not-a-valid-url.jpg)'
+        );
       });
     });
 
@@ -358,7 +363,9 @@ describe('DirectMediaHandler', () => {
         const imageBackground = document.querySelector('.image-background');
         expect(imageBackground).toBeInTheDocument();
         // Should try next format
-        expect(imageBackground).toHaveStyle('background-image: url(not-a-valid-url.png)');
+        expect(imageBackground).toHaveStyle(
+          'background-image: url(http://localhost:3000/not-a-valid-url.png)'
+        );
       });
     });
   });

@@ -1,4 +1,4 @@
-type Translate = (key: string, options?: Record<string, unknown>) => string;
+import type { TFunction } from 'i18next';
 
 /**
  * Actions section summary: enabled count plus which category set the current
@@ -6,7 +6,7 @@ type Translate = (key: string, options?: Record<string, unknown>) => string;
  * instead of only changing the picker's contents silently.
  */
 export function buildActionsScopeSummary(
-  t: Translate,
+  t: TFunction,
   enabledCount: number,
   isSoloActionsScope: boolean
 ): string {
