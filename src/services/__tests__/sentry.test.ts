@@ -144,6 +144,69 @@ describe('the ignored error patterns Sentry is initialized with', () => {
     });
   });
 
+  describe("Firebase Auth's request never reaching Google", () => {
+    it('drops the raw FirebaseError', () => {
+      expect(
+        sentryWouldIgnore(
+          errorEvent({
+            type: 'FirebaseError',
+            value: 'Firebase: Error (auth/network-request-failed).',
+          })
+        )
+      ).toBe(true);
+    });
+
+    it('drops the AuthError `toAuthError` wraps it in', () => {
+      expect(
+        sentryWouldIgnore(
+          errorEvent(
+            { type: 'FirebaseError', value: 'Firebase: Error (auth/network-request-failed).' },
+            { type: 'AuthError', value: 'Network error. Please check your connection' }
+          )
+        )
+      ).toBe(true);
+    });
+
+    it('keeps other Firebase Auth failures', () => {
+      expect(
+        sentryWouldIgnore(
+          errorEvent({ type: 'FirebaseError', value: 'Firebase: Error (auth/internal-error).' })
+        )
+      ).toBe(false);
+    });
+  });
+
+  describe("WebKit's message for a fetch cancelled by navigation", () => {
+    it('drops it', () => {
+      expect(sentryWouldIgnore(errorEvent({ type: 'TypeError', value: 'cancelled' }))).toBe(true);
+    });
+
+    it('keeps a TypeError that merely mentions cancelling', () => {
+      expect(
+        sentryWouldIgnore(errorEvent({ type: 'TypeError', value: 'upload was cancelled twice' }))
+      ).toBe(false);
+    });
+  });
+
+  describe('a headless bot running without queueMicrotask', () => {
+    it('drops it', () => {
+      expect(
+        sentryWouldIgnore(
+          errorEvent({ type: 'ReferenceError', value: 'queueMicrotask is not defined' })
+        )
+      ).toBe(true);
+    });
+  });
+
+  describe("a crypto-wallet browser's injected window.ethereum script", () => {
+    it.each([
+      "undefined is not an object (evaluating 'window.ethereum.selectedAddress = undefined')",
+      "undefined is not an object (evaluating 'window.ethereum.emit')",
+    ])('drops it: %s', (value) => {
+      expect(sentryWouldIgnore(errorEvent({ type: 'TypeError', value }))).toBe(true);
+    });
+  });
+
   describe('a non-Error promise rejection', () => {
     it('drops the `id, url` shape seen trailing a blocked/failed GA beacon', () => {
       expect(

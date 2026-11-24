@@ -58,6 +58,17 @@ const IGNORED_ERROR_PATTERNS = [
   // `indexedDB.databases()` polling — vendor code, can't wrap. Exact `type: value` anchor: WebKit
   // reuses "SecurityError" for tainted-canvas access, which must still report. See security.md § Sentry.
   /^SecurityError: The operation is insecure\.$/,
+  // Firebase Auth's fetch to identitytoolkit never completed — offline, flaky mobile data, or a
+  // blocker. The UI already shows the localized retry message. The second pattern is that same
+  // failure after `toAuthError` wraps it, since `ignoreErrors` only sees the outermost error.
+  /\(auth\/network-request-failed\)/,
+  /^AuthError: Network error\. Please check your connection$/,
+  // WebKit's wording for a fetch cancelled by navigation or backgrounding — its AbortError.
+  /^TypeError: cancelled$/,
+  // Only headless bots lack it: every browser that can run this bundle has had it since 2019.
+  /^ReferenceError: queueMicrotask is not defined$/,
+  // Crypto-wallet browsers (Brave iOS) inject a provider script; nothing in `src/` touches it.
+  /evaluating 'window\.ethereum\./,
 ];
 
 /**
